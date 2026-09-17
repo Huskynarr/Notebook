@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
-import type { Citation, HealthResponse, Note, Notebook, Source, SourceContent } from '@notebook/shared';
+import type {
+  Citation,
+  HealthResponse,
+  Note,
+  Notebook,
+  Source,
+  SourceContent,
+} from '@notebook/shared';
 import { ApiClient, ApiRequestError } from './lib/api.ts';
 import { API_BASE_URL } from './lib/config.ts';
 import { readToken, writeToken } from './lib/session.ts';
@@ -70,9 +77,12 @@ export function App(): ReactElement {
   );
 
   useEffect(() => {
-    api.health().then(setHealth).catch(() => {
-      setHealth(null);
-    });
+    api
+      .health()
+      .then(setHealth)
+      .catch(() => {
+        setHealth(null);
+      });
   }, [api]);
 
   useEffect(() => {
@@ -139,9 +149,7 @@ export function App(): ReactElement {
     api
       .ask(activeId, question, ids)
       .then((response) => {
-        setExchanges((current) =>
-          current.map((e) => (e.id === id ? { ...e, response } : e)),
-        );
+        setExchanges((current) => current.map((e) => (e.id === id ? { ...e, response } : e)));
       })
       .catch((cause: unknown) => {
         const message =
@@ -301,16 +309,20 @@ export function App(): ReactElement {
   );
 
   return (
-    <div className="flex h-screen flex-col bg-surface-sunken">
-      <header className="flex h-13 shrink-0 items-center gap-3 border-b border-border-subtle bg-surface px-4">
-        <span className="text-label font-semibold text-content-strong">Notebook</span>
+    <div className="bg-surface-sunken flex h-screen flex-col">
+      {/* Bis 1280 px umbricht die Leiste, statt aus dem Bildschirm zu laufen -
+          waagerechtes Scrollen der Seite ist ausgeschlossen. */}
+      <header className="border-border-subtle bg-surface xl:h-13 flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2 xl:flex-nowrap xl:gap-3 xl:px-4 xl:py-0">
+        <span className="text-label text-content-strong hidden font-semibold xl:inline">
+          Notebook
+        </span>
         <select
           value={activeId ?? ''}
           aria-label="Notebook wählen"
           onChange={(event) => {
             setActiveId(event.target.value);
           }}
-          className="max-w-[320px] rounded-sm border border-border bg-surface-raised px-2 py-1 text-body text-content"
+          className="border-border bg-surface-raised text-body text-content min-w-0 flex-1 rounded-sm border px-2 py-1 xl:max-w-[320px] xl:flex-none"
         >
           {notebooks.map((notebook) => (
             <option key={notebook.id} value={notebook.id}>
@@ -330,7 +342,7 @@ export function App(): ReactElement {
           Exportieren
         </Button>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-2 xl:gap-3">
           {health !== null && (
             <Badge tone={health.llm.configured ? 'success' : 'warning'}>
               {health.llm.configured ? health.llm.model : 'kein Modell verbunden'}
@@ -366,7 +378,7 @@ export function App(): ReactElement {
       <div className="flex min-h-0 flex-1">
         <aside
           className={cx(
-            'w-full shrink-0 overflow-hidden border-r border-border-subtle bg-surface xl:w-[300px]',
+            'border-border-subtle bg-surface w-full shrink-0 overflow-hidden border-r xl:w-[300px]',
             mobileTab === 'sources' ? 'block' : 'hidden xl:block',
           )}
         >
@@ -375,7 +387,7 @@ export function App(): ReactElement {
 
         <main
           className={cx(
-            'min-w-0 flex-1 bg-surface',
+            'bg-surface min-w-0 flex-1',
             mobileTab === 'chat' ? 'block' : 'hidden xl:block',
           )}
         >
@@ -384,7 +396,7 @@ export function App(): ReactElement {
 
         <aside
           className={cx(
-            'flex w-full shrink-0 flex-col overflow-hidden border-l border-border-subtle bg-surface xl:w-[340px]',
+            'border-border-subtle bg-surface flex w-full shrink-0 flex-col overflow-hidden border-l xl:w-[340px]',
             mobileTab === 'notes' ? 'flex' : 'hidden xl:flex',
           )}
         >
