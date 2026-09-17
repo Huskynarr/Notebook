@@ -5,4 +5,4 @@ import { z } from 'zod';
 export const IdSchema = z.string().min(8).max(64);
 export type Id = z.infer<typeof IdSchema>;
 
-export const IsoDateSchema = z.string().datetime();
+export const IsoDateSchema = z.iso.datetime();

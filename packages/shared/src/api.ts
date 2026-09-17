@@ -12,7 +12,7 @@ export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 
 export const LoginResponseSchema = z.object({
   token: z.string(),
-  expiresAt: z.string().datetime(),
+  expiresAt: z.iso.datetime(),
 });
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;
 
