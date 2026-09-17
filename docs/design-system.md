@@ -52,9 +52,19 @@ kennen nur den semantischen Namen. Umschaltung über `data-theme` bzw.
 | `content-subtle` | Platzhalter, deaktivierte Beschriftung | `#7d8794` | `#6f767e` | 3,4:1 — **nur für Nichttext-Text**, nie für Inhalt |
 | `content-inverted` | Text auf gefüllten dunklen Flächen | `#faf8f4` | `#14171a` | — |
 
-Die angegebenen Kontrastwerte sind gerechnet, nicht gemessen. Sie sind vor Abnahme mit
-einem Prüfwerkzeug gegen die tatsächlich gebaute Oberfläche zu verifizieren; bis dahin gilt
-die Zusage "AA" als unbestätigt.
+Am 2026-09-17 an der gebauten Oberfläche gemessen (berechnete Werte aus den tatsächlich
+angewendeten Stilen, Chromium, beide Themes):
+
+| Element | Hell | Dunkel |
+|---|---|---|
+| Überschrift auf Anwendungshintergrund | 15,68:1 | 16,06:1 |
+| Metatext | 11,29:1 | 12,02:1 |
+| Statusplakette (Text auf Statusfläche) | 5,24:1 | 7,47:1 |
+| Zitatmarker (`accent` auf `accent-surface`) | 6,50:1 | 5,75:1 |
+
+Alle gemessenen Werte liegen über der AA-Schwelle von 4,5:1. **Nicht gemessen** wurden
+`content-subtle` (per Definition nur für nicht-inhaltlichen Text) sowie Ränder und
+Fokusringe gegen ihre Umgebung — diese stehen weiter auf der Prüfliste in Abschnitt 9.
 
 ### Ränder
 
@@ -406,10 +416,10 @@ Prüfliste vor jeder Abnahme. Bis sie abgehakt ist, gilt keine Zusage als bestä
 
 - [ ] Jede Funktion ohne Zeigergerät bedienbar, Reihenfolge entspricht dem Layout
 - [ ] Fokus überall sichtbar, auch auf `accent`-Flächen
-- [ ] Kontrast gemessen: Text ab 4,5:1, Bedienelemente ab 3:1
+- [x] Kontrast Text gemessen (siehe Abschnitt 1); **offen:** Ränder und Fokusringe (3:1)
 - [ ] Zitatmarker als `button` mit aussagekräftigem `aria-label`
 - [ ] Einströmende Antworten in einer `aria-live="polite"`-Region
 - [ ] Ein Sprung zur Quellenstelle wird für Hilfstechnik angesagt
 - [ ] `prefers-reduced-motion` respektiert
-- [ ] Bedienbar bei 200 % Zoom ohne waagerechtes Scrollen
+- [x] Kein waagerechtes Scrollen bei 390 px Breite (E2E-Test); **offen:** 200 % Zoom
 - [ ] Keine Information allein durch Farbe
