@@ -68,7 +68,11 @@ function toNote(row: unknown): Note {
 }
 
 export class NotebookRepository {
-  constructor(private readonly db: Db) {}
+  private readonly db: Db;
+
+  constructor(db: Db) {
+    this.db = db;
+  }
 
   list(): Notebook[] {
     return this.db
@@ -110,10 +114,13 @@ export class NotebookRepository {
 }
 
 export class SourceRepository {
-  constructor(
-    private readonly db: Db,
-    private readonly chunkTargetChars: number,
-  ) {}
+  private readonly db: Db;
+  private readonly chunkTargetChars: number;
+
+  constructor(db: Db, chunkTargetChars: number) {
+    this.db = db;
+    this.chunkTargetChars = chunkTargetChars;
+  }
 
   listByNotebook(notebookId: string): Source[] {
     return this.db
@@ -220,7 +227,11 @@ export class SourceRepository {
 }
 
 export class NoteRepository {
-  constructor(private readonly db: Db) {}
+  private readonly db: Db;
+
+  constructor(db: Db) {
+    this.db = db;
+  }
 
   listByNotebook(notebookId: string): Note[] {
     return this.db

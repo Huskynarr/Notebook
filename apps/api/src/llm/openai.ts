@@ -31,8 +31,11 @@ export interface OpenAiCompatibleOptions {
  */
 export class OpenAiCompatibleProvider implements LlmProvider {
   readonly name = 'openai';
+  private readonly options: OpenAiCompatibleOptions;
 
-  constructor(private readonly options: OpenAiCompatibleOptions) {}
+  constructor(options: OpenAiCompatibleOptions) {
+    this.options = options;
+  }
 
   async complete(request: CompletionRequest): Promise<CompletionResult> {
     const controller = new AbortController();

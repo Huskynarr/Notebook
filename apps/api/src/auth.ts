@@ -10,10 +10,12 @@ import type { Config } from './config.ts';
  * zusaetzliche Anforderung (AGENTS.md Regel 7).
  */
 export class Auth {
+  private readonly config: Config;
   private readonly secret: string;
   private readonly ttlMs: number;
 
-  constructor(private readonly config: Config) {
+  constructor(config: Config) {
+    this.config = config;
     this.secret = config.AUTH_SECRET ?? randomBytes(32).toString('hex');
     this.ttlMs = config.AUTH_TOKEN_TTL_HOURS * 60 * 60 * 1000;
   }

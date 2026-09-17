@@ -1,6 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
-import { AskResponseSchema, NotebookSchema, SourceSchema } from '@notebook/shared';
+import { z } from 'zod';
+import {
+  AskResponseSchema,
+  LoginResponseSchema,
+  NotebookListResponseSchema,
+  NotebookSchema,
+  SourceSchema,
+} from '@notebook/shared';
 import { loadConfig } from './config.ts';
 import { createContext, type AppContext } from './context.ts';
 import { openDatabase } from './db/database.ts';
@@ -14,13 +21,37 @@ import type { CompletionRequest, CompletionResult, LlmProvider } from './llm/pro
 class ScriptedProvider implements LlmProvider {
   readonly name = 'scripted';
   lastRequest: CompletionRequest | null = null;
+  private readonly answer: CompletionResult['answer'];
 
-  constructor(private readonly answer: CompletionResult['answer']) {}
+  constructor(answer: CompletionResult['answer']) {
+    this.answer = answer;
+  }
 
   complete(request: CompletionRequest): Promise<CompletionResult> {
     this.lastRequest = request;
     return Promise.resolve({ answer: this.answer, model: 'testdoppel', simulated: false });
   }
+}
+
+/** Nur das, was die Tests von einer Antwort brauchen. Eine eigene Form statt
+ *  des Bibliothekstyps, damit der Test nicht an dessen Interna haengt. */
+interface TestResponse {
+  readonly statusCode: number;
+  readonly body: string;
+}
+
+/** Liest den Antwortkoerper ueber das Schema statt ueber eine Typzusicherung -
+ *  so faellt eine Vertragsabweichung im Test auf, statt durchzurutschen. */
+function body<T>(schema: z.ZodType<T>, response: TestResponse): T {
+  return schema.parse(JSON.parse(response.body) as unknown);
+}
+
+/** EXAMPLE_SOURCES[i] ist unter noUncheckedIndexedAccess moeglicherweise
+ *  undefined. Ein fehlender Beispieltext soll den Test laut scheitern lassen. */
+function exampleSource(index: number): { title: string; kind: 'markdown'; content: string } {
+  const source = EXAMPLE_SOURCES[index];
+  if (source === undefined) throw new Error(`Beispielquelle ${index} fehlt`);
+  return source;
 }
 
 function makeContext(llm?: LlmProvider): AppContext {
@@ -39,8 +70,7 @@ async function start(ctx: AppContext): Promise<{ app: FastifyInstance; token: st
     url: '/v1/auth/login',
     payload: { username: 'admin', password: 'admin' },
   });
-  const token = (login.json() as { token: string }).token;
-  return { app, token };
+  return { app, token: body(LoginResponseSchema, login).token };
 }
 
 describe('Zugangssicherung', () => {
@@ -97,12 +127,12 @@ describe('Notebooks, Quellen und Notizen', () => {
       payload: { title: 'Seminar Stochastik' },
     });
     expect(created.statusCode).toBe(201);
-    const notebook = NotebookSchema.parse(created.json());
+    const notebook = body(NotebookSchema, created);
     expect(notebook.title).toBe('Seminar Stochastik');
     expect(notebook.sourceCount).toBe(0);
 
     const list = await app.inject({ method: 'GET', url: '/v1/notebooks', headers: auth });
-    expect((list.json() as { notebooks: unknown[] }).notebooks).toHaveLength(1);
+    expect(body(NotebookListResponseSchema, list).notebooks).toHaveLength(1);
 
     const removed = await app.inject({
       method: 'DELETE',
@@ -111,42 +141,40 @@ describe('Notebooks, Quellen und Notizen', () => {
     });
     expect(removed.statusCode).toBe(204);
     const after = await app.inject({ method: 'GET', url: '/v1/notebooks', headers: auth });
-    expect((after.json() as { notebooks: unknown[] }).notebooks).toHaveLength(0);
+    expect(body(NotebookListResponseSchema, after).notebooks).toHaveLength(0);
   });
 
   it('zerlegt eine neue Quelle sofort in Abschnitte', async () => {
-    const notebook = NotebookSchema.parse(
-      (
-        await app.inject({
-          method: 'POST',
-          url: '/v1/notebooks',
-          headers: auth,
-          payload: { title: 'Test' },
-        })
-      ).json(),
+    const notebook = body(
+      NotebookSchema,
+      await app.inject({
+        method: 'POST',
+        url: '/v1/notebooks',
+        headers: auth,
+        payload: { title: 'Test' },
+      }),
     );
     const created = await app.inject({
       method: 'POST',
       url: `/v1/notebooks/${notebook.id}/sources`,
       headers: auth,
-      payload: EXAMPLE_SOURCES[0],
+      payload: exampleSource(0),
     });
     expect(created.statusCode).toBe(201);
-    const source = SourceSchema.parse(created.json());
+    const source = body(SourceSchema, created);
     expect(source.chunkCount).toBeGreaterThan(3);
     expect(source.selected).toBe(true);
   });
 
   it('weist eine Quelle ohne Text ab', async () => {
-    const notebook = NotebookSchema.parse(
-      (
-        await app.inject({
-          method: 'POST',
-          url: '/v1/notebooks',
-          headers: auth,
-          payload: { title: 'Test' },
-        })
-      ).json(),
+    const notebook = body(
+      NotebookSchema,
+      await app.inject({
+        method: 'POST',
+        url: '/v1/notebooks',
+        headers: auth,
+        payload: { title: 'Test' },
+      }),
     );
     const response = await app.inject({
       method: 'POST',
@@ -158,21 +186,20 @@ describe('Notebooks, Quellen und Notizen', () => {
   });
 
   it('exportiert das Notebook als Markdown', async () => {
-    const notebook = NotebookSchema.parse(
-      (
-        await app.inject({
-          method: 'POST',
-          url: '/v1/notebooks',
-          headers: auth,
-          payload: { title: 'Exporttest' },
-        })
-      ).json(),
+    const notebook = body(
+      NotebookSchema,
+      await app.inject({
+        method: 'POST',
+        url: '/v1/notebooks',
+        headers: auth,
+        payload: { title: 'Exporttest' },
+      }),
     );
     await app.inject({
       method: 'POST',
       url: `/v1/notebooks/${notebook.id}/sources`,
       headers: auth,
-      payload: EXAMPLE_SOURCES[0],
+      payload: exampleSource(0),
     });
     await app.inject({
       method: 'POST',
@@ -205,15 +232,14 @@ describe('Quellenbasierte Antwort', () => {
     const started = await start(ctx);
     app = started.app;
     auth = { authorization: `Bearer ${started.token}` };
-    const notebook = NotebookSchema.parse(
-      (
-        await app.inject({
-          method: 'POST',
-          url: '/v1/notebooks',
-          headers: auth,
-          payload: { title: 'Pruefungsrecht' },
-        })
-      ).json(),
+    const notebook = body(
+      NotebookSchema,
+      await app.inject({
+        method: 'POST',
+        url: '/v1/notebooks',
+        headers: auth,
+        payload: { title: 'Pruefungsrecht' },
+      }),
     );
     notebookId = notebook.id;
     sourceIds = [];
@@ -224,7 +250,7 @@ describe('Quellenbasierte Antwort', () => {
         headers: auth,
         payload: source,
       });
-      sourceIds.push(SourceSchema.parse(created.json()).id);
+      sourceIds.push(body(SourceSchema, created).id);
     }
   }
 
@@ -239,7 +265,7 @@ describe('Quellenbasierte Antwort', () => {
       headers: auth,
       payload: { question, sourceIds: ids },
     });
-    return AskResponseSchema.parse(response.json());
+    return body(AskResponseSchema, response);
   }
 
   it('findet die passende Stelle und belegt sie zeichengenau', async () => {
@@ -274,7 +300,7 @@ describe('Quellenbasierte Antwort', () => {
       url: `/v1/sources/${citation.sourceId}`,
       headers: auth,
     });
-    const content = (source.json() as { content: string }).content;
+    const content = body(z.object({ content: z.string() }), source).content;
     expect(content.slice(citation.startOffset, citation.endOffset)).toBe(citation.excerpt);
   });
 

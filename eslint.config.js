@@ -29,6 +29,10 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-return': 'error',
       '@typescript-eslint/no-unsafe-argument': 'error',
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+      // Node fuehrt TypeScript nur per Type-Stripping aus und kennt keine
+      // Parameter-Properties. Der Server startete deshalb nicht, obwohl alle
+      // Tests gruen waren - vitest uebersetzt anders.
+      '@typescript-eslint/parameter-properties': ['error', { prefer: 'class-property' }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/restrict-template-expressions': [
         'error',
