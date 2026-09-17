@@ -3,23 +3,56 @@
 Fortlaufendes Protokoll des tatsächlichen KI-Einsatzes bei der Entwicklung. Regel: Was hier
 nicht steht, ist nicht passiert. Was hier steht, ist so passiert.
 
-Spalte "Geprüft durch" nennt, wie das Ergebnis kontrolliert wurde. "Nicht geprüft" ist ein
-zulässiger, aber sichtbarer Eintrag.
+Die Spalte „Geprüft durch" nennt, wie das Ergebnis kontrolliert wurde. „Nicht geprüft" ist
+ein zulässiger, aber sichtbarer Eintrag.
+
+Dies ist das Protokoll des **Entwicklungsprozesses**. Die Modellaufrufe der laufenden
+Anwendung gehören nicht hierher.
 
 ---
 
 ## 2026-09-17
 
-| # | Werkzeug | Aufgabe | Übernommen | Geprüft durch |
-|---|---|---|---|---|
-| 1 | Claude (Opus 5, Cowork) | Klärung des Zuschnitts mit dem Auftraggeber, Aufbau des Repositories | Struktur, `AGENTS.md`, `docs/product.md`, `docs/decisions.md` | Inhaltliche Vorgaben stammen vom Auftraggeber; Formulierung von der KI. Widerspruch Persistenz (Postgres vs. lokal) wurde erkannt und rückgefragt statt selbst entschieden. |
-| 2 | Claude (Sonnet, Teilagent) | Recherche zum Marktvorbild | Faktenlage in `docs/product-analysis.md` | Teilweise nachgeprüft: Die zentrale Aussage (Produktname "Gemini Notebook", Wortlaut zur Quellenbindung) wurde von mir selbst über `support.google.com/gemininotebook/answer/16164461` erneut abgerufen und bestätigt. Die übrigen Zahlen (Plan-Limits, Dateiformate) stammen aus dem Teilagenten-Bericht und sind **nicht einzeln nachgeprüft**. Die Websuche war während der Recherche blockiert; Nutzerkritik und deutsche Sprachqualität konnten nicht belegt werden und sind im Dokument als offen markiert. |
+### Werkzeug
+
+Claude (Modellkennung `claude-opus-5`) in Cowork, mit Zugriff auf eine Shell auf dem
+Entwicklungsrechner, Web-Abruf und einen Browser für End-to-End-Prüfungen. Für die
+Marktrecherche wurde ein Teilagent auf Basis von Sonnet eingesetzt.
+
+### Was die KI gemacht hat
+
+| # | Aufgabe | Übernommen | Geprüft durch |
+|---|---|---|---|
+| 1 | Klärung des Zuschnitts, Rückfragen bei Widersprüchen | `docs/product.md`, `AGENTS.md`, `docs/decisions.md` | Inhaltliche Vorgaben stammen vom Auftraggeber, Formulierung von der KI. Der Widerspruch zwischen „Postgres + pgvector" und „lokale Persistenz, keine umfangreiche Vektor-Infrastruktur" wurde erkannt und **zurückgefragt statt selbst entschieden** (D-006). |
+| 2 | Marktrecherche (Teilagent, Sonnet) | Faktenlage in `docs/product-analysis.md` | **Teilweise nachgeprüft.** Die zentrale Aussage — Produktname „Gemini Notebook" und der Wortlaut zur Quellenbindung — wurde selbst über `support.google.com/gemininotebook/answer/16164461` erneut abgerufen und bestätigt. Plan-Limits und Dateiformate stammen aus dem Teilagenten-Bericht und sind **nicht einzeln nachgeprüft**; sie sind im Dokument mit Quelle versehen. Die Websuche war blockiert, deshalb konnten Nutzerkritik und deutsche Sprachqualität nicht belegt werden — im Dokument als offen markiert. |
+| 3 | Design-System (`docs/design-system.md`) | vollständig | Der Entwurf stammt von der KI. Die Kontrastwerte waren zunächst gerechnet und als unbestätigt markiert; später an der gebauten Oberfläche gemessen und eingetragen. |
+| 4 | Sämtlicher Produktivcode in `apps/`, `packages/`, `e2e/` | vollständig | Kein Code wurde ungeprüft übernommen: `tsc --noEmit` im Strict-Modus, ESLint mit `no-explicit-any` als Fehler, 61 Unit-/Integrationstests, 7 E2E-Tests, dazu ein tatsächlicher Serverstart und Bildschirmfotos der laufenden Anwendung. Sechs echte Fehler wurden dabei gefunden und behoben (aufgeführt in `docs/progress.md`). |
+| 5 | Beispieltexte in `apps/api/src/seed/example.ts` | vollständig | Frei erfunden. Die Texte sagen im ersten Absatz selbst, dass sie erfunden und nicht verbindlich sind. |
+| 6 | Commit-Texte und Dokumentation | vollständig | Jeder Commit nennt unter „Verifiziert-durch" einen tatsächlich ausgeführten Befehl mit echtem Ergebnis. |
+
+### Was die KI **nicht** geprüft hat
+
+- **Kein Aufruf eines echten Sprachmodells aus der Anwendung heraus.** Es stand kein
+  OpenAI-kompatibler Endpunkt zur Verfügung. Der Adapter ist geschrieben und typgeprüft,
+  aber nie gegen ein laufendes Modell ausgeführt (P5 in `docs/progress.md`).
+- Die CI-Workflows sind geschrieben, aber nie gelaufen.
+- Die Marktzahlen aus der Recherche sind nur stichprobenartig nachgeprüft.
+
+### Fehler im eigenen Vorgehen
+
+Gehört hierher, weil es den Wert des Protokolls ausmacht:
+
+- **Zweimal gegen `AGENTS.md` Regel 1 verstoßen:** `git add -A` zog unfertige oder
+  sachfremde Änderungen in einen Commit, der etwas anderes ankündigte. Beide Male wurde der
+  Commit per `git reset --soft` wieder zerlegt, bevor er weiterging. Die Regel hat den
+  Verstoß also erst sichtbar gemacht — aber sie hat ihn nicht verhindert.
+- Ein Test wurde anfangs auf eine Annahme über die Trefferreihenfolge gestützt und schlug
+  deshalb zu Recht fehl. Er wurde umgeschrieben, statt die Annahme zur Vorgabe zu erheben.
 
 ---
 
 ## Regeln für Einträge
 
-- Jeder Eintrag nennt ein Datum, ein Werkzeug, eine Aufgabe und eine Prüfung.
+- Jeder Eintrag nennt Datum, Werkzeug, Aufgabe und Prüfung.
 - Generierter Code, der ungeprüft übernommen wurde, wird als solcher eingetragen.
-- Modellaufrufe im laufenden Produkt (die RAG-Antworten der Anwendung) gehören **nicht**
-  hierher — dies ist das Protokoll des Entwicklungsprozesses, nicht der Laufzeit.
+- Nicht ausgeführte Prüfungen werden als nicht ausgeführt eingetragen, nicht weggelassen.

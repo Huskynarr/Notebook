@@ -156,3 +156,38 @@ Regel 5.
 **Verworfen:** Belege ohne auffindbares Zitat verwerfen (verliert korrekte Belege, nur weil
 das Modell beim Abschreiben ein Zeichen verändert hat). Immer den ganzen Abschnitt
 markieren (verschenkt den Kern des Produkts).
+
+---
+
+## D-010 · 2026-09-17 · Auswahl wird optimistisch angezeigt, Serverantwort nicht übernommen
+
+**Entscheidung:** Das Auswahlkästchen einer Quelle stellt sich sofort um; gespeichert wird
+danach. Die Antwort des Servers wird im Erfolgsfall **nicht** in den Zustand übernommen, nur
+im Fehlerfall wird die Anzeige zurückgenommen.
+
+**Grund:** An den Serverzustand gebunden sprang das Kästchen nach dem Klick sichtbar zurück.
+Die Antworten kommen zudem nicht zwingend in der Reihenfolge der Anfragen zurück — eine spät
+eintreffende ältere Antwort stellte die Auswahl wieder um, sodass stillschweigend andere
+Quellen abgefragt wurden, als angezeigt waren.
+
+**Verworfen:** Kästchen während der Anfrage sperren (macht schnelles Ab- und Anwählen
+unbenutzbar). Antworten über eine Folgenummer verwerfen (löst dasselbe Problem mit mehr
+Zustand, ohne zusätzlichen Nutzen, solange nur ein Feld geändert wird).
+
+---
+
+## D-011 · 2026-09-17 · End-to-End-Prüfung gegen den Offline-Modus
+
+**Entscheidung:** Der Playwright-Lauf startet Backend und Frontend selbst und läuft gegen
+`LLM_PROVIDER=stub`. Kein Modell, keine Netzabhängigkeit.
+
+**Grund:** Der Offline-Modus setzt echte Marker auf die tatsächlich abgerufenen Abschnitte.
+Damit lässt sich die gesamte Belegkette prüfen — Abruf, Validierung, Klick, Hervorhebung —
+ohne dass das Ergebnis von der Tagesform eines Modells abhängt.
+
+**Preis, ausdrücklich benannt:** Die Qualität einer Modellantwort ist damit **nicht**
+geprüft. Das steht als Kommentar in der Spezifikation und als offener Punkt in
+`docs/progress.md`. Die Prüfung ersetzt keine Messung an einem echten Modell.
+
+**Verworfen:** E2E gegen ein echtes Modell (kein Endpunkt vorhanden, und ein Testergebnis,
+das vom Modell abhängt, ist als Regressionsprüfung wertlos).
