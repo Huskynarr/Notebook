@@ -1,8 +1,8 @@
 # Design-System
 
-Verbindliche Spezifikation. Das Tailwind-Theme in `apps/web/tailwind.config.ts` ist die
-technische Umsetzung dieses Dokuments; weicht es ab, ist das Theme falsch, nicht das
-Dokument.
+Verbindliche Spezifikation. Das Tailwind-Theme in `apps/web/src/styles/theme.css` (Tailwind 4
+setzt Tokens per `@theme` in CSS, nicht mehr in einer Konfigurationsdatei) ist die technische
+Umsetzung dieses Dokuments; weicht es ab, ist das Theme falsch, nicht das Dokument.
 
 Keine Komponente verwendet rohe Werte. In JSX steht `bg-surface-raised`, nie `bg-[#faf8f4]`.
 

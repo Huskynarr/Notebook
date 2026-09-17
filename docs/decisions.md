@@ -118,3 +118,41 @@ brächte eine zweite Styling-Ebene und damit einen Verstoß gegen Regel 3 in `AG
 
 **Verworfen:** Fertige Komponentenbibliothek mit Theme (schneller, aber erkennbar fremdes
 Erscheinungsbild und doppelte Token-Haltung).
+
+---
+
+## D-008 · 2026-09-17 · SQLite aus Nodes Standardbibliothek statt `better-sqlite3`
+
+**Entscheidung:** Datenbankzugriff über `node:sqlite` (in Node 22 vorhanden, dort noch als
+experimentell gekennzeichnet). Keine Datenbank-Abhängigkeit in `package.json`.
+
+**Grund:** `better-sqlite3` wird beim Installieren nativ übersetzt und lädt dafür
+Node-Header nach. In der Zielumgebung schlug das fehl (HTTP 403 auf `nodejs.org` durch den
+ausgehenden Proxy) — geprüft am 2026-09-17. Die eingebaute Variante bringt SQLite 3.51.3
+samt FTS5 und `bm25()` mit; geprüft mit einem Testskript, das eine FTS5-Tabelle anlegt,
+füllt und nach BM25 sortiert abfragt. Damit entfällt ein Übersetzungsschritt und eine
+Abhängigkeit.
+
+**Preis:** Node gibt beim Start eine `ExperimentalWarning` aus. Die Schnittstelle kann sich
+in künftigen Node-Versionen ändern; der Zugriff ist deshalb in `db/database.ts` gekapselt.
+
+**Verworfen:** `better-sqlite3` (ließ sich nicht installieren), `sql.js` (hält alles im
+Speicher und schreibt die Datei am Stück — bei Dokumentkorpora riskant), ein
+Datenbankserver (widerspricht der Anforderung "lokale Persistenz").
+
+---
+
+## D-009 · 2026-09-17 · Belegpräzision wird mit ausgeliefert
+
+**Entscheidung:** Jeder Beleg trägt ein Feld `precision`. `exact` bedeutet, dass das
+wörtliche Zitat des Modells im abgerufenen Abschnitt wiedergefunden wurde und die Offsets
+genau diese Zeichen umfassen. `chunk` bedeutet, dass es nicht auffindbar war und die
+Offsets den ganzen Abschnitt umfassen.
+
+**Grund:** Andernfalls sähen beide Fälle im UI gleich aus und würden eine Genauigkeit
+suggerieren, die im zweiten Fall nicht besteht — eine unmarkierte Simulation im Sinne von
+Regel 5.
+
+**Verworfen:** Belege ohne auffindbares Zitat verwerfen (verliert korrekte Belege, nur weil
+das Modell beim Abschreiben ein Zeichen verändert hat). Immer den ganzen Abschnitt
+markieren (verschenkt den Kern des Produkts).
