@@ -96,6 +96,28 @@ describe('Zugangssicherung', () => {
     expect(body).not.toContain('localhost:11434');
   });
 
+  it('erlaubt PATCH und DELETE im Preflight', async () => {
+    // Die Vorgabe von @fastify/cors deckt beides nicht ab. Ohne diese
+    // Einstellung scheitert im Browser jede Aenderung an Quellen und Notizen,
+    // waehrend jeder serverseitige Test gruen bleibt.
+    const response = await app.inject({
+      method: 'OPTIONS',
+      url: '/v1/sources/beliebig',
+      headers: {
+        origin: 'http://localhost:5173',
+        'access-control-request-method': 'PATCH',
+        'access-control-request-headers': 'authorization,content-type',
+      },
+    });
+    const allowed = response.headers['access-control-allow-methods'] ?? '';
+    expect(allowed).toContain('PATCH');
+    expect(allowed).toContain('DELETE');
+    const allowedHeaders = response.headers['access-control-allow-headers'];
+    expect(typeof allowedHeaders === 'string' ? allowedHeaders.toLowerCase() : '').toContain(
+      'authorization',
+    );
+  });
+
   it('lehnt falsche Zugangsdaten ab', async () => {
     const response = await app.inject({
       method: 'POST',

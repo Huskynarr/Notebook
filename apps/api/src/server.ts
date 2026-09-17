@@ -23,6 +23,12 @@ export async function buildServer(ctx: AppContext): Promise<FastifyInstance> {
   await app.register(cors, {
     origin: ctx.config.CORS_ORIGIN.split(',').map((o) => o.trim()),
     credentials: false,
+    // Ausdruecklich aufzaehlen: die Vorgabe deckt PATCH und DELETE nicht ab,
+    // wodurch jede Aenderung an Quellen und Notizen schon am Preflight
+    // scheiterte. Geprueft durch 'erlaubt PATCH und DELETE im Preflight'.
+    methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['content-type', 'authorization'],
+    maxAge: 86_400,
   });
 
   app.addHook('onRequest', (request, reply, done) => {
