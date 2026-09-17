@@ -1,0 +1,474 @@
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
+import type { Citation, HealthResponse, Note, Notebook, Source, SourceContent } from '@notebook/shared';
+import { ApiClient, ApiRequestError } from './lib/api.ts';
+import { API_BASE_URL } from './lib/config.ts';
+import { readToken, writeToken } from './lib/session.ts';
+import { ChatPanel, type Exchange } from './components/ChatPanel.tsx';
+import { LoginScreen } from './components/LoginScreen.tsx';
+import { NotesPanel } from './components/NotesPanel.tsx';
+import { SourceViewer } from './components/SourceViewer.tsx';
+import { SourcesPanel } from './components/SourcesPanel.tsx';
+import { Button } from './components/ui/Button.tsx';
+import { Dialog } from './components/ui/Dialog.tsx';
+import { TextField } from './components/ui/Field.tsx';
+import { Tabs } from './components/ui/Tabs.tsx';
+import { Badge } from './components/ui/Status.tsx';
+import { useToast } from './components/ui/Toast.tsx';
+import { cx } from './components/ui/cx.ts';
+
+type RightTab = 'notes' | 'source';
+type MobileTab = 'sources' | 'chat' | 'notes';
+
+export function App(): ReactElement {
+  const [token, setToken] = useState<string | null>(() => readToken());
+  const toast = useToast();
+
+  const api = useMemo(() => new ApiClient(() => token), [token]);
+
+  const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [notebooks, setNotebooks] = useState<Notebook[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [sources, setSources] = useState<Source[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [exchanges, setExchanges] = useState<Exchange[]>([]);
+  const [pending, setPending] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const [openSource, setOpenSource] = useState<SourceContent | null>(null);
+  const [citationList, setCitationList] = useState<readonly Citation[]>([]);
+  const [citationIndex, setCitationIndex] = useState(0);
+  const [rightTab, setRightTab] = useState<RightTab>('notes');
+  const [mobileTab, setMobileTab] = useState<MobileTab>('chat');
+  const [creating, setCreating] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+
+  const activeCitation = citationList[citationIndex] ?? null;
+  const selected = sources.filter((s) => s.selected);
+
+  /** Wie oft eine Quelle zur letzten Antwort beigetragen hat - die Plakette
+   *  "n Treffer" auf der Quellenkarte. */
+  const hitCounts = useMemo(() => {
+    const last = exchanges[exchanges.length - 1]?.response;
+    const counts = new Map<string, number>();
+    for (const chunk of last?.retrieved ?? []) {
+      counts.set(chunk.sourceId, (counts.get(chunk.sourceId) ?? 0) + 1);
+    }
+    return counts;
+  }, [exchanges]);
+
+  const report = useCallback(
+    (cause: unknown, fallback: string): void => {
+      if (cause instanceof ApiRequestError && cause.status === 401) {
+        writeToken(null);
+        setToken(null);
+        toast('warning', 'Die Sitzung ist abgelaufen. Bitte neu anmelden.');
+        return;
+      }
+      toast('danger', cause instanceof Error ? cause.message : fallback);
+    },
+    [toast],
+  );
+
+  useEffect(() => {
+    api.health().then(setHealth).catch(() => {
+      setHealth(null);
+    });
+  }, [api]);
+
+  useEffect(() => {
+    if (token === null) return;
+    api
+      .listNotebooks()
+      .then((list) => {
+        setNotebooks(list);
+        setActiveId((current) => current ?? list[0]?.id ?? null);
+      })
+      .catch((cause: unknown) => {
+        report(cause, 'Die Notebooks konnten nicht geladen werden.');
+      });
+  }, [api, token, report]);
+
+  useEffect(() => {
+    if (token === null || activeId === null) return;
+    setExchanges([]);
+    setOpenSource(null);
+    setCitationList([]);
+    Promise.all([api.listSources(activeId), api.listNotes(activeId)])
+      .then(([s, n]) => {
+        setSources(s);
+        setNotes(n);
+      })
+      .catch((cause: unknown) => {
+        report(cause, 'Das Notebook konnte nicht geladen werden.');
+      });
+  }, [api, token, activeId, report]);
+
+  const login = async (username: string, password: string): Promise<void> => {
+    const session = await api.login(username, password);
+    writeToken(session.token);
+    setToken(session.token);
+  };
+
+  const showCitation = useCallback(
+    async (citation: Citation, list: readonly Citation[]): Promise<void> => {
+      const index = list.findIndex((c) => c.marker === citation.marker);
+      setCitationList(list);
+      setCitationIndex(index < 0 ? 0 : index);
+      setRightTab('source');
+      setMobileTab('notes');
+      if (openSource?.id !== citation.sourceId) {
+        try {
+          setOpenSource(await api.getSource(citation.sourceId));
+        } catch (cause) {
+          report(cause, 'Die Quelle konnte nicht geladen werden.');
+        }
+      }
+    },
+    [api, openSource, report],
+  );
+
+  const ask = (question: string): void => {
+    if (activeId === null) return;
+    const id = `${Date.now()}`;
+    const ids = selected.map((s) => s.id);
+    setExchanges((current) => [
+      ...current,
+      { id, question, selectedCount: ids.length, response: null, error: null },
+    ]);
+    setPending(true);
+    api
+      .ask(activeId, question, ids)
+      .then((response) => {
+        setExchanges((current) =>
+          current.map((e) => (e.id === id ? { ...e, response } : e)),
+        );
+      })
+      .catch((cause: unknown) => {
+        const message =
+          cause instanceof Error ? cause.message : 'Die Frage konnte nicht gestellt werden.';
+        setExchanges((current) => current.map((e) => (e.id === id ? { ...e, error: message } : e)));
+        if (cause instanceof ApiRequestError && cause.status === 401) report(cause, message);
+      })
+      .finally(() => {
+        setPending(false);
+      });
+  };
+
+  const addSource = async (input: {
+    title: string;
+    kind: 'text' | 'markdown';
+    content: string;
+  }): Promise<void> => {
+    if (activeId === null) return;
+    const created = await api.createSource(activeId, input);
+    setSources((current) => [...current, created]);
+    toast('success', `„${created.title}" hinzugefügt (${created.chunkCount} Abschnitte).`);
+  };
+
+  const toggleSource = (source: Source, isSelected: boolean): void => {
+    setBusy(true);
+    api
+      .updateSource(source.id, { selected: isSelected })
+      .then((updated) => {
+        setSources((current) => current.map((s) => (s.id === updated.id ? updated : s)));
+      })
+      .catch((cause: unknown) => {
+        report(cause, 'Die Auswahl konnte nicht gespeichert werden.');
+      })
+      .finally(() => {
+        setBusy(false);
+      });
+  };
+
+  const saveNote = (exchange: Exchange): void => {
+    if (activeId === null || exchange.response === null) return;
+    api
+      .createNote(activeId, {
+        title: exchange.question.slice(0, 80),
+        body: exchange.response.answer,
+        citations: [...exchange.response.citations],
+        question: exchange.question,
+      })
+      .then((note) => {
+        setNotes((current) => [note, ...current]);
+        setRightTab('notes');
+        toast('success', 'Als Notiz gespeichert — mit allen Belegen.');
+      })
+      .catch((cause: unknown) => {
+        report(cause, 'Die Notiz konnte nicht gespeichert werden.');
+      });
+  };
+
+  const exportNotebook = (): void => {
+    if (activeId === null) return;
+    api
+      .exportNotebook(activeId)
+      .then((markdown) => {
+        const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${notebooks.find((n) => n.id === activeId)?.title ?? 'notebook'}.md`;
+        link.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch((cause: unknown) => {
+        report(cause, 'Der Export ist fehlgeschlagen.');
+      });
+  };
+
+  if (token === null) {
+    return <LoginScreen apiBaseUrl={API_BASE_URL} onLogin={login} />;
+  }
+
+  const notesPanel = (
+    <NotesPanel
+      notes={notes}
+      onSelectCitation={(citation) => {
+        void showCitation(citation, [citation]);
+      }}
+      onUpdate={(id, patch) => {
+        api
+          .updateNote(id, patch)
+          .then((updated) => {
+            setNotes((current) => current.map((n) => (n.id === updated.id ? updated : n)));
+          })
+          .catch((cause: unknown) => {
+            report(cause, 'Die Notiz konnte nicht geändert werden.');
+          });
+      }}
+      onDelete={(note) => {
+        api
+          .deleteNote(note.id)
+          .then(() => {
+            setNotes((current) => current.filter((n) => n.id !== note.id));
+          })
+          .catch((cause: unknown) => {
+            report(cause, 'Die Notiz konnte nicht gelöscht werden.');
+          });
+      }}
+    />
+  );
+
+  const sourcesPanel = (
+    <SourcesPanel
+      sources={sources}
+      openSourceId={openSource?.id ?? null}
+      hitCounts={hitCounts}
+      busy={busy}
+      onToggle={toggleSource}
+      onOpen={(source) => {
+        api
+          .getSource(source.id)
+          .then((full) => {
+            setOpenSource(full);
+            setCitationList([]);
+            setRightTab('source');
+            setMobileTab('notes');
+          })
+          .catch((cause: unknown) => {
+            report(cause, 'Die Quelle konnte nicht geladen werden.');
+          });
+      }}
+      onAdd={addSource}
+      onDelete={(source) => {
+        api
+          .deleteSource(source.id)
+          .then(() => {
+            setSources((current) => current.filter((s) => s.id !== source.id));
+            if (openSource?.id === source.id) setOpenSource(null);
+            toast('success', `„${source.title}" gelöscht.`);
+          })
+          .catch((cause: unknown) => {
+            report(cause, 'Die Quelle konnte nicht gelöscht werden.');
+          });
+      }}
+    />
+  );
+
+  const chatPanel = (
+    <ChatPanel
+      exchanges={exchanges}
+      pending={pending}
+      selectedCount={selected.length}
+      activeMarker={activeCitation?.marker ?? null}
+      onAsk={ask}
+      onSelectCitation={(citation) => {
+        const last = exchanges[exchanges.length - 1]?.response;
+        void showCitation(citation, last?.citations ?? [citation]);
+      }}
+      onSaveNote={saveNote}
+    />
+  );
+
+  return (
+    <div className="flex h-screen flex-col bg-surface-sunken">
+      <header className="flex h-13 shrink-0 items-center gap-3 border-b border-border-subtle bg-surface px-4">
+        <span className="text-label font-semibold text-content-strong">Notebook</span>
+        <select
+          value={activeId ?? ''}
+          aria-label="Notebook wählen"
+          onChange={(event) => {
+            setActiveId(event.target.value);
+          }}
+          className="max-w-[320px] rounded-sm border border-border bg-surface-raised px-2 py-1 text-body text-content"
+        >
+          {notebooks.map((notebook) => (
+            <option key={notebook.id} value={notebook.id}>
+              {notebook.title}
+            </option>
+          ))}
+        </select>
+        <Button
+          size="sm"
+          onClick={() => {
+            setCreating(true);
+          }}
+        >
+          Neu
+        </Button>
+        <Button size="sm" variant="ghost" onClick={exportNotebook}>
+          Exportieren
+        </Button>
+
+        <div className="ml-auto flex items-center gap-3">
+          {health !== null && (
+            <Badge tone={health.llm.configured ? 'success' : 'warning'}>
+              {health.llm.configured ? health.llm.model : 'kein Modell verbunden'}
+            </Badge>
+          )}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              writeToken(null);
+              setToken(null);
+            }}
+          >
+            Abmelden
+          </Button>
+        </div>
+      </header>
+
+      {/* Schmale Ansicht: eine Spalte, Wechsel ueber Tabs. */}
+      <div className="xl:hidden">
+        <Tabs
+          label="Bereich"
+          value={mobileTab}
+          onChange={setMobileTab}
+          items={[
+            { id: 'sources', label: 'Quellen', count: sources.length },
+            { id: 'chat', label: 'Chat' },
+            { id: 'notes', label: 'Notizen', count: notes.length },
+          ]}
+        />
+      </div>
+
+      <div className="flex min-h-0 flex-1">
+        <aside
+          className={cx(
+            'w-full shrink-0 overflow-hidden border-r border-border-subtle bg-surface xl:w-[300px]',
+            mobileTab === 'sources' ? 'block' : 'hidden xl:block',
+          )}
+        >
+          {sourcesPanel}
+        </aside>
+
+        <main
+          className={cx(
+            'min-w-0 flex-1 bg-surface',
+            mobileTab === 'chat' ? 'block' : 'hidden xl:block',
+          )}
+        >
+          {chatPanel}
+        </main>
+
+        <aside
+          className={cx(
+            'flex w-full shrink-0 flex-col overflow-hidden border-l border-border-subtle bg-surface xl:w-[340px]',
+            mobileTab === 'notes' ? 'flex' : 'hidden xl:flex',
+          )}
+        >
+          <Tabs
+            label="Rechte Spalte"
+            value={rightTab}
+            onChange={setRightTab}
+            items={[
+              { id: 'notes', label: 'Notizen', count: notes.length },
+              { id: 'source', label: 'Quelle' },
+            ]}
+          />
+          <div className="min-h-0 flex-1 overflow-hidden">
+            {rightTab === 'notes' ? (
+              notesPanel
+            ) : (
+              <SourceViewer
+                source={openSource}
+                citation={activeCitation}
+                citationIndex={citationIndex}
+                citationCount={citationList.length}
+                onStep={(delta) => {
+                  setCitationIndex((current) => {
+                    const next = current + delta;
+                    if (next < 0 || next >= citationList.length) return current;
+                    return next;
+                  });
+                }}
+              />
+            )}
+          </div>
+        </aside>
+      </div>
+
+      <Dialog
+        open={creating}
+        title="Neues Notebook"
+        description="Ein Notebook ist ein abgegrenzter Quellenraum. Es greift nie auf die Quellen eines anderen Notebooks zu."
+        dismissable={newTitle === ''}
+        onClose={() => {
+          setCreating(false);
+          setNewTitle('');
+        }}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setCreating(false);
+                setNewTitle('');
+              }}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                api
+                  .createNotebook(newTitle.trim() === '' ? 'Ohne Titel' : newTitle.trim())
+                  .then((notebook) => {
+                    setNotebooks((current) => [notebook, ...current]);
+                    setActiveId(notebook.id);
+                    setCreating(false);
+                    setNewTitle('');
+                  })
+                  .catch((cause: unknown) => {
+                    report(cause, 'Das Notebook konnte nicht angelegt werden.');
+                  });
+              }}
+            >
+              Anlegen
+            </Button>
+          </>
+        }
+      >
+        <TextField
+          label="Titel"
+          value={newTitle}
+          placeholder="z. B. Seminar Stochastik"
+          onChange={(event) => {
+            setNewTitle(event.target.value);
+          }}
+        />
+      </Dialog>
+    </div>
+  );
+}
