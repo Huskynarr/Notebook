@@ -42,7 +42,7 @@ export function Tabs<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className={cx('flex border-b border-border-subtle', className)}
+      className={cx('border-border-subtle flex border-b', className)}
       onKeyDown={(event) => {
         const actions: Record<string, () => void> = {
           ArrowRight: () => {
@@ -84,8 +84,8 @@ export function Tabs<T extends string>({
               onChange(item.id);
             }}
             className={cx(
-              'relative flex items-center gap-2 rounded-t-sm px-3 py-2 text-label',
-              'transition-colors duration-[140ms] disabled:cursor-not-allowed disabled:text-content-subtle',
+              'text-label relative flex items-center gap-2 rounded-t-sm px-3 py-2',
+              'disabled:text-content-subtle transition-colors duration-[140ms] disabled:cursor-not-allowed',
               selected
                 ? 'bg-action-surface text-content-strong'
                 : 'text-content-muted hover:bg-surface-sunken hover:text-content',
@@ -95,18 +95,17 @@ export function Tabs<T extends string>({
             {item.count !== undefined && (
               <span
                 className={cx(
-                  'rounded-full px-1.5 text-meta tabular-nums',
-                  selected ? 'bg-surface-raised text-content' : 'bg-surface-inset text-content-muted',
+                  'text-meta rounded-full px-1.5 tabular-nums',
+                  selected
+                    ? 'bg-surface-raised text-content'
+                    : 'bg-surface-inset text-content-muted',
                 )}
               >
                 {item.count}
               </span>
             )}
             {selected && (
-              <span
-                aria-hidden="true"
-                className="absolute inset-x-0 -bottom-px h-0.5 bg-action"
-              />
+              <span aria-hidden="true" className="bg-action absolute inset-x-0 -bottom-px h-0.5" />
             )}
           </button>
         );

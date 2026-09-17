@@ -34,7 +34,7 @@ export function Badge({
   return (
     <span
       className={cx(
-        'inline-flex h-5 items-center gap-1 rounded-full px-2 text-micro uppercase',
+        'text-micro inline-flex h-5 items-center gap-1 rounded-full px-2 uppercase',
         BADGE[tone],
       )}
     >
@@ -66,7 +66,7 @@ export function InlineNote({
   return (
     <div
       className={cx(
-        'flex items-start gap-3 rounded-md border-l-[3px] px-3 py-3 text-body',
+        'text-body flex items-start gap-3 rounded-md border-l-[3px] px-3 py-3',
         NOTE[tone],
       )}
     >
@@ -74,7 +74,7 @@ export function InlineNote({
         {SYMBOL[tone]}
       </span>
       <div className="flex-1">
-        {title !== undefined && <p className="font-semibold text-content-strong">{title}</p>}
+        {title !== undefined && <p className="text-content-strong font-semibold">{title}</p>}
         <div>{children}</div>
       </div>
       {action}
@@ -93,7 +93,7 @@ export function EmptyState({
   action?: ReactNode;
 }): ReactElement {
   return (
-    <div className="flex flex-col items-start gap-2 rounded-md border border-dashed border-border px-4 py-5">
+    <div className="border-border flex flex-col items-start gap-2 rounded-md border border-dashed px-4 py-5">
       <p className="text-heading text-content-strong">{title}</p>
       <p className="text-body text-content-muted">{children}</p>
       {action}

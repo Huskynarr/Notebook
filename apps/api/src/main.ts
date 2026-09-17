@@ -28,6 +28,8 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  process.stderr.write(`Start fehlgeschlagen: ${error instanceof Error ? error.message : String(error)}\n`);
+  process.stderr.write(
+    `Start fehlgeschlagen: ${error instanceof Error ? error.message : String(error)}\n`,
+  );
   process.exit(1);
 });

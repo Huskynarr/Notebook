@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { RetrievedChunk } from '@notebook/shared';
-import { countUnsupportedSentences, locateQuote, parseMarkers, validateCitations } from './citations.ts';
+import {
+  countUnsupportedSentences,
+  locateQuote,
+  parseMarkers,
+  validateCitations,
+} from './citations.ts';
 
 const SOURCE_TEXT =
   'Vorbemerkung.\n\nDie Widerspruchsfrist betraegt vierzehn Tage ab Bekanntgabe des Bescheids. ' +

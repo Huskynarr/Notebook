@@ -75,10 +75,7 @@ export class NotebookRepository {
   }
 
   list(): Notebook[] {
-    return this.db
-      .prepare(`${NOTEBOOK_SELECT} ORDER BY n.updated_at DESC`)
-      .all()
-      .map(toNotebook);
+    return this.db.prepare(`${NOTEBOOK_SELECT} ORDER BY n.updated_at DESC`).all().map(toNotebook);
   }
 
   get(id: string): Notebook | null {
@@ -198,16 +195,15 @@ export class SourceRepository {
     return created;
   }
 
-  update(id: string, patch: { selected?: boolean | undefined; title?: string | undefined }): Source | null {
+  update(
+    id: string,
+    patch: { selected?: boolean | undefined; title?: string | undefined },
+  ): Source | null {
     const current = this.get(id);
     if (current === null) return null;
     this.db
       .prepare('UPDATE sources SET selected = ?, title = ? WHERE id = ?')
-      .run(
-        toSqliteBool(patch.selected ?? current.selected),
-        patch.title ?? current.title,
-        id,
-      );
+      .run(toSqliteBool(patch.selected ?? current.selected), patch.title ?? current.title, id);
     return this.get(id);
   }
 
@@ -274,7 +270,10 @@ export class NoteRepository {
     return created;
   }
 
-  update(id: string, patch: { title?: string | undefined; body?: string | undefined }): Note | null {
+  update(
+    id: string,
+    patch: { title?: string | undefined; body?: string | undefined },
+  ): Note | null {
     const current = this.get(id);
     if (current === null) return null;
     this.db

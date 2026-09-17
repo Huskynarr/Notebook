@@ -52,8 +52,8 @@ export function SourcesPanel({
       <div className="flex-1 space-y-2 overflow-y-auto px-4 pb-4">
         {sources.length === 0 ? (
           <EmptyState title="Noch keine Quelle">
-            Text einfügen oder eine .txt- bzw. .md-Datei wählen. Ohne Quelle beantwortet
-            dieses Notebook keine Frage.
+            Text einfügen oder eine .txt- bzw. .md-Datei wählen. Ohne Quelle beantwortet dieses
+            Notebook keine Frage.
           </EmptyState>
         ) : (
           sources.map((source) => {
@@ -73,7 +73,7 @@ export function SourcesPanel({
                 {open && (
                   <span
                     aria-hidden="true"
-                    className="absolute inset-y-0 left-0 w-[3px] rounded-l-md bg-accent"
+                    className="bg-accent absolute inset-y-0 left-0 w-[3px] rounded-l-md"
                   />
                 )}
                 <div className="flex items-start gap-3">
@@ -97,13 +97,13 @@ export function SourcesPanel({
                     >
                       <span
                         className={cx(
-                          'line-clamp-2 text-heading',
+                          'text-heading line-clamp-2',
                           source.selected ? 'text-content-strong' : 'text-content-muted',
                         )}
                       >
                         {source.title}
                       </span>
-                      <span className="mt-1 block text-meta text-content-muted">
+                      <span className="text-meta text-content-muted mt-1 block">
                         {source.kind} · {source.wordCount} Wörter · {source.chunkCount} Abschnitte
                       </span>
                     </button>
@@ -114,7 +114,7 @@ export function SourcesPanel({
                         <Badge tone="neutral">Abgewählt</Badge>
                       )}
                       {hits > 0 && (
-                        <span className="rounded-full bg-accent-surface px-2 text-micro text-accent uppercase">
+                        <span className="bg-accent-surface text-micro text-accent rounded-full px-2 uppercase">
                           {hits} Treffer
                         </span>
                       )}
@@ -124,7 +124,7 @@ export function SourcesPanel({
                     size="sm"
                     variant="ghost"
                     aria-label={`${source.title} löschen`}
-                    className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                    className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
                     onClick={() => {
                       onDelete(source);
                     }}
@@ -239,7 +239,7 @@ function AddSourceDialog({
           <input
             type="file"
             accept=".txt,.md,text/plain,text/markdown"
-            className="text-body text-content-muted file:mr-3 file:rounded-sm file:border file:border-border file:bg-surface-raised file:px-3 file:py-1.5 file:text-label file:text-content"
+            className="text-body text-content-muted file:border-border file:bg-surface-raised file:text-label file:text-content file:mr-3 file:rounded-sm file:border file:px-3 file:py-1.5"
             onChange={(event) => {
               const file = event.target.files?.[0];
               if (file === undefined) return;

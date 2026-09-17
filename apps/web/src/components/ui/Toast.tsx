@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactElement, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 import { cx } from './cx.ts';
 import type { Tone } from './Status.tsx';
 
@@ -44,13 +52,13 @@ export function ToastProvider({ children }: { children: ReactNode }): ReactEleme
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="pointer-events-none fixed right-4 bottom-4 z-60 flex flex-col gap-2">
+      <div className="z-60 pointer-events-none fixed bottom-4 right-4 flex flex-col gap-2">
         {items.map((item) => (
           <div
             key={item.id}
             role="status"
             aria-live={item.tone === 'danger' ? 'assertive' : 'polite'}
-            className="pointer-events-auto flex max-w-sm items-start gap-3 rounded-md bg-surface-overlay px-3 py-2 text-body shadow-md"
+            className="bg-surface-overlay text-body pointer-events-auto flex max-w-sm items-start gap-3 rounded-md px-3 py-2 shadow-md"
           >
             <span className={cx('flex-1', TONE[item.tone])}>{item.message}</span>
             <button

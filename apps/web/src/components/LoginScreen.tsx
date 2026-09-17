@@ -28,16 +28,16 @@ export function LoginScreen({
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-surface-sunken px-4">
+    <main className="bg-surface-sunken flex min-h-screen items-center justify-center px-4">
       <form
-        className="w-full max-w-sm rounded-lg bg-surface-overlay p-6 shadow-md"
+        className="bg-surface-overlay w-full max-w-sm rounded-lg p-6 shadow-md"
         onSubmit={(event) => {
           event.preventDefault();
           void submit();
         }}
       >
         <h1 className="text-title text-content-strong">Notebook</h1>
-        <p className="mt-1 text-body text-content-muted">
+        <p className="text-body text-content-muted mt-1">
           Quellenbasiertes Arbeiten mit überprüfbaren Belegen.
         </p>
 
@@ -68,13 +68,13 @@ export function LoginScreen({
 
         <div className="mt-5">
           <InlineNote tone="info" title="Lokaler Zugang">
-            Voreinstellung <code className="font-mono">admin / admin</code>. Der Zugang ist
-            für den Betrieb auf dem eigenen Rechner gedacht — vor einer Erreichbarkeit im
-            Netz muss er geändert werden.
+            Voreinstellung <code className="font-mono">admin / admin</code>. Der Zugang ist für den
+            Betrieb auf dem eigenen Rechner gedacht — vor einer Erreichbarkeit im Netz muss er
+            geändert werden.
           </InlineNote>
         </div>
 
-        <p className="mt-4 font-mono text-meta text-content-subtle">Backend: {apiBaseUrl}</p>
+        <p className="text-meta text-content-subtle mt-4 font-mono">Backend: {apiBaseUrl}</p>
       </form>
     </main>
   );

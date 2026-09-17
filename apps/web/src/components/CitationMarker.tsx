@@ -49,7 +49,10 @@ export function CitationMarker({
   };
 
   const label = resolved
-    .map((c) => `Beleg ${c.marker}: ${c.sourceTitle}${c.headingPath === '' ? '' : `, ${c.headingPath}`}`)
+    .map(
+      (c) =>
+        `Beleg ${c.marker}: ${c.sourceTitle}${c.headingPath === '' ? '' : `, ${c.headingPath}`}`,
+    )
     .join('; ');
 
   return (
@@ -72,7 +75,7 @@ export function CitationMarker({
           if (event.key === 'Escape') setPreview(null);
         }}
         className={cx(
-          'mx-0.5 rounded-xs px-1 align-super font-mono text-micro transition-colors duration-[80ms]',
+          'rounded-xs text-micro mx-0.5 px-1 align-super font-mono transition-colors duration-[80ms]',
           isActive
             ? 'bg-accent text-content-inverted'
             : 'bg-accent-surface text-accent hover:text-accent-hover hover:underline',
@@ -84,20 +87,20 @@ export function CitationMarker({
       {preview !== null && (
         <span
           role="tooltip"
-          className="absolute bottom-full left-0 z-40 mb-1 block w-[380px] max-w-[80vw] rounded-lg bg-surface-overlay p-3 text-left shadow-md"
+          className="bg-surface-overlay absolute bottom-full left-0 z-40 mb-1 block w-[380px] max-w-[80vw] rounded-lg p-3 text-left shadow-md"
           onMouseEnter={() => {
             if (timer.current !== null) window.clearTimeout(timer.current);
           }}
           onMouseLeave={hide}
         >
-          <span className="block text-label text-content-strong">{preview.sourceTitle}</span>
+          <span className="text-label text-content-strong block">{preview.sourceTitle}</span>
           {preview.headingPath !== '' && (
-            <span className="block text-meta text-content-muted">{preview.headingPath}</span>
+            <span className="text-meta text-content-muted block">{preview.headingPath}</span>
           )}
-          <span className="mt-2 block max-h-40 overflow-y-auto bg-accent-surface px-2 py-1 font-reading text-reading text-content">
+          <span className="bg-accent-surface font-reading text-reading text-content mt-2 block max-h-40 overflow-y-auto px-2 py-1">
             {preview.excerpt}
           </span>
-          <span className="mt-2 block font-mono text-meta text-content-muted">
+          <span className="text-meta text-content-muted mt-2 block font-mono">
             Zeichen {preview.startOffset}–{preview.endOffset}
             {preview.precision === 'chunk' && ' · ganzer Abschnitt'}
           </span>

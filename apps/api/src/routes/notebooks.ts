@@ -98,5 +98,4 @@ export function registerNotebookRoutes(app: FastifyInstance, ctx: AppContext): v
     if (ctx.notebooks.get(id) === null) return notFound(reply, 'Notebook');
     return { notes: ctx.notes.listByNotebook(id) };
   });
-
 }

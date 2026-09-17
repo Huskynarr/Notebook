@@ -18,9 +18,14 @@ export function registerAskRoutes(app: FastifyInstance, ctx: AppContext): void {
     const sourceIds = body.sourceIds.filter((id) => allowed.has(id));
 
     try {
-      return await ask(ctx.db, ctx.llm, { question: body.question, sourceIds }, {
-        topK: ctx.config.RETRIEVAL_TOP_K,
-      });
+      return await ask(
+        ctx.db,
+        ctx.llm,
+        { question: body.question, sourceIds },
+        {
+          topK: ctx.config.RETRIEVAL_TOP_K,
+        },
+      );
     } catch (error) {
       if (error instanceof LlmUnavailableError) {
         return fail(reply, 503, 'llm_unavailable', error.message);

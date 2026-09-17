@@ -27,7 +27,8 @@ export function TextField({
   ...rest
 }: Common & InputHTMLAttributes<HTMLInputElement>): ReactElement {
   const id = useId();
-  const describedBy = error !== undefined ? `${id}-error` : hint !== undefined ? `${id}-hint` : undefined;
+  const describedBy =
+    error !== undefined ? `${id}-error` : hint !== undefined ? `${id}-hint` : undefined;
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id} className={cx('text-label text-content', labelHidden && 'sr-only')}>
@@ -54,7 +55,8 @@ export function TextAreaField({
   ...rest
 }: Common & TextareaHTMLAttributes<HTMLTextAreaElement>): ReactElement {
   const id = useId();
-  const describedBy = error !== undefined ? `${id}-error` : hint !== undefined ? `${id}-hint` : undefined;
+  const describedBy =
+    error !== undefined ? `${id}-error` : hint !== undefined ? `${id}-hint` : undefined;
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id} className={cx('text-label text-content', labelHidden && 'sr-only')}>
@@ -83,7 +85,7 @@ function FieldMessage({
 }): ReactElement | null {
   if (error !== undefined) {
     return (
-      <p id={`${id}-error`} className="flex items-center gap-1 text-meta text-danger">
+      <p id={`${id}-error`} className="text-meta text-danger flex items-center gap-1">
         <span aria-hidden="true">⚠</span>
         {error}
       </p>

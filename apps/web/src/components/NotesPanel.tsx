@@ -22,8 +22,8 @@ export function NotesPanel({
     return (
       <div className="p-4">
         <EmptyState title="Noch keine Notiz">
-          Speichere eine Antwort als Notiz. Die Belege werden dabei eingefroren und bleiben
-          prüfbar, auch wenn der Chat weiterläuft.
+          Speichere eine Antwort als Notiz. Die Belege werden dabei eingefroren und bleiben prüfbar,
+          auch wenn der Chat weiterläuft.
         </EmptyState>
       </div>
     );
@@ -36,7 +36,7 @@ export function NotesPanel({
         return (
           <article
             key={note.id}
-            className="rounded-md border border-border-subtle bg-surface-raised p-4"
+            className="border-border-subtle bg-surface-raised rounded-md border p-4"
           >
             {isEditing ? (
               <div className="flex flex-col gap-3">
@@ -106,13 +106,13 @@ export function NotesPanel({
                   </div>
                 </div>
                 {note.question !== '' && (
-                  <p className="mt-1 text-meta text-content-muted">Frage: {note.question}</p>
+                  <p className="text-meta text-content-muted mt-1">Frage: {note.question}</p>
                 )}
-                <p className="mt-2 max-w-reading font-reading text-reading whitespace-pre-wrap text-content">
+                <p className="max-w-reading font-reading text-reading text-content mt-2 whitespace-pre-wrap">
                   {note.body}
                 </p>
                 {note.citations.length > 0 && (
-                  <ul className="mt-3 space-y-1 border-t border-border-subtle pt-2">
+                  <ul className="border-border-subtle mt-3 space-y-1 border-t pt-2">
                     {note.citations.map((citation) => (
                       <li key={citation.marker}>
                         <button
@@ -120,9 +120,9 @@ export function NotesPanel({
                           onClick={() => {
                             onSelectCitation(citation);
                           }}
-                          className="text-left text-meta text-content-muted hover:text-accent"
+                          className="text-meta text-content-muted hover:text-accent text-left"
                         >
-                          <span className="font-mono text-accent">[{citation.marker}]</span>{' '}
+                          <span className="text-accent font-mono">[{citation.marker}]</span>{' '}
                           {citation.sourceTitle} · Zeichen {citation.startOffset}–
                           {citation.endOffset}
                         </button>

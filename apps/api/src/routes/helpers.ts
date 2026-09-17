@@ -2,7 +2,12 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { z } from 'zod';
 import type { ApiError } from '@notebook/shared';
 
-export function fail(reply: FastifyReply, status: number, code: ApiError['error']['code'], message: string): FastifyReply {
+export function fail(
+  reply: FastifyReply,
+  status: number,
+  code: ApiError['error']['code'],
+  message: string,
+): FastifyReply {
   return reply.status(status).send({ error: { code, message } } satisfies ApiError);
 }
 

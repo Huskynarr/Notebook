@@ -75,7 +75,12 @@ describe('Keine Geheimnisse im Frontend', () => {
     const offenders: string[] = [];
     for (const file of bundles) {
       const content = readFileSync(file, 'utf8');
-      for (const pattern of [/\bsk-[A-Za-z0-9]{16,}\b/, /LLM_API_KEY/, /AUTH_PASSWORD/, /AUTH_SECRET/]) {
+      for (const pattern of [
+        /\bsk-[A-Za-z0-9]{16,}\b/,
+        /LLM_API_KEY/,
+        /AUTH_PASSWORD/,
+        /AUTH_SECRET/,
+      ]) {
         if (pattern.test(content)) offenders.push(`${file}: ${pattern.source}`);
       }
     }

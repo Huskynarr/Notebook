@@ -83,7 +83,7 @@ export function Dialog({
         aria-modal="true"
         aria-labelledby="dialog-title"
         className={cx(
-          'relative flex max-h-[85vh] w-full flex-col rounded-lg bg-surface-overlay shadow-lg',
+          'bg-surface-overlay relative flex max-h-[85vh] w-full flex-col rounded-lg shadow-lg',
           wide ? 'max-w-[720px]' : 'max-w-[480px]',
         )}
       >
@@ -97,7 +97,7 @@ export function Dialog({
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
         {footer !== undefined && (
-          <div className="flex items-center justify-end gap-2 border-t border-border-subtle px-5 py-3">
+          <div className="border-border-subtle flex items-center justify-end gap-2 border-t px-5 py-3">
             {footer}
           </div>
         )}

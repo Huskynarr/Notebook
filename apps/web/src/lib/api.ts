@@ -143,9 +143,8 @@ export class ApiClient {
   }
 
   async listSources(notebookId: string): Promise<Source[]> {
-    return (
-      await this.request(`/v1/notebooks/${notebookId}/sources`, SourceListResponseSchema)
-    ).sources;
+    return (await this.request(`/v1/notebooks/${notebookId}/sources`, SourceListResponseSchema))
+      .sources;
   }
 
   createSource(
@@ -181,8 +180,7 @@ export class ApiClient {
   }
 
   async listNotes(notebookId: string): Promise<Note[]> {
-    return (await this.request(`/v1/notebooks/${notebookId}/notes`, NoteListResponseSchema))
-      .notes;
+    return (await this.request(`/v1/notebooks/${notebookId}/notes`, NoteListResponseSchema)).notes;
   }
 
   createNote(

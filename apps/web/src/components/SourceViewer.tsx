@@ -49,9 +49,9 @@ export function SourceViewer({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-border-subtle px-4 py-2">
+      <div className="border-border-subtle flex items-center justify-between gap-2 border-b px-4 py-2">
         <div className="min-w-0">
-          <p className="truncate text-heading text-content-strong">{source.title}</p>
+          <p className="text-heading text-content-strong truncate">{source.title}</p>
           <p className="text-meta text-content-muted">
             {source.wordCount} Wörter · {source.chunkCount} Abschnitte
           </p>
@@ -68,7 +68,7 @@ export function SourceViewer({
             >
               ←
             </Button>
-            <span className="font-mono text-meta text-content-muted tabular-nums">
+            <span className="text-meta text-content-muted font-mono tabular-nums">
               Beleg {citationIndex + 1} von {citationCount}
             </span>
             <Button
@@ -86,7 +86,7 @@ export function SourceViewer({
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
-        <pre className="max-w-reading font-reading text-reading whitespace-pre-wrap text-content">
+        <pre className="max-w-reading font-reading text-reading text-content whitespace-pre-wrap">
           {highlight === null ? (
             source.content
           ) : (
@@ -95,7 +95,7 @@ export function SourceViewer({
               <mark
                 key={flash}
                 ref={markRef}
-                className="citation-flash rounded-xs bg-accent-surface text-content-strong underline decoration-accent-border decoration-2 underline-offset-4"
+                className="citation-flash rounded-xs bg-accent-surface text-content-strong decoration-accent-border underline decoration-2 underline-offset-4"
               >
                 {source.content.slice(highlight.start, highlight.end)}
               </mark>
@@ -106,7 +106,7 @@ export function SourceViewer({
       </div>
 
       {citation !== null && citation.sourceId === source.id && (
-        <p className="border-t border-border-subtle px-4 py-2 font-mono text-meta text-content-muted">
+        <p className="border-border-subtle text-meta text-content-muted border-t px-4 py-2 font-mono">
           Zeichen {citation.startOffset}–{citation.endOffset}
           {citation.precision === 'chunk'
             ? ' · ganzer Abschnitt (kein wörtliches Zitat gefunden)'

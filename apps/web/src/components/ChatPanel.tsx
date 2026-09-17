@@ -49,11 +49,11 @@ export function ChatPanel({
     <div className="flex h-full flex-col">
       <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
         {exchanges.length === 0 && !pending && (
-          <div className="mx-auto max-w-reading">
+          <div className="max-w-reading mx-auto">
             <p className="text-title text-content-strong">Frage stellen</p>
-            <p className="mt-2 text-body text-content-muted">
-              Antworten entstehen ausschließlich aus den links ausgewählten Quellen. Jede
-              Aussage trägt einen Beleg, der auf die Stelle im Original zeigt.
+            <p className="text-body text-content-muted mt-2">
+              Antworten entstehen ausschließlich aus den links ausgewählten Quellen. Jede Aussage
+              trägt einen Beleg, der auf die Stelle im Original zeigt.
             </p>
           </div>
         )}
@@ -61,9 +61,9 @@ export function ChatPanel({
         {exchanges.map((exchange) => (
           <article key={exchange.id} className="space-y-3">
             <div className="flex justify-end">
-              <div className="max-w-[80%] rounded-md border border-border-subtle bg-surface-raised px-4 py-2">
+              <div className="border-border-subtle bg-surface-raised max-w-[80%] rounded-md border px-4 py-2">
                 <p className="text-body text-content">{exchange.question}</p>
-                <p className="mt-1 text-right text-meta text-content-muted">
+                <p className="text-meta text-content-muted mt-1 text-right">
                   {exchange.selectedCount} Quellen berücksichtigt
                 </p>
               </div>
@@ -89,15 +89,15 @@ export function ChatPanel({
         ))}
 
         {pending && (
-          <p className="flex items-center gap-2 text-meta text-content-muted">
-            <span className="size-2 animate-pulse rounded-full bg-action" aria-hidden="true" />
+          <p className="text-meta text-content-muted flex items-center gap-2">
+            <span className="bg-action size-2 animate-pulse rounded-full" aria-hidden="true" />
             Durchsuche {selectedCount} {selectedCount === 1 ? 'Quelle' : 'Quellen'} …
           </p>
         )}
         <div ref={endRef} />
       </div>
 
-      <div className="border-t border-border-subtle bg-surface px-6 py-3">
+      <div className="border-border-subtle bg-surface border-t px-6 py-3">
         {selectedCount === 0 && (
           <div className="mb-3">
             <InlineNote tone="warning" title="Keine Quelle ausgewählt">
@@ -122,7 +122,7 @@ export function ChatPanel({
               }
             }}
             className={cx(
-              'max-h-48 min-h-[42px] flex-1 resize-none rounded-sm border border-border bg-surface-raised px-3 py-2',
+              'border-border bg-surface-raised max-h-48 min-h-[42px] flex-1 resize-none rounded-sm border px-3 py-2',
               'text-body text-content placeholder:text-content-subtle hover:border-border-strong focus:border-action',
             )}
           />
@@ -130,7 +130,7 @@ export function ChatPanel({
             Fragen
           </Button>
         </div>
-        <p className="mt-1 text-meta text-content-muted">
+        <p className="text-meta text-content-muted mt-1">
           Enter sendet, Umschalt+Enter erzeugt einen Zeilenumbruch.
         </p>
       </div>
@@ -159,8 +159,8 @@ function AnswerSection({
       {response.simulated && (
         <div className="mb-3">
           <InlineNote tone="warning" title="Simulierte Antwort — kein Modell verbunden">
-            Der Server läuft mit LLM_PROVIDER=stub. Es wurde nichts formuliert, sondern nur
-            gezeigt, welche Textstellen gefunden wurden.
+            Der Server läuft mit LLM_PROVIDER=stub. Es wurde nichts formuliert, sondern nur gezeigt,
+            welche Textstellen gefunden wurden.
           </InlineNote>
         </div>
       )}
@@ -183,13 +183,13 @@ function AnswerSection({
       </div>
 
       {response.droppedMarkers.length > 0 && (
-        <p className="mt-3 text-meta text-warning">
-          {response.droppedMarkers.length} vom Modell gesetzte Belege zeigten auf keine
-          abgerufene Textstelle und wurden entfernt.
+        <p className="text-meta text-warning mt-3">
+          {response.droppedMarkers.length} vom Modell gesetzte Belege zeigten auf keine abgerufene
+          Textstelle und wurden entfernt.
         </p>
       )}
       {response.unsupportedSentenceCount > 0 && (
-        <p className="mt-1 text-meta text-warning">
+        <p className="text-meta text-warning mt-1">
           {response.unsupportedSentenceCount} Sätze ohne Beleg (gepunktet unterstrichen).
         </p>
       )}
@@ -203,9 +203,9 @@ function AnswerSection({
                 onClick={() => {
                   onSelectCitation(citation);
                 }}
-                className="text-left text-meta text-content-muted hover:text-accent"
+                className="text-meta text-content-muted hover:text-accent text-left"
               >
-                <span className="font-mono text-accent">[{citation.marker}]</span>{' '}
+                <span className="text-accent font-mono">[{citation.marker}]</span>{' '}
                 {citation.sourceTitle}
                 {citation.headingPath === '' ? '' : ` · ${citation.headingPath}`} · Zeichen{' '}
                 {citation.startOffset}–{citation.endOffset}
@@ -229,7 +229,7 @@ function AnswerSection({
         >
           Kopieren
         </Button>
-        <span className="font-mono text-meta text-content-subtle">
+        <span className="text-meta text-content-subtle font-mono">
           {response.model} · {response.elapsedMs} ms
         </span>
       </div>

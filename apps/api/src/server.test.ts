@@ -205,7 +205,12 @@ describe('Notebooks, Quellen und Notizen', () => {
       method: 'POST',
       url: `/v1/notebooks/${notebook.id}/notes`,
       headers: auth,
-      payload: { title: 'Widerspruchsfrist', body: 'Vierzehn Tage [1].', citations: [], question: 'Wie lange?' },
+      payload: {
+        title: 'Widerspruchsfrist',
+        body: 'Vierzehn Tage [1].',
+        citations: [],
+        question: 'Wie lange?',
+      },
     });
 
     const response = await app.inject({
@@ -332,7 +337,11 @@ describe('Quellenbasierte Antwort', () => {
   });
 
   it('antwortet ohne ausgewaehlte Quelle mit einer Auskunft statt mit Modellwissen', async () => {
-    const provider = new ScriptedProvider({ grounded: true, answer: 'Sollte nie erscheinen [1].', quotes: {} });
+    const provider = new ScriptedProvider({
+      grounded: true,
+      answer: 'Sollte nie erscheinen [1].',
+      quotes: {},
+    });
     await setup(provider);
     const result = await askQuestion('Wie lange ist die Widerspruchsfrist?', []);
 

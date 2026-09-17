@@ -9,9 +9,7 @@ import {
 } from './provider.ts';
 
 const ChatCompletionSchema = z.object({
-  choices: z
-    .array(z.object({ message: z.object({ content: z.string().nullable() }) }))
-    .min(1),
+  choices: z.array(z.object({ message: z.object({ content: z.string().nullable() }) })).min(1),
 });
 
 export interface OpenAiCompatibleOptions {
@@ -48,9 +46,7 @@ export class OpenAiCompatibleProvider implements LlmProvider {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
-          ...(this.options.apiKey === ''
-            ? {}
-            : { authorization: `Bearer ${this.options.apiKey}` }),
+          ...(this.options.apiKey === '' ? {} : { authorization: `Bearer ${this.options.apiKey}` }),
         },
         body: JSON.stringify({
           model: this.options.model,
@@ -74,7 +70,9 @@ export class OpenAiCompatibleProvider implements LlmProvider {
 
       const parsed = ChatCompletionSchema.safeParse(await response.json());
       if (!parsed.success) {
-        throw new LlmUnavailableError('Die Antwort des Endpunkts entspricht nicht dem erwarteten Format.');
+        throw new LlmUnavailableError(
+          'Die Antwort des Endpunkts entspricht nicht dem erwarteten Format.',
+        );
       }
       const content = parsed.data.choices[0]?.message.content ?? '';
       const answer = ModelAnswerSchema.safeParse(extractJson(content));
