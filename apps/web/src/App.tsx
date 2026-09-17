@@ -181,8 +181,12 @@ export function App(): ReactElement {
     );
     api
       .updateSource(source.id, { selected: isSelected })
-      .then((updated) => {
-        setSources((current) => current.map((s) => (s.id === updated.id ? updated : s)));
+      .then(() => {
+        // Die Antwort wird bewusst NICHT uebernommen. Beim schnellen
+        // Umschalten kommen die Antworten nicht zwingend in der Reihenfolge
+        // der Anfragen zurueck; eine spaet eintreffende aeltere Antwort haette
+        // die Auswahl wieder umgestellt. Der angezeigte Zustand entspricht
+        // ohnehin dem, was gerade bestaetigt wurde.
       })
       .catch((cause: unknown) => {
         // Scheitert das Speichern, wird die Anzeige zurueckgenommen. Eine

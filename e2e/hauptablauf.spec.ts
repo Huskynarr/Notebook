@@ -108,7 +108,9 @@ test('eigene Quelle hinzufuegen und Antwort als Notiz speichern', async ({ page 
     .getByLabel('Text')
     .fill('# Eigene Quelle\n\nDie Rueckmeldefrist endet am 15. Februar jedes Jahres.');
   await page.getByRole('button', { name: 'Quelle anlegen' }).click();
-  await expect(page.getByText('eigene-notiz.md')).toBeVisible();
+  // Auf die Quellenkarte pruefen, nicht auf den Text: die Kurzmeldung nennt
+  // denselben Namen und macht den Treffer sonst mehrdeutig.
+  await expect(page.getByLabel('eigene-notiz.md für Fragen berücksichtigen')).toBeChecked();
 
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
