@@ -1,0 +1,76 @@
+name: Release
+
+# Setzt die Version nach semantischer Versionierung und legt einen Tag an.
+# Wird von Hand ausgeloest: eine Veroeffentlichung ist eine Entscheidung,
+# kein Nebeneffekt eines Commits.
+on:
+  workflow_dispatch:
+    inputs:
+      art:
+        description: 'Art der Aenderung seit dem letzten Release'
+        required: true
+        type: choice
+        options: [patch, minor, major]
+
+permissions:
+  contents: write
+
+jobs:
+  veroeffentlichen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @notebook/shared build
+      - run: pnpm --filter @notebook/web build
+
+      # Kein Release ohne gruene Pruefung - sonst traegt eine Versionsnummer
+      # eine Zusage, die nie geprueft wurde.
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+
+      - name: Version anheben
+        id: version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          NEU=$(npm version "${{ inputs.art }}" --no-git-tag-version)
+          for PAKET in apps/api apps/web packages/shared; do
+            (cd "$PAKET" && npm version "${NEU#v}" --no-git-tag-version --allow-same-version)
+          done
+          echo "tag=$NEU" >> "$GITHUB_OUTPUT"
+
+      - name: Aenderungen seit dem letzten Tag sammeln
+        id: changelog
+        run: |
+          LETZTER=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          BEREICH=${LETZTER:+$LETZTER..HEAD}
+          {
+            echo 'text<<CHANGELOG'
+            git log --no-merges --pretty='- %s' ${BEREICH} | grep -E '^- (feat|fix|perf)' || echo '- keine funktionalen Aenderungen'
+            echo CHANGELOG
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Commit und Tag
+        run: |
+          git add -A
+          git commit -m "chore(release): ${{ steps.version.outputs.tag }}"
+          git tag -a "${{ steps.version.outputs.tag }}" -m "${{ steps.version.outputs.tag }}"
+          git push origin HEAD --tags
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          body: ${{ steps.changelog.outputs.text }}

@@ -16,7 +16,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
+    "verify": "pnpm --filter @notebook/shared build && pnpm typecheck && pnpm lint && pnpm test && pnpm --filter @notebook/web build",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
@@ -26,6 +27,7 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@playwright/test": "^1.50.0"
   }
 }

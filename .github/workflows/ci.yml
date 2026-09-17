@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruefen:
+    name: Typen, Stil, Tests, Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Muss vor typecheck laufen: apps/* beziehen ihre Typen aus dem
+      # gebauten Deklarationsstand von packages/shared.
+      - name: Geteiltes Paket bauen
+        run: pnpm --filter @notebook/shared build
+
+      - name: Typen pruefen
+        run: pnpm typecheck
+
+      - name: Stil pruefen
+        run: pnpm lint
+
+      - name: Formatierung pruefen
+        run: pnpm format:check
+
+      - name: Frontend bauen
+        run: pnpm --filter @notebook/web build
+
+      # Nach dem Build, damit der Test das gebaute Bundle wirklich prueft und
+      # nicht nur meldet, dass es fehlt.
+      - name: Tests
+        run: pnpm test
+
+      - name: Keine Geheimnisse im ausgelieferten Bundle
+        run: |
+          if grep -rEl 'AUTH_PASSWORD|AUTH_SECRET|LLM_API_KEY|sk-[A-Za-z0-9]{16,}' apps/web/dist; then
+            echo "Geheimnismuster im Bundle gefunden"
+            exit 1
+          fi
+          echo "Kein Geheimnismuster im Bundle."
+
+  ende-zu-ende:
+    name: End-to-End
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @notebook/shared build
+      - run: pnpm --filter @notebook/web build
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: Hauptablauf pruefen
+        run: pnpm exec playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
