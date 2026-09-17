@@ -25,7 +25,7 @@ const ConfigSchema = z.object({
    *  `stub` liefert nachvollziehbar simulierte Antworten und kennzeichnet sie
    *  als solche - siehe AGENTS.md Regel 5. */
   LLM_PROVIDER: z.enum(['openai', 'stub']).default('stub'),
-  LLM_BASE_URL: z.string().url().default('http://localhost:11434/v1'),
+  LLM_BASE_URL: z.url().default('http://localhost:11434/v1'),
   LLM_API_KEY: z.string().default(''),
   LLM_MODEL: z.string().default('qwen2.5:14b-instruct'),
   LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
