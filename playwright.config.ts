@@ -15,7 +15,21 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:4173',
     trace: 'on-first-retry',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        // Erlaubt einen bereits vorhandenen Chromium statt des von Playwright
+        // heruntergeladenen. Gedacht fuer Umgebungen ohne Zugriff auf den
+        // Playwright-Download (abgeschottete Rechner, vorbereitete Images).
+        // Ohne die Variable bleibt das Standardverhalten unveraendert.
+        ...(process.env['CHROMIUM_PATH'] === undefined
+          ? {}
+          : { launchOptions: { executablePath: process.env['CHROMIUM_PATH'] } }),
+      },
+    },
+  ],
   webServer: [
     {
       command: 'node src/main.ts',
