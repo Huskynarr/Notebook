@@ -15,11 +15,25 @@ async function login(page: Page): Promise<void> {
   await page.goto('/');
   await page.getByLabel('Passwort').fill('admin');
   await page.getByRole('button', { name: 'Anmelden' }).click();
-  await expect(page.getByRole('heading', { name: 'Quellen' })).toBeVisible();
+  // Auf ein Element warten, das in jeder Breite sichtbar ist: die
+  // Quellenspalte ist auf schmalen Bildschirmen hinter einem Tab.
+  await expect(page.getByRole('button', { name: 'Fragen' })).toBeVisible();
+}
+
+/** Die Auswahl wird serverseitig gespeichert und ueberlebt damit den
+ *  vorherigen Test. Jeder Test stellt sie deshalb selbst her. */
+async function selectAllSources(page: Page): Promise<void> {
+  const boxes = page.locator('input[type="checkbox"][aria-label$="für Fragen berücksichtigen"]');
+  for (let i = 0; i < (await boxes.count()); i += 1) {
+    const box = boxes.nth(i);
+    if (!(await box.isChecked())) await box.check();
+  }
+  await expect(page.locator('input[type="checkbox"]:not(:checked)')).toHaveCount(0);
 }
 
 test('Beispiel-Notebook ist nach dem Start sofort nutzbar', async ({ page }) => {
   await login(page);
+  await selectAllSources(page);
   await expect(page.getByText('pruefungsordnung-beispiel.md')).toBeVisible();
   await expect(page.getByText('merkblatt-pruefungsamt.md')).toBeVisible();
   await expect(page.getByText('2 von 2 ausgewählt')).toBeVisible();
@@ -27,6 +41,7 @@ test('Beispiel-Notebook ist nach dem Start sofort nutzbar', async ({ page }) => 
 
 test('ohne Modell wird die Antwort sichtbar als simuliert gekennzeichnet', async ({ page }) => {
   await login(page);
+  await selectAllSources(page);
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
     .fill('Wie lange ist die Widerspruchsfrist?');
@@ -36,6 +51,7 @@ test('ohne Modell wird die Antwort sichtbar als simuliert gekennzeichnet', async
 
 test('ein Beleg fuehrt zur hervorgehobenen Stelle im Original', async ({ page }) => {
   await login(page);
+  await selectAllSources(page);
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
     .fill('Wie lange ist die Widerspruchsfrist?');
@@ -56,6 +72,7 @@ test('ein Beleg fuehrt zur hervorgehobenen Stelle im Original', async ({ page })
 
 test('abgewaehlte Quellen werden nicht beruecksichtigt', async ({ page }) => {
   await login(page);
+  await selectAllSources(page);
   await page.getByLabel('merkblatt-pruefungsamt.md für Fragen berücksichtigen').uncheck();
   await expect(page.getByText('1 von 2 ausgewählt')).toBeVisible();
 
@@ -69,6 +86,7 @@ test('abgewaehlte Quellen werden nicht beruecksichtigt', async ({ page }) => {
 
 test('ohne ausgewaehlte Quelle wird nicht geantwortet', async ({ page }) => {
   await login(page);
+  await selectAllSources(page);
   await page.getByLabel('pruefungsordnung-beispiel.md für Fragen berücksichtigen').uncheck();
   await page.getByLabel('merkblatt-pruefungsamt.md für Fragen berücksichtigen').uncheck();
   await expect(page.getByText('Keine Quelle ausgewählt')).toBeVisible();
@@ -82,6 +100,7 @@ test('ohne ausgewaehlte Quelle wird nicht geantwortet', async ({ page }) => {
 
 test('eigene Quelle hinzufuegen und Antwort als Notiz speichern', async ({ page }) => {
   await login(page);
+  await selectAllSources(page);
 
   await page.getByRole('button', { name: 'Hinzufügen' }).click();
   await page.getByLabel('Titel').fill('eigene-notiz.md');

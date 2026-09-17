@@ -10,7 +10,6 @@ export function SourcesPanel({
   sources,
   openSourceId,
   hitCounts,
-  busy,
   onToggle,
   onOpen,
   onAdd,
@@ -19,7 +18,6 @@ export function SourcesPanel({
   sources: readonly Source[];
   openSourceId: string | null;
   hitCounts: ReadonlyMap<string, number>;
-  busy: boolean;
   onToggle: (source: Source, selected: boolean) => void;
   onOpen: (source: Source) => void;
   onAdd: (input: { title: string; kind: 'text' | 'markdown'; content: string }) => Promise<void>;
@@ -80,7 +78,6 @@ export function SourcesPanel({
                   <input
                     type="checkbox"
                     checked={source.selected}
-                    disabled={busy}
                     onChange={(event) => {
                       onToggle(source, event.target.checked);
                     }}

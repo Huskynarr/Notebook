@@ -39,7 +39,6 @@ export function App(): ReactElement {
   const [notes, setNotes] = useState<Note[]>([]);
   const [exchanges, setExchanges] = useState<Exchange[]>([]);
   const [pending, setPending] = useState(false);
-  const [busy, setBusy] = useState(false);
 
   const [openSource, setOpenSource] = useState<SourceContent | null>(null);
   const [citationList, setCitationList] = useState<readonly Citation[]>([]);
@@ -174,17 +173,25 @@ export function App(): ReactElement {
   };
 
   const toggleSource = (source: Source, isSelected: boolean): void => {
-    setBusy(true);
+    // Die Auswahl wird sofort umgestellt und erst danach gespeichert. Wartet
+    // das Kaestchen auf die Serverantwort, fuehlt es sich bei jeder Verzoegerung
+    // kaputt an - es haekt sich sichtbar zurueck.
+    setSources((current) =>
+      current.map((s) => (s.id === source.id ? { ...s, selected: isSelected } : s)),
+    );
     api
       .updateSource(source.id, { selected: isSelected })
       .then((updated) => {
         setSources((current) => current.map((s) => (s.id === updated.id ? updated : s)));
       })
       .catch((cause: unknown) => {
+        // Scheitert das Speichern, wird die Anzeige zurueckgenommen. Eine
+        // Auswahl anzuzeigen, die serverseitig nicht gilt, waere eine stille
+        // Luege ueber den Abruf.
+        setSources((current) =>
+          current.map((s) => (s.id === source.id ? { ...s, selected: !isSelected } : s)),
+        );
         report(cause, 'Die Auswahl konnte nicht gespeichert werden.');
-      })
-      .finally(() => {
-        setBusy(false);
       });
   };
 
@@ -262,7 +269,6 @@ export function App(): ReactElement {
       sources={sources}
       openSourceId={openSource?.id ?? null}
       hitCounts={hitCounts}
-      busy={busy}
       onToggle={toggleSource}
       onOpen={(source) => {
         api
