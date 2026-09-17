@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+data/*.db
+data/*.db-*
+playwright-report/
+test-results/
+.DS_Store
+*.log
+.git-STALE-bitte-loeschen/
