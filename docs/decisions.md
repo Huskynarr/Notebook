@@ -305,3 +305,27 @@ soll).
 
 **Preis, ausdrücklich:** Die Vorschau ist ein zweiter Abrufpfad mit einer einfacheren
 Bewertung als BM25. Sie darf nie als Beleg dafür gelten, wie der Server abruft.
+
+---
+
+## D-017 · 2026-09-18 · Demo statt Vorschau: die Anwendung selbst steht online
+
+**Ersetzt D-016 in der Ausgestaltung, nicht im Prinzip.** Die Ausgabe auf GitHub Pages ist
+ein Frontend-Test für eine Bewerbung; ein Prüfer soll die Anwendung bedienen, nicht eine
+Vorführung ansehen. Die Zurückhaltung von D-016 — Warnbanner über der ganzen Seite,
+Anmeldung als „Kulisse", keine Speicherung — war deshalb falsch justiert: sie erklärte an
+jeder Stelle, was fehlt, statt zu zeigen, was da ist.
+
+**Entscheidung:** Die Demo verhält sich wie der Server mit `LLM_PROVIDER=stub`. Die Anmeldung
+prüft `admin:admin`. Notebooks, Quellen, Auswahl und Notizen liegen im `localStorage` und
+überleben das Neuladen; die Sitzung liegt wie beim Server im `sessionStorage`. Belege
+entstehen aus demselben `chunkText` und zeigen auf echte Zeichenpositionen.
+
+**Was gekennzeichnet bleibt — und nur das:** Es ist kein Sprachmodell angebunden. Die
+Plakette in der Kopfleiste und der Hinweis an jeder Antwort sagen es; `simulated: true`
+steht in jeder Antwort. Das ist dieselbe Kennzeichnung wie beim Server ohne Modell — nicht
+mehr, weil mehr die Bedienung überlagert, und nicht weniger, weil weniger Regel 5 verletzt.
+
+**Verworfen:** Ein echtes Modell über einen vom Prüfer eingegebenen Schlüssel („bring your
+own key") — möglich, aber nicht verlangt; wäre der nächste Schritt, wenn die Demo echte
+Antworten zeigen soll.

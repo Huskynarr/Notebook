@@ -26,7 +26,9 @@ Darüber hinaus, nicht im Pflichtumfang:
 
 - **Drei umschaltbare Designs** (eigen, Universität Freiburg, huskynarr), je hell und
   dunkel, in den Einstellungen; Auswahl überlebt das Neuladen ohne Aufblitzen.
-- **Vorschau ohne Backend** (`VITE_PREVIEW=true`) für GitHub Pages, sichtbar gekennzeichnet.
+- **Demo ohne Server** (`VITE_DEMO=true`) für GitHub Pages: Anmeldung `admin:admin` wird
+  geprüft, Daten bleiben im Browser, Belege echt; nur das Sprachmodell fehlt und ist an der
+  Antwort gekennzeichnet (D-017).
 
 Zuletzt tatsächlich ausgeführt (2026-09-18):
 
@@ -75,6 +77,9 @@ Diese Punkte sind offen, nicht „vermutlich in Ordnung":
   cd@zv.uni-freiburg.de abgestimmt; Hausschrift nie gesehen; Logo-Frage offen.
 - **Design `huskynarr` ist eine Näherung.** Belegt ist eine Farbe; alles andere ist
   Ableitung (Abschnitt 11).
+- **Zweck der Ausgabe:** Frontend-Test für eine Bewerbung bei everlabs. `docs/product.md`
+  beschreibt weiter den Universitätskontext; ob die Produktdefinition angepasst werden
+  soll, ist nicht entschieden.
 
 ## Bekannte Grenzen
 

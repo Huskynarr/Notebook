@@ -15,17 +15,19 @@ kennen kein Design — ein Design ist nur ein Satz von Farb-, Schrift- und Radiu
 (`tools/build-theme.py`). In jedem Design ist ein Zitat die einzige Stelle in der
 Akzentfarbe: die gehört dem Beleg.
 
-Alle Aufnahmen entstanden am 2026-09-18 in der **Vorschau ohne Backend** — daher das Banner
-und die Plakette „kein Modell verbunden". Die Belegkette ist darin echt: die Marker zeigen
-auf tatsächliche Zeichenpositionen in den Beispieltexten. Nur der Antworttext ist nicht
-formuliert, sondern eine Aufzählung der gefundenen Stellen.
+Alle Aufnahmen entstanden am 2026-09-18 ohne angebundenes Sprachmodell — daher die Plakette
+„kein Modell verbunden". Die Belegkette ist darin echt: die Marker zeigen auf tatsächliche
+Zeichenpositionen in den Texten. Nur der Antworttext ist nicht formuliert, sondern eine
+Aufzählung der gefundenen Stellen.
 
-### Vorschau ansehen
+### Live-Demo
 
-**<https://huskynarr.is-a.dev/Notebook/>**
+**<https://huskynarr.is-a.dev/Notebook/>** — Zugang `admin` / `admin`.
 
-Dort läuft kein Backend: alle Inhalte sind Beispieldaten im Browser, es werden keine
-KI-Antworten erzeugt, und nichts wird gespeichert. Die Seite zeigt Oberfläche und Designs.
+Die Demo läuft vollständig im Browser: Notebooks, Quellen, Notizen und die Belegmechanik
+sind echt und bleiben in deinem Browser gespeichert. Ein Sprachmodell ist nicht angebunden —
+Antworten zeigen die gefundenen Belegstellen, formuliert wird nichts. Das ist dasselbe
+Verhalten wie beim Server ohne Modell und an der Antwort gekennzeichnet.
 
 ### Papier und Tinte (Vorgabe)
 

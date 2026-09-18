@@ -58,7 +58,8 @@ Gehört hierher, weil es den Wert des Protokolls ausmacht:
 | 7 | Bildschirmfotos in die README | `docs/bilder/` | README als HTML gerendert und im Browser aufgerufen; alle Bilder laden. |
 | 8 | Corporate Design der Universität umgesetzt, zunächst als Branch `design/uni-freiburg` | Farb- und Schriftsystem, D-012 bis D-014 | Werte selbst über `cd.uni-freiburg.de/farben/` und `/schrift/` abgerufen. Kontraste gemessen; Rückfall auf Arial mit `document.fonts.check` belegt, nicht angenommen. |
 | 9 | Designs umschaltbar gemacht, drittes Design nach huskynarr.de | Generator `tools/build-theme.py`, Einstellungen, D-015 | Alle sechs Kombinationen an der gebauten Oberfläche gemessen. **Zu huskynarr.de war nur eine Farbe belegbar** (`theme-color`); das Design ist eine Näherung und in `docs/design-system.md` Abschnitt 11 so ausgewiesen — nicht als Nachbildung verkauft. |
-| 10 | Vorschau ohne Backend und Pages-Workflow | `PreviewClient`, `pages.yml`, D-016 | Vorschau-Build unter Basis-Pfad im Browser geöffnet, Hauptablauf in drei Designs durchgeklickt, keine Konsolenfehler. **Der Workflow selbst ist nie gelaufen.** |
+| 10 | Vorschau ohne Backend und Pages-Workflow | `PreviewClient`, `pages.yml`, D-016 | Vorschau-Build unter Basis-Pfad im Browser geöffnet, Hauptablauf in drei Designs durchgeklickt, keine Konsolenfehler. |
+| 11 | Vorschau zur Demo umgebaut, nachdem der Auftraggeber den Zweck klargestellt hat (Bewerbungstest) | `DemoClient` mit Zugangsprüfung und `localStorage`, D-017 | 5 Unit-Tests (Zugang, Persistenz über zwei Instanzen, Offsets); Demo-Build unter `/Notebook/` im Browser wie ein Prüfer durchgeklickt: falsches Passwort abgelehnt, eigene Quelle, Beleg trifft die Stelle, Notiz bleibt nach Neuladen, neuer Kontext verlangt Login. Ein Signaturfehler im Test entging `tsc` auf dem Rechner, weil ich es nach dem Schreiben nicht erneut aufrief — der Build im Container fing ihn. |
 
 **Fehler im eigenen Vorgehen, heute:**
 
@@ -69,6 +70,10 @@ Gehört hierher, weil es den Wert des Protokolls ausmacht:
   verstümmelt an. Per `amend` und `rebase --onto` repariert, bevor etwas darauf aufbaute.
 - Die erste Fassung der Belegfarbe im CD war falsch (Grün als Schrift, ~3,3:1). Die Messung
   hat den Zuschnitt geändert, nicht die Planung.
+- Die erste Fassung der Pages-Ausgabe hat den Zweck verfehlt: Ich habe eine Vorführung mit
+  Warnbanner gebaut, wo ein bedienbarer Frontend-Test gebraucht wurde. Die Regel „keine
+  unmarkierten Simulationen" verlangt Kennzeichnung, nicht Entwertung — den Unterschied
+  hat der Auftraggeber benennen müssen.
 - `pnpm test` scheiterte auf einem frischen Checkout, weil das geteilte Paket nicht gebaut
   war. Ich hatte immer im vorbereiteten Arbeitsverzeichnis geprüft, nie im Zustand nach
   dem Klonen — und die CI ebenso wenig. Gefunden hat es der Auftraggeber.
