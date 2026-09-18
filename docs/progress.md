@@ -29,16 +29,24 @@ Darüber hinaus, nicht im Pflichtumfang:
 - **Demo ohne Server** (`VITE_DEMO=true`) für GitHub Pages: Anmeldung `admin:admin` wird
   geprüft, Daten bleiben im Browser, Belege echt; nur das Sprachmodell fehlt und ist an der
   Antwort gekennzeichnet (D-017).
+- **Oberfläche auf Deutsch und Englisch** (D-018); die Einführung beim ersten Start fragt
+  Sprache und Design ab und erscheint danach nicht mehr (E2E-Test).
+- **Adressen als Quelle** — der Server ruft Webseiten und Text-/JSON-Endpunkte ab und
+  extrahiert den Text (D-019, `extract.test.ts`, `server.test.ts`); die Demo meldet eine
+  CORS-Sperre als solche (im Browser gegen `example.org` gesehen).
+- **Teilen** für Notebook und einzelne Antwort als Markdown, Word, PDF (Druck) und PNG
+  (D-020). Alle Downloads im Browser ausgelöst und geöffnet: `.md` mit Belegliste, `.docx`
+  mit Überschriften und Absätzen, PNG 1568×1220 px mit Frage und Antwort ohne Knöpfe.
+- **Verschiebbare Spalten** über Trenner (Maus, Pfeiltasten); Breiten überleben das
+  Neuladen. Kopfbereich zeigt den vollen Notebook-Titel mit Menü statt eines schmalen
+  Auswahlfelds.
 
 Zuletzt tatsächlich ausgeführt (2026-09-18):
 
 ```
-pnpm typecheck        5 Projekte, keine Ausgabe
-pnpm lint             keine Ausgabe
-pnpm format:check     alle Dateien konform
-pnpm test             65 Tests in 8 Dateien bestanden
-pnpm --filter @notebook/web build   erfolgreich, JS 360 kB (gzip 109 kB)
-pnpm exec playwright test           7 Tests bestanden
+pnpm verify           typecheck, lint, format:check, 86 Tests in 11 Dateien, Build
+pnpm --filter @notebook/web build   JS 400 kB (gzip 120 kB) + Export-Chunk 367 kB (gzip 105 kB), lädt erst beim Teilen
+pnpm exec playwright test           8 Tests bestanden (locale de-DE)
 ```
 
 Gemessen, nicht geschätzt:
@@ -95,6 +103,14 @@ Diese Punkte sind offen, nicht „vermutlich in Ordnung":
 - **PDFs werden nicht angenommen.** Der Typ ist im Schema vorgesehen, die API lehnt ihn ab.
 - **Der Offline-Modus formuliert nichts.** Ohne Modell listet er nur die gefundenen Stellen.
   Das ist Absicht, kann aber beim ersten Start wie ein Fehler wirken — das Banner sagt es.
+- **Adressquellen in der Demo hängen von der Zielseite ab.** Ohne Server kann der Browser
+  nur Seiten holen, die den Abruf per CORS erlauben; die meisten tun das nicht. Der Dialog
+  sagt es, umgehen kann er es nicht (D-019).
+- **PDF ist der Druckdialog.** Das Ergebnis hängt vom Browser ab (Kopf-/Fußzeilen,
+  Seitenränder); geprüft wurde nur, dass das Druck-Stylesheet das gewählte Element isoliert,
+  nicht die PDF-Datei selbst.
+- **Der lange Titel wird auf schmalen Bildschirmen gekürzt** (Tooltip zeigt ihn ganz); auf
+  Desktop-Breite steht er vollständig.
 
 ## Im Verlauf gefundene Fehler
 
@@ -125,13 +141,30 @@ Festgehalten, weil jeder davon zeigt, welche Prüfung ihn gefunden hat:
    Aufruf — die CI hätte es nie gemerkt, weil sie das Paket in einem eigenen Schritt baute
    und damit einen anderen Weg ging als eine Person nach dem Klonen.
 
+10. **Das Teilen-Menü wurde unten abgeschnitten,** weil es im Scrollbereich des Chats lag.
+    Gefunden im Bildschirmfoto der Demo, von keinem Test. Jetzt am `document.body`, klappt
+    bei Platzmangel nach oben.
+11. **Der Belegsprung blieb aus, wenn die Quelle nach dem Beleg ankam.** Der Effekt hing nur
+    am Beleg. Gefunden im Bildschirmfoto: die Quellansicht stand oben statt an der Stelle.
+12. **Ein Sprachwechsel verwarf Chatverlauf und offene Quelle,** weil der API-Client an der
+    Übersetzungsfunktion hing und mit ihr neu entstand. Gefunden im Mobil-Bildschirmfoto
+    nach dem Umschalten („Keine Quelle geöffnet").
+13. **Dateinamen mit Umlaut kamen als `download` an** (Blob-URL, Chromium). Gefunden beim
+    tatsächlichen Herunterladen; Umlaute werden jetzt umschrieben.
+14. **Die Kopfzeile lief bei 390 px über,** weil die deutsche Plakette „Kein Modell
+    verbunden" plus drei Knöpfe breiter als der Bildschirm waren. Gefunden vom E2E-Test.
+15. **Die E2E-Auswahlhilfe stellte nichts um,** weil sie die Kästchen zählte, bevor die
+    Quellen ankamen — der Chat erscheint seit dem Umbau zuerst. Ein Testfehler, kein
+    Anwendungsfehler; gefunden durch Mitschnitt der Netzwerkaufrufe (kein PATCH).
+
 ## Nächste sinnvolle Schritte
 
 1. Einen echten Endpunkt anbinden und P5 prüfen — alles Übrige hängt daran.
 2. Belegtreue von zwei bis drei Modellen an einem echten Korpus messen und die Quote
    `exact` gegenüber `chunk` festhalten.
 3. CI einmal laufen lassen und die Workflows nachziehen.
-4. Pages einmal laufen lassen und die Vorschau im echten Browser ansehen.
+4. Pages nach diesem Stand erneut ansehen; die Bildschirmfotos in der README zeigen noch
+   den Kopfbereich vor dem Umbau.
 5. CD-Umsetzung mit cd@zv.uni-freiburg.de abstimmen; huskynarr-Werte vom Besitzer der Seite
    erfragen und eintragen.
 6. Erst danach PDFs als Erweiterung.

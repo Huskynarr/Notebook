@@ -61,6 +61,10 @@ Gehört hierher, weil es den Wert des Protokolls ausmacht:
 | 10 | Vorschau ohne Backend und Pages-Workflow | `PreviewClient`, `pages.yml`, D-016 | Vorschau-Build unter Basis-Pfad im Browser geöffnet, Hauptablauf in drei Designs durchgeklickt, keine Konsolenfehler. |
 | 11 | Vorschau zur Demo umgebaut, nachdem der Auftraggeber den Zweck klargestellt hat (Bewerbungstest) | `DemoClient` mit Zugangsprüfung und `localStorage`, D-017 | 5 Unit-Tests (Zugang, Persistenz über zwei Instanzen, Offsets); Demo-Build unter `/Notebook/` im Browser wie ein Prüfer durchgeklickt: falsches Passwort abgelehnt, eigene Quelle, Beleg trifft die Stelle, Notiz bleibt nach Neuladen, neuer Kontext verlangt Login. Ein Signaturfehler im Test entging `tsc` auf dem Rechner, weil ich es nach dem Schreiben nicht erneut aufrief — der Build im Container fing ihn. |
 
+| 12 | Umlautfehler in Beispieltexten, Kommentaren und Oberfläche behoben | `tools/umlaute.py`, Beispielquellen | Skript sucht bekannte Fehlformen (`ae`/`oe`/`ue`/`ss` an Wortstellen, an denen ein Umlaut hingehört); Treffer einzeln angesehen, ASCII in Code-Kommentaren bewusst belassen. |
+| 13 | Adressen als Quelle (Server ruft ab, SSRF-Schutz, Textextraktion), Antwortsprache | `fetchSource.ts`, `extract.ts`, Schema `kind: 'url'`, D-019 | `extract.test.ts` (HTML mit `<head>`, JSON, Titel aus Adresse), `server.test.ts` gegen einen lokalen Testserver; private Ziele mit `istPrivateAdresse` geprüft. Nicht geprüft: Verhalten an echten großen Seiten. |
+| 14 | Oberfläche zweisprachig, Einführung, Teilen-Menü mit vier Exporten, verschiebbare Spalten, neuer Kopfbereich | `i18n/`, `Tour.tsx`, `ShareMenu.tsx`, `export.ts`, `Menu.tsx`, `useResizableColumns`, `App.tsx`, D-018/D-020 | 86 Unit-Tests, 8 E2E-Tests (Einführung neu), Demo-Build unter `/Notebook/` im Browser durchgeklickt und Bildschirmfotos angesehen; alle fünf Downloads tatsächlich ausgelöst und geöffnet (MD gelesen, DOCX-XML gelesen, PNG betrachtet). Sechs Fehler dabei gefunden (Nr. 10–15 in `docs/progress.md`), keiner durch Lesen des Codes. |
+
 **Fehler im eigenen Vorgehen, heute:**
 
 - Eine Shell-Eingabe war zu groß (`E2BIG`) und wurde nicht ausgeführt; ich habe das erst
@@ -80,6 +84,13 @@ Gehört hierher, weil es den Wert des Protokolls ausmacht:
 - Drei weitere Fehler fanden sich erst im laufenden Programm (Nr. 7 und 8 in
   `docs/progress.md`, dazu sechs Build-Warnungen durch Schriftpfade). Keiner wäre durch
   Lesen des Codes aufgefallen.
+- Beim Umbau auf Übersetzungen hing der API-Client an der Übersetzungsfunktion; jeder
+  Sprachwechsel baute ihn neu und verwarf den Arbeitsstand. Der Fehler stand im Code, den
+  ich selbst geschrieben hatte, und fiel erst im Bildschirmfoto nach dem Umschalten auf.
+- Zwei E2E-Tests schlugen nach dem Umbau fehl. Einer zeigte einen echten Fehler (Kopfzeile
+  läuft über), einer eine Schwäche des Tests (Kästchen gezählt, bevor sie da waren). Ich
+  habe beide vor dem Commit aufgeklärt statt den Test zu lockern — die Netzwerkaufzeichnung
+  zeigte, dass kein PATCH abging, also kam die Anwendung gar nicht zum Zug.
 
 ---
 
