@@ -179,8 +179,8 @@ Relevant, weil sie bestimmen, was lokal überhaupt geprüft werden konnte:
 - Im verbundenen Projektordner dürfen keine Dateien gelöscht werden. Git kann dort seine
   Sperrdateien nicht entfernen, weshalb während der Arbeit außerhalb des Ordners committet
   und hineingespiegelt wurde.
-- Im Ordner liegen aus fehlgeschlagenen Zwischenschritten `.git-STALE-bitte-loeschen`,
-  `.probe-stale` und `.transfer-tmp.tar`. Alle drei sind funktionslos und müssen von Hand
-  gelöscht werden. Dazu kommt `Claude outputs/` mit denselben Bildschirmfotos, die in
-  `docs/bilder/` versioniert sind — vom Desktop angelegt, in `.gitignore` eingetragen,
-  kann weg.
+- Im Ordner liegen aus Zwischenschritten drei unversionierte Reste, die von Hand gelöscht
+  werden müssen: `.transfer-tmp.tar`, `.tmp/` (Übertragungsarchive) und
+  `apps/web/src/preview/previewClient.ts` — der Vorläufer des Demo-Clients aus D-016, der
+  gegen die heutige Schnittstelle nicht mehr typprüft. Solange er dort liegt, schlägt
+  `pnpm typecheck` in diesem Ordner fehl; im Repository ist er nicht enthalten.
