@@ -8,6 +8,7 @@ import { cx } from './ui/cx.ts';
 
 export function SourcesPanel({
   sources,
+  loading,
   openSourceId,
   hitCounts,
   onToggle,
@@ -15,7 +16,8 @@ export function SourcesPanel({
   onAdd,
   onDelete,
 }: {
-  sources: readonly Source[];
+  sources: readonly Source[] | null;
+  loading: boolean;
   openSourceId: string | null;
   hitCounts: ReadonlyMap<string, number>;
   onToggle: (source: Source, selected: boolean) => void;
@@ -25,7 +27,8 @@ export function SourcesPanel({
 }): ReactElement {
   const [adding, setAdding] = useState(false);
 
-  const selectedCount = sources.filter((s) => s.selected).length;
+  const liste = sources ?? [];
+  const selectedCount = liste.filter((s) => s.selected).length;
 
   return (
     <div className="flex h-full flex-col">
@@ -33,12 +36,13 @@ export function SourcesPanel({
         <div>
           <h2 className="text-heading text-content-strong">Quellen</h2>
           <p className="text-meta text-content-muted">
-            {selectedCount} von {sources.length} ausgewählt
+            {loading ? 'wird geladen …' : `${selectedCount} von ${liste.length} ausgewählt`}
           </p>
         </div>
         <Button
           size="sm"
           variant="primary"
+          disabled={loading}
           onClick={() => {
             setAdding(true);
           }}
@@ -48,13 +52,17 @@ export function SourcesPanel({
       </div>
 
       <div className="flex-1 space-y-2 overflow-y-auto px-4 pb-4">
-        {sources.length === 0 ? (
+        {loading ? (
+          <p className="text-meta text-content-muted px-1 py-2" aria-live="polite">
+            Quellen werden geladen …
+          </p>
+        ) : liste.length === 0 ? (
           <EmptyState title="Noch keine Quelle">
             Text einfügen oder eine .txt- bzw. .md-Datei wählen. Ohne Quelle beantwortet dieses
             Notebook keine Frage.
           </EmptyState>
         ) : (
-          sources.map((source) => {
+          liste.map((source) => {
             const open = source.id === openSourceId;
             const hits = hitCounts.get(source.id) ?? 0;
             return (
