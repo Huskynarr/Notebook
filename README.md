@@ -8,6 +8,42 @@ auf die Stelle.
 Was das Projekt ist, für wen und mit welchen Grenzen: [`docs/product.md`](docs/product.md).
 Verbindliche Arbeitsregeln: [`AGENTS.md`](AGENTS.md).
 
+## So sieht es aus
+
+Alle Aufnahmen entstanden am 2026-09-17 an der laufenden Anwendung, **im Offline-Modus ohne
+verbundenes Sprachmodell** — daher die Plakette „kein Modell verbunden" oben rechts und der
+Warnhinweis über der Antwort. Die Belegkette ist darin vollständig echt: die Marker zeigen
+auf tatsächlich abgerufene Abschnitte. Nur der Antworttext ist nicht formuliert, sondern
+eine Aufzählung der gefundenen Stellen.
+
+### Ein Beleg wird geprüft
+
+Klick auf `[1]` öffnet rechts die Quelle, springt zur Passage und hebt genau die belegenden
+Zeichen hervor. Unter der Quelle stehen die Zeichenpositionen; die Quellenkarten links
+zeigen, wie oft sie zur letzten Antwort beigetragen haben.
+
+![Antwort mit angeklicktem Beleg: die Quelle rechts ist zur Passage gescrollt, die belegenden Zeichen sind hervorgehoben, darunter stehen die Zeichenpositionen](docs/bilder/beleg-geprueft.png)
+
+### Arbeitsbereich
+
+Quellen links, Dialog in der Mitte, Notizen und Quellenansicht rechts.
+
+![Dreispaltiger Arbeitsbereich mit zwei ausgewählten Quellen und leerem Chat](docs/bilder/arbeitsbereich.png)
+
+### Dunkles Thema
+
+Dieselben semantischen Tokens, für das dunkle Thema neu belegt — keine Komponente kennt
+eine `dark:`-Variante.
+
+![Derselbe Arbeitsbereich im dunklen Thema](docs/bilder/dunkles-thema.png)
+
+### Schmaler Bildschirm
+
+Unter 1280 px wird aus den drei Spalten eine, mit Tabs. Bei 390 px scrollt die Seite nicht
+waagerecht — ein E2E-Test prüft das.
+
+<img src="docs/bilder/schmaler-bildschirm.png" alt="Einspaltige Ansicht bei 390 px Breite mit den Tabs Quellen, Chat und Notizen" width="390">
+
 ## Schnellstart
 
 Voraussetzung: Node 22 oder neuer und pnpm 9. Sonst nichts — keine Datenbank, kein Docker.
