@@ -14,6 +14,9 @@ export default defineConfig({
   use: {
     baseURL: 'http://127.0.0.1:4173',
     trace: 'on-first-retry',
+    // Die Oberflaeche folgt der Browsersprache; die Pruefungen lesen deutsche
+    // Beschriftungen. Playwright startet sonst mit en-US.
+    locale: 'de-DE',
   },
   projects: [
     {

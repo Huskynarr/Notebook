@@ -13,6 +13,9 @@ import { expect, test, type Page } from '@playwright/test';
 
 async function login(page: Page): Promise<void> {
   await page.goto('/');
+  // Die Einfuehrung erscheint nur beim ersten Start eines Browsers - hier
+  // also in jedem Test, weil jeder mit leerem Speicher beginnt.
+  await page.getByRole('button', { name: 'Überspringen' }).click();
   await page.getByLabel('Passwort').fill('admin');
   await page.getByRole('button', { name: 'Anmelden' }).click();
   // Auf ein Element warten, das in jeder Breite sichtbar ist: die
@@ -24,12 +27,37 @@ async function login(page: Page): Promise<void> {
  *  vorherigen Test. Jeder Test stellt sie deshalb selbst her. */
 async function selectAllSources(page: Page): Promise<void> {
   const boxes = page.locator('input[type="checkbox"][aria-label$="für Fragen berücksichtigen"]');
+  // Die Quellen kommen nach dem Chat an; ohne dieses Warten zaehlt die
+  // Schleife null Kaestchen und stellt nichts um.
+  await boxes.first().waitFor({ state: 'attached' });
   for (let i = 0; i < (await boxes.count()); i += 1) {
     const box = boxes.nth(i);
     if (!(await box.isChecked())) await box.check();
   }
   await expect(page.locator('input[type="checkbox"]:not(:checked)')).toHaveCount(0);
 }
+
+test('Einführung fragt beim ersten Start nach Sprache und Design und erscheint danach nicht mehr', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByText('Schritt 1 von 3')).toBeVisible();
+  await dialog.getByRole('button', { name: 'English' }).click();
+  await expect(dialog.getByText('Step 1 of 3')).toBeVisible();
+  await dialog.getByRole('button', { name: 'Next' }).click();
+  await dialog.getByRole('radio', { name: /Universität Freiburg|University of Freiburg/ }).check();
+  await expect(page.locator('html')).toHaveAttribute('data-design', 'uni-freiburg');
+  await dialog.getByRole('button', { name: 'Next' }).click();
+  await dialog.getByRole('button', { name: /Get started|Start/ }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+});
 
 test('Beispiel-Notebook ist nach dem Start sofort nutzbar', async ({ page }) => {
   await login(page);
