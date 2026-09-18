@@ -38,8 +38,8 @@ export class ApiRequestError extends Error {
 export type TokenProvider = () => string | null;
 
 /** Was die Anwendung von ihrer Datenquelle braucht. `ApiClient` spricht damit
- *  das Backend an, `PreviewClient` liefert dieselbe Form aus Beispieldaten im
- *  Browser (siehe preview/previewClient.ts). Die Anwendung kennt nur diese
+ *  das Backend an, `DemoClient` liefert dieselbe Form aus dem Browser heraus
+ *  (siehe demo/demoClient.ts). Die Anwendung kennt nur diese
  *  Schnittstelle und damit an keiner Stelle den Unterschied. */
 export interface NotebookApi {
   health(): Promise<HealthResponse>;

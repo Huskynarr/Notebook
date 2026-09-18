@@ -8,14 +8,14 @@ import type {
   SourceContent,
 } from '@notebook/shared';
 import { ApiClient, ApiRequestError, type NotebookApi } from './lib/api.ts';
-import { API_BASE_URL, PREVIEW_MODE } from './lib/config.ts';
+import { API_BASE_URL, DEMO_MODE } from './lib/config.ts';
 import {
   anwenden as erscheinungsbildAnwenden,
   lesen as erscheinungsbildLesen,
   schreiben as erscheinungsbildSchreiben,
   type Erscheinungsbild,
 } from './lib/appearance.ts';
-import { PreviewClient } from './preview/previewClient.ts';
+import { DemoClient } from './demo/demoClient.ts';
 import { SettingsDialog } from './components/SettingsDialog.tsx';
 import { readToken, writeToken } from './lib/session.ts';
 import { ChatPanel, type Exchange } from './components/ChatPanel.tsx';
@@ -38,11 +38,12 @@ export function App(): ReactElement {
   const [token, setToken] = useState<string | null>(() => readToken());
   const toast = useToast();
 
-  // Ohne Backend laeuft die Anwendung gegen Beispieldaten im Browser. Sie kennt
-  // nur die Schnittstelle NotebookApi und an keiner Stelle den Unterschied -
-  // sichtbar ist er ueber das Banner und `simulated` in jeder Antwort.
+  // In der Demo laeuft die Anwendung vollstaendig im Browser. Sie kennt nur
+  // die Schnittstelle NotebookApi und an keiner Stelle den Unterschied -
+  // sichtbar ist er ueber `simulated` in jeder Antwort, wie beim Server ohne
+  // Modell.
   const api = useMemo<NotebookApi>(
-    () => (PREVIEW_MODE ? new PreviewClient() : new ApiClient(() => token)),
+    () => (DEMO_MODE ? new DemoClient() : new ApiClient(() => token)),
     [token],
   );
 
@@ -283,7 +284,7 @@ export function App(): ReactElement {
       open={settingsOpen}
       wert={erscheinungsbild}
       apiBaseUrl={API_BASE_URL}
-      vorschau={PREVIEW_MODE}
+      demo={DEMO_MODE}
       onChange={setErscheinungsbild}
       onClose={() => {
         setSettingsOpen(false);
@@ -296,7 +297,7 @@ export function App(): ReactElement {
       <>
         <LoginScreen
           apiBaseUrl={API_BASE_URL}
-          vorschau={PREVIEW_MODE}
+          demo={DEMO_MODE}
           onLogin={login}
           onOpenSettings={() => {
             setSettingsOpen(true);
@@ -438,18 +439,16 @@ export function App(): ReactElement {
           >
             Einstellungen
           </Button>
-          {!PREVIEW_MODE && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                writeToken(null);
-                setToken(null);
-              }}
-            >
-              Abmelden
-            </Button>
-          )}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              writeToken(null);
+              setToken(null);
+            }}
+          >
+            Abmelden
+          </Button>
         </div>
       </header>
 
@@ -466,17 +465,6 @@ export function App(): ReactElement {
           ]}
         />
       </div>
-
-      {PREVIEW_MODE && (
-        <div className="bg-warning-surface border-b-warning-mark text-content border-b-2 px-4 py-2">
-          <p className="text-meta">
-            <strong className="text-content-strong">Vorschau ohne Backend.</strong> Alle Inhalte
-            sind Beispieldaten in deinem Browser und verschwinden beim Neuladen. Es ist kein
-            Sprachmodell verbunden — es werden keine KI-Antworten erzeugt. Die Belege sind echt: sie
-            zeigen auf die Zeichenpositionen in den Beispieltexten.
-          </p>
-        </div>
-      )}
 
       <div className="flex min-h-0 flex-1">
         <aside

@@ -16,19 +16,19 @@ import {
 import type { NotebookApi } from '../lib/api.ts';
 
 /**
- * Datenquelle für die Ausgabe ohne Backend (GitHub Pages).
+ * Datenquelle für die Demo ohne Backend (GitHub Pages).
  *
- * Sie ist **kein** Ersatz für den Server und tut bewusst nicht so. Was sie
- * leistet: Quellen verwalten, sie mit **demselben** Chunking wie der Server
- * zerlegen (`chunkText` aus `@notebook/shared`) und zu einer Frage die
- * passenden Abschnitte finden. Die Belegkette ist darin echt — die Marker
- * zeigen auf tatsächlich gefundene Abschnitte, und die Zeichen-Offsets treffen
- * die Stelle im Originaltext.
+ * Die Anwendung läuft damit vollständig im Browser und verhält sich wie der
+ * Server mit `LLM_PROVIDER=stub`: Anmeldung mit dem festen Zugang, Notebooks,
+ * Quellen, Notizen — alles echt und im `localStorage` gespeichert. Quellen
+ * werden mit **demselben** `chunkText` zerlegt wie auf dem Server; die Marker
+ * zeigen auf tatsächlich gefundene Abschnitte und die Offsets treffen die
+ * Stelle im Originaltext.
  *
- * Was sie **nicht** leistet: eine Antwort formulieren. Es ist kein Modell
- * verbunden und im Frontend darf keines konfiguriert sein (AGENTS.md Regel 4).
- * Jede Antwort trägt deshalb `simulated: true`, und das UI zeigt dafür ein
- * dauerhaftes Banner (Regel 5).
+ * Was fehlt, ist genau eines: ein Sprachmodell. Im Frontend darf keines
+ * konfiguriert sein (AGENTS.md Regel 4). Jede Antwort trägt deshalb
+ * `simulated: true`, und das UI kennzeichnet sie — nicht mehr und nicht weniger
+ * als beim Server ohne Modell (Regel 5).
  */
 
 interface Eintrag {
@@ -89,7 +89,7 @@ const STOPWORDS = new Set([
 ]);
 
 /** Bewusst schlicht: zaehlt, wie viele Suchbegriffe als Praefix im Abschnitt
- *  vorkommen. Der Server rechnet BM25 ueber FTS5; das hier ist eine Vorschau
+ *  vorkommen. Der Server rechnet BM25 ueber FTS5; das hier ist eine Demo
  *  und gibt sich nicht als dasselbe aus. */
 function bewerten(text: string, begriffe: readonly string[]): number {
   const klein = text.toLowerCase();
@@ -112,15 +112,62 @@ function begriffeAus(frage: string): string[] {
   ];
 }
 
-export class PreviewClient implements NotebookApi {
-  private readonly notebookId = 'vorschau';
-  private readonly eintraege: Eintrag[] = [];
+const SPEICHER_SCHLUESSEL = 'notebook.demo.v1';
+
+/** Fester Zugang wie beim Server (D-003). Hier im Klartext, weil es in einer
+ *  Demo ohne Server nichts zu schuetzen gibt - die Pruefung ist Teil des
+ *  Bedienablaufs, nicht der Sicherheit. */
+const ZUGANG = { username: 'admin', password: 'admin' };
+
+interface Gespeichert {
+  titel: string;
+  eintraege: Eintrag[];
+  notizen: Note[];
+}
+
+export class DemoClient implements NotebookApi {
+  private readonly notebookId = 'demo';
+  private eintraege: Eintrag[] = [];
   private notizen: Note[] = [];
   private titel = EXAMPLE_NOTEBOOK_TITLE;
+  private readonly speicher: Storage | null;
 
-  constructor() {
-    for (const quelle of EXAMPLE_SOURCES) {
-      this.anlegen(quelle.title, quelle.kind, quelle.content);
+  constructor(speicher: Storage | null = fensterSpeicher()) {
+    this.speicher = speicher;
+    if (!this.laden()) {
+      for (const quelle of EXAMPLE_SOURCES) {
+        this.anlegen(quelle.title, quelle.kind, quelle.content);
+      }
+      this.sichern();
+    }
+  }
+
+  private laden(): boolean {
+    try {
+      const roh = this.speicher?.getItem(SPEICHER_SCHLUESSEL);
+      if (roh === null || roh === undefined) return false;
+      const daten = JSON.parse(roh) as Partial<Gespeichert>;
+      if (!Array.isArray(daten.eintraege) || !Array.isArray(daten.notizen)) return false;
+      this.eintraege = daten.eintraege;
+      this.notizen = daten.notizen;
+      this.titel = typeof daten.titel === 'string' ? daten.titel : EXAMPLE_NOTEBOOK_TITLE;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private sichern(): void {
+    try {
+      const daten: Gespeichert = {
+        titel: this.titel,
+        eintraege: this.eintraege,
+        notizen: this.notizen,
+      };
+      this.speicher?.setItem(SPEICHER_SCHLUESSEL, JSON.stringify(daten));
+    } catch {
+      // Voller oder gesperrter Speicher: die Sitzung laeuft weiter, nur ohne
+      // Dauerhaftigkeit. Ein Fehler hier darf keine Bedienung abbrechen.
     }
   }
 
@@ -146,6 +193,7 @@ export class PreviewClient implements NotebookApi {
       createdAt: new Date().toISOString(),
     };
     this.eintraege.push({ source, content, chunks });
+    this.sichern();
     return source;
   }
 
@@ -163,14 +211,17 @@ export class PreviewClient implements NotebookApi {
   health(): Promise<HealthResponse> {
     return Promise.resolve({
       status: 'ok',
-      version: 'Vorschau',
-      llm: { configured: false, provider: 'vorschau', model: 'kein Modell verbunden' },
+      version: 'demo',
+      llm: { configured: false, provider: 'demo', model: 'kein Modell verbunden' },
     });
   }
 
-  login(): Promise<{ token: string; expiresAt: string }> {
+  login(username: string, password: string): Promise<{ token: string; expiresAt: string }> {
+    if (username !== ZUGANG.username || password !== ZUGANG.password) {
+      return Promise.reject(new Error('Benutzername oder Passwort stimmt nicht.'));
+    }
     return Promise.resolve({
-      token: 'vorschau',
+      token: 'demo',
       expiresAt: new Date(Date.now() + 86_400_000).toISOString(),
     });
   }
@@ -181,26 +232,28 @@ export class PreviewClient implements NotebookApi {
 
   createNotebook(title: string): Promise<Notebook> {
     this.titel = title;
+    this.sichern();
     return Promise.resolve(this.notebook());
   }
 
   renameNotebook(_id: string, title: string): Promise<Notebook> {
     this.titel = title;
+    this.sichern();
     return Promise.resolve(this.notebook());
   }
 
-  deleteNotebook(): Promise<void> {
+  deleteNotebook(_id: string): Promise<void> {
     return Promise.resolve();
   }
 
-  exportNotebook(): Promise<string> {
-    const zeilen = [`# ${this.titel}`, '', '_Export aus der Vorschau ohne Backend._', ''];
+  exportNotebook(_id: string): Promise<string> {
+    const zeilen = [`# ${this.titel}`, '', '_Export aus der Demo im Browser._', ''];
     for (const notiz of this.notizen) zeilen.push(`## ${notiz.title}`, '', notiz.body, '');
     for (const e of this.eintraege) zeilen.push(`## ${e.source.title}`, '', e.content, '');
     return Promise.resolve(zeilen.join('\n'));
   }
 
-  listSources(): Promise<Source[]> {
+  listSources(_notebookId: string): Promise<Source[]> {
     return Promise.resolve(this.eintraege.map((e) => e.source));
   }
 
@@ -224,12 +277,14 @@ export class PreviewClient implements NotebookApi {
       selected: patch.selected ?? eintrag.source.selected,
       title: patch.title ?? eintrag.source.title,
     };
+    this.sichern();
     return Promise.resolve(eintrag.source);
   }
 
   deleteSource(sourceId: string): Promise<void> {
     const stelle = this.eintraege.findIndex((e) => e.source.id === sourceId);
     if (stelle >= 0) this.eintraege.splice(stelle, 1);
+    this.sichern();
     return Promise.resolve();
   }
 
@@ -249,7 +304,7 @@ export class PreviewClient implements NotebookApi {
       unsupportedSentenceCount: 0,
       droppedMarkers: [],
       simulated: true,
-      model: 'Vorschau ohne Backend',
+      model: 'demo (kein Modell verbunden)',
       elapsedMs: Date.now() - beginn,
     });
 
@@ -305,21 +360,21 @@ export class PreviewClient implements NotebookApi {
 
     return Promise.resolve({
       answer:
-        'Dies ist eine Vorschau ohne Backend. Es ist kein Sprachmodell verbunden, deshalb wird hier nichts formuliert — gezeigt wird nur, welche Textstellen zu der Frage gefunden wurden:\n\n' +
+        'Es ist kein Sprachmodell verbunden. Diese Antwort ist daher nicht formuliert, sondern zeigt nur, welche Textstellen zu der Frage gefunden wurden:\n\n' +
         liste +
-        '\n\nDie Belege sind echt: ein Klick springt zur Stelle im Originaltext.',
+        '\n\nEin Klick auf einen Beleg springt zur Stelle im Originaltext.',
       citations,
       retrieved: abgerufen,
       grounded: false,
       unsupportedSentenceCount: 0,
       droppedMarkers: [],
       simulated: true,
-      model: 'Vorschau ohne Backend',
+      model: 'demo (kein Modell verbunden)',
       elapsedMs: Date.now() - beginn,
     });
   }
 
-  listNotes(): Promise<Note[]> {
+  listNotes(_notebookId: string): Promise<Note[]> {
     return Promise.resolve(this.notizen);
   }
 
@@ -338,6 +393,7 @@ export class PreviewClient implements NotebookApi {
       updatedAt: new Date().toISOString(),
     };
     this.notizen = [notiz, ...this.notizen];
+    this.sichern();
     return Promise.resolve(notiz);
   }
 
@@ -351,11 +407,21 @@ export class PreviewClient implements NotebookApi {
       updatedAt: new Date().toISOString(),
     };
     this.notizen = this.notizen.map((n) => (n.id === noteId ? neu : n));
+    this.sichern();
     return Promise.resolve(neu);
   }
 
   deleteNote(noteId: string): Promise<void> {
     this.notizen = this.notizen.filter((n) => n.id !== noteId);
+    this.sichern();
     return Promise.resolve();
+  }
+}
+
+function fensterSpeicher(): Storage | null {
+  try {
+    return typeof window === 'undefined' ? null : window.localStorage;
+  } catch {
+    return null;
   }
 }

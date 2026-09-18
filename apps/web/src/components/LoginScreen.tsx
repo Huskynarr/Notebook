@@ -5,17 +5,17 @@ import { InlineNote } from './ui/Status.tsx';
 
 export function LoginScreen({
   apiBaseUrl,
-  vorschau,
+  demo,
   onLogin,
   onOpenSettings,
 }: {
   apiBaseUrl: string;
-  vorschau: boolean;
+  demo: boolean;
   onLogin: (username: string, password: string) => Promise<void>;
   onOpenSettings: () => void;
 }): ReactElement {
   const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState(vorschau ? 'admin' : '');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | undefined>(undefined);
   const [busy, setBusy] = useState(false);
 
@@ -66,29 +66,21 @@ export function LoginScreen({
             }}
           />
           <Button type="submit" variant="primary" size="lg" loading={busy}>
-            {vorschau ? 'Vorschau öffnen' : 'Anmelden'}
+            Anmelden
           </Button>
         </div>
 
         <div className="mt-5">
-          {vorschau ? (
-            <InlineNote tone="warning" title="Vorschau ohne Backend">
-              Diese Ausgabe läuft ohne Server. Alle Inhalte sind Beispieldaten in deinem Browser,
-              und es werden keine KI-Antworten erzeugt. Die Anmeldung ist hier nur Kulisse — es wird
-              nichts geprüft.
-            </InlineNote>
-          ) : (
-            <InlineNote tone="info" title="Lokaler Zugang">
-              Voreinstellung <code className="font-mono">admin / admin</code>. Der Zugang ist für
-              den Betrieb auf dem eigenen Rechner gedacht — vor einer Erreichbarkeit im Netz muss er
-              geändert werden.
-            </InlineNote>
-          )}
+          <InlineNote tone="info" title="Lokaler Zugang">
+            Voreinstellung <code className="font-mono">admin / admin</code>. Der Zugang ist für den
+            Betrieb auf dem eigenen Rechner gedacht — vor einer Erreichbarkeit im Netz muss er
+            geändert werden.
+          </InlineNote>
         </div>
 
         <div className="mt-4 flex items-center justify-between gap-2">
           <p className="text-meta text-content-subtle font-mono">
-            {vorschau ? 'ohne Backend' : `Backend: ${apiBaseUrl}`}
+            {demo ? 'Demo · läuft ohne Server in diesem Browser' : `Backend: ${apiBaseUrl}`}
           </p>
           <Button size="sm" variant="ghost" onClick={onOpenSettings}>
             Einstellungen

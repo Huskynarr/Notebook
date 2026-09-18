@@ -20,7 +20,7 @@ const DIST = join(WEB_ROOT, 'dist');
 /** Erlaubt sind nur Werte, die im ausgelieferten JavaScript stehen duerfen:
  *  die Adresse des Backends und der Schalter fuer die Ausgabe ohne Backend.
  *  Kein Schluessel, kein Token, kein Passwort. */
-const ALLOWED_ENV_KEYS = new Set(['VITE_API_BASE_URL', 'VITE_PREVIEW']);
+const ALLOWED_ENV_KEYS = new Set(['VITE_API_BASE_URL', 'VITE_DEMO']);
 
 function walk(dir: string, match: (name: string) => boolean): string[] {
   const out: string[] = [];

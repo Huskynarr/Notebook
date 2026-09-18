@@ -159,8 +159,8 @@ function AnswerSection({
       {response.simulated && (
         <div className="mb-3">
           <InlineNote tone="warning" title="Simulierte Antwort — kein Modell verbunden">
-            Der Server läuft mit LLM_PROVIDER=stub. Es wurde nichts formuliert, sondern nur gezeigt,
-            welche Textstellen gefunden wurden.
+            Es ist kein Sprachmodell angebunden. Gezeigt werden die gefundenen Textstellen;
+            formuliert wurde nichts.
           </InlineNote>
         </div>
       )}

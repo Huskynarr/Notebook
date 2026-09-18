@@ -12,8 +12,11 @@ export const API_BASE_URL: string =
     ? configured.trim()
     : 'http://localhost:8787';
 
-const vorschau: unknown = import.meta.env['VITE_PREVIEW'];
+const demo: unknown = import.meta.env['VITE_DEMO'];
 
-/** true = Ausgabe ohne Backend (GitHub Pages). Die Anwendung laeuft dann gegen
- *  Beispieldaten im Browser und sagt das an mehreren Stellen sichtbar. */
-export const PREVIEW_MODE: boolean = vorschau === 'true' || vorschau === true;
+/** true = Demo ohne Backend (GitHub Pages). Die Anwendung laeuft dann
+ *  vollstaendig im Browser: Anmeldung, Notebooks, Quellen, Notizen und die
+ *  Belegmechanik sind echt und bleiben im localStorage; nur ein Sprachmodell
+ *  ist nicht angebunden - das ist an der Antwort gekennzeichnet, wie beim
+ *  Server mit LLM_PROVIDER=stub. */
+export const DEMO_MODE: boolean = demo === 'true' || demo === true;

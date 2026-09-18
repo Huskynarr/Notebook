@@ -2,26 +2,25 @@ import type { ReactElement } from 'react';
 import { DESIGNS, MODI, type Erscheinungsbild } from '../lib/appearance.ts';
 import { Button } from './ui/Button.tsx';
 import { Dialog } from './ui/Dialog.tsx';
-import { InlineNote } from './ui/Status.tsx';
 import { cx } from './ui/cx.ts';
 
 /**
- * Einstellungen. Jede Aenderung wirkt sofort - der Dialog ist damit zugleich
- * die Vorschau, und es braucht keinen Speichern-Knopf, dessen Wirkung man
+ * Einstellungen. Jede Aenderung wirkt sofort - der Dialog zeigt sie damit
+ * selbst, und es braucht keinen Speichern-Knopf, dessen Wirkung man
  * erst nach dem Schliessen sieht.
  */
 export function SettingsDialog({
   open,
   wert,
   apiBaseUrl,
-  vorschau,
+  demo,
   onChange,
   onClose,
 }: {
   open: boolean;
   wert: Erscheinungsbild;
   apiBaseUrl: string;
-  vorschau: boolean;
+  demo: boolean;
   onChange: (wert: Erscheinungsbild) => void;
   onClose: () => void;
 }): ReactElement {
@@ -86,11 +85,15 @@ export function SettingsDialog({
           </div>
         </fieldset>
 
-        {vorschau ? (
-          <InlineNote tone="warning" title="Vorschau ohne Backend">
-            Diese Ausgabe läuft ohne Server. Alle Inhalte sind Beispieldaten im Browser, und es
-            werden keine KI-Antworten erzeugt.
-          </InlineNote>
+        {demo ? (
+          <div>
+            <p className="text-label text-content">Daten</p>
+            <p className="text-meta text-content-muted mt-1">
+              Diese Demo läuft ohne Server. Notebooks, Quellen und Notizen liegen im Speicher dieses
+              Browsers und bleiben beim Neuladen erhalten. Ein Sprachmodell ist nicht angebunden;
+              Antworten zeigen die gefundenen Belegstellen.
+            </p>
+          </div>
         ) : (
           <div>
             <p className="text-label text-content">Backend</p>
