@@ -11,3 +11,9 @@ export const API_BASE_URL: string =
   typeof configured === 'string' && configured.trim() !== ''
     ? configured.trim()
     : 'http://localhost:8787';
+
+const vorschau: unknown = import.meta.env['VITE_PREVIEW'];
+
+/** true = Ausgabe ohne Backend (GitHub Pages). Die Anwendung laeuft dann gegen
+ *  Beispieldaten im Browser und sagt das an mehreren Stellen sichtbar. */
+export const PREVIEW_MODE: boolean = vorschau === 'true' || vorschau === true;

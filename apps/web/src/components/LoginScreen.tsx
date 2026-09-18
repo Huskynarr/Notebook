@@ -5,15 +5,17 @@ import { InlineNote } from './ui/Status.tsx';
 
 export function LoginScreen({
   apiBaseUrl,
+  vorschau,
   onLogin,
   onOpenSettings,
 }: {
   apiBaseUrl: string;
+  vorschau: boolean;
   onLogin: (username: string, password: string) => Promise<void>;
   onOpenSettings: () => void;
 }): ReactElement {
   const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(vorschau ? 'admin' : '');
   const [error, setError] = useState<string | undefined>(undefined);
   const [busy, setBusy] = useState(false);
 
@@ -64,20 +66,30 @@ export function LoginScreen({
             }}
           />
           <Button type="submit" variant="primary" size="lg" loading={busy}>
-            Anmelden
+            {vorschau ? 'Vorschau öffnen' : 'Anmelden'}
           </Button>
         </div>
 
         <div className="mt-5">
-          <InlineNote tone="info" title="Lokaler Zugang">
-            Voreinstellung <code className="font-mono">admin / admin</code>. Der Zugang ist für den
-            Betrieb auf dem eigenen Rechner gedacht — vor einer Erreichbarkeit im Netz muss er
-            geändert werden.
-          </InlineNote>
+          {vorschau ? (
+            <InlineNote tone="warning" title="Vorschau ohne Backend">
+              Diese Ausgabe läuft ohne Server. Alle Inhalte sind Beispieldaten in deinem Browser,
+              und es werden keine KI-Antworten erzeugt. Die Anmeldung ist hier nur Kulisse — es wird
+              nichts geprüft.
+            </InlineNote>
+          ) : (
+            <InlineNote tone="info" title="Lokaler Zugang">
+              Voreinstellung <code className="font-mono">admin / admin</code>. Der Zugang ist für
+              den Betrieb auf dem eigenen Rechner gedacht — vor einer Erreichbarkeit im Netz muss er
+              geändert werden.
+            </InlineNote>
+          )}
         </div>
 
         <div className="mt-4 flex items-center justify-between gap-2">
-          <p className="text-meta text-content-subtle font-mono">Backend: {apiBaseUrl}</p>
+          <p className="text-meta text-content-subtle font-mono">
+            {vorschau ? 'ohne Backend' : `Backend: ${apiBaseUrl}`}
+          </p>
           <Button size="sm" variant="ghost" onClick={onOpenSettings}>
             Einstellungen
           </Button>

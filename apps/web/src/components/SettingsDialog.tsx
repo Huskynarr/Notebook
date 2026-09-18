@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { DESIGNS, MODI, type Erscheinungsbild } from '../lib/appearance.ts';
 import { Button } from './ui/Button.tsx';
 import { Dialog } from './ui/Dialog.tsx';
+import { InlineNote } from './ui/Status.tsx';
 import { cx } from './ui/cx.ts';
 
 /**
@@ -13,12 +14,14 @@ export function SettingsDialog({
   open,
   wert,
   apiBaseUrl,
+  vorschau,
   onChange,
   onClose,
 }: {
   open: boolean;
   wert: Erscheinungsbild;
   apiBaseUrl: string;
+  vorschau: boolean;
   onChange: (wert: Erscheinungsbild) => void;
   onClose: () => void;
 }): ReactElement {
@@ -83,13 +86,20 @@ export function SettingsDialog({
           </div>
         </fieldset>
 
-        <div>
-          <p className="text-label text-content">Backend</p>
-          <p className="text-meta text-content-muted break-all font-mono">{apiBaseUrl}</p>
-          <p className="text-meta text-content-muted mt-1">
-            Wird beim Bauen über <span className="font-mono">VITE_API_BASE_URL</span> gesetzt.
-          </p>
-        </div>
+        {vorschau ? (
+          <InlineNote tone="warning" title="Vorschau ohne Backend">
+            Diese Ausgabe läuft ohne Server. Alle Inhalte sind Beispieldaten im Browser, und es
+            werden keine KI-Antworten erzeugt.
+          </InlineNote>
+        ) : (
+          <div>
+            <p className="text-label text-content">Backend</p>
+            <p className="text-meta text-content-muted break-all font-mono">{apiBaseUrl}</p>
+            <p className="text-meta text-content-muted mt-1">
+              Wird beim Bauen über <span className="font-mono">VITE_API_BASE_URL</span> gesetzt.
+            </p>
+          </div>
+        )}
       </div>
     </Dialog>
   );

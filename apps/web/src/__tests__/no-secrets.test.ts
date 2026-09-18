@@ -17,7 +17,10 @@ const WEB_ROOT = new URL('../..', import.meta.url).pathname;
 const SRC = join(WEB_ROOT, 'src');
 const DIST = join(WEB_ROOT, 'dist');
 
-const ALLOWED_ENV_KEYS = new Set(['VITE_API_BASE_URL']);
+/** Erlaubt sind nur Werte, die im ausgelieferten JavaScript stehen duerfen:
+ *  die Adresse des Backends und der Schalter fuer die Ausgabe ohne Backend.
+ *  Kein Schluessel, kein Token, kein Passwort. */
+const ALLOWED_ENV_KEYS = new Set(['VITE_API_BASE_URL', 'VITE_PREVIEW']);
 
 function walk(dir: string, match: (name: string) => boolean): string[] {
   const out: string[] = [];
@@ -38,9 +41,8 @@ describe('Keine Geheimnisse im Frontend', () => {
       }
     }
     // Der Test selbst nennt die erlaubten Namen und darf sie nicht melden.
-    found.delete('VITE_API_BASE_URL');
+    for (const erlaubt of ALLOWED_ENV_KEYS) found.delete(erlaubt);
     expect([...found]).toEqual([]);
-    expect([...ALLOWED_ENV_KEYS]).toEqual(['VITE_API_BASE_URL']);
   });
 
   it('nennt im Quelltext kein Passwort und keinen Schluessel als Wert', () => {

@@ -37,7 +37,37 @@ export class ApiRequestError extends Error {
 
 export type TokenProvider = () => string | null;
 
-export class ApiClient {
+/** Was die Anwendung von ihrer Datenquelle braucht. `ApiClient` spricht damit
+ *  das Backend an, `PreviewClient` liefert dieselbe Form aus Beispieldaten im
+ *  Browser (siehe preview/previewClient.ts). Die Anwendung kennt nur diese
+ *  Schnittstelle und damit an keiner Stelle den Unterschied. */
+export interface NotebookApi {
+  health(): Promise<HealthResponse>;
+  login(username: string, password: string): Promise<{ token: string; expiresAt: string }>;
+  listNotebooks(): Promise<Notebook[]>;
+  createNotebook(title: string): Promise<Notebook>;
+  renameNotebook(id: string, title: string): Promise<Notebook>;
+  deleteNotebook(id: string): Promise<void>;
+  exportNotebook(id: string): Promise<string>;
+  listSources(notebookId: string): Promise<Source[]>;
+  createSource(
+    notebookId: string,
+    input: { title: string; kind: 'text' | 'markdown'; content: string },
+  ): Promise<Source>;
+  updateSource(id: string, patch: { selected?: boolean; title?: string }): Promise<Source>;
+  deleteSource(id: string): Promise<void>;
+  getSource(id: string): Promise<SourceContent>;
+  ask(notebookId: string, question: string, sourceIds: string[]): Promise<AskResponse>;
+  listNotes(notebookId: string): Promise<Note[]>;
+  createNote(
+    notebookId: string,
+    input: { title: string; body: string; citations: Citation[]; question: string },
+  ): Promise<Note>;
+  updateNote(id: string, patch: { title?: string; body?: string }): Promise<Note>;
+  deleteNote(id: string): Promise<void>;
+}
+
+export class ApiClient implements NotebookApi {
   private readonly baseUrl: string;
   private readonly getToken: TokenProvider;
 
