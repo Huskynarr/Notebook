@@ -10,39 +10,54 @@ Verbindliche Arbeitsregeln: [`AGENTS.md`](AGENTS.md).
 
 ## So sieht es aus
 
-Alle Aufnahmen entstanden am 2026-09-17 an der laufenden Anwendung, **im Offline-Modus ohne
-verbundenes Sprachmodell** — daher die Plakette „kein Modell verbunden" oben rechts und der
-Warnhinweis über der Antwort. Die Belegkette ist darin vollständig echt: die Marker zeigen
-auf tatsächlich abgerufene Abschnitte. Nur der Antworttext ist nicht formuliert, sondern
-eine Aufzählung der gefundenen Stellen.
+Drei Designs, in den **Einstellungen** umschaltbar, je hell und dunkel. Die Komponenten
+kennen kein Design — ein Design ist nur ein Satz von Farb-, Schrift- und Radius-Werten
+(`tools/build-theme.py`). In jedem Design ist ein Zitat die einzige Stelle in der
+Akzentfarbe: die gehört dem Beleg.
 
-### Ein Beleg wird geprüft
+Alle Aufnahmen entstanden am 2026-09-18 in der **Vorschau ohne Backend** — daher das Banner
+und die Plakette „kein Modell verbunden". Die Belegkette ist darin echt: die Marker zeigen
+auf tatsächliche Zeichenpositionen in den Beispieltexten. Nur der Antworttext ist nicht
+formuliert, sondern eine Aufzählung der gefundenen Stellen.
 
-Klick auf `[1]` öffnet rechts die Quelle, springt zur Passage und hebt genau die belegenden
-Zeichen hervor. Unter der Quelle stehen die Zeichenpositionen; die Quellenkarten links
-zeigen, wie oft sie zur letzten Antwort beigetragen haben.
+### Vorschau ansehen
 
-![Antwort mit angeklicktem Beleg: die Quelle rechts ist zur Passage gescrollt, die belegenden Zeichen sind hervorgehoben, darunter stehen die Zeichenpositionen](docs/bilder/beleg-geprueft.png)
+**<https://huskynarr.github.io/Notebook/>** — sobald der Pages-Workflow einmal gelaufen ist
+und Pages im Repository aktiviert wurde (Settings › Pages › Source: *GitHub Actions*).
+Dort läuft **kein Backend**: alle Inhalte sind Beispieldaten im Browser, es werden keine
+KI-Antworten erzeugt, und nichts wird gespeichert. Die Seite dient dazu, Oberfläche und
+Designs anzusehen.
 
-### Arbeitsbereich
+### Papier und Tinte (Vorgabe)
 
-Quellen links, Dialog in der Mitte, Notizen und Quellenansicht rechts.
+Eigener Entwurf: warme Flächen, Serife für Lesetext, Braun für Belege.
 
-![Dreispaltiger Arbeitsbereich mit zwei ausgewählten Quellen und leerem Chat](docs/bilder/arbeitsbereich.png)
+![Design „Papier und Tinte" mit angeklicktem Beleg und hervorgehobener Fundstelle](docs/bilder/design-eigen.png)
 
-### Dunkles Thema
+### Universität Freiburg
 
-Dieselben semantischen Tokens, für das dunkle Thema neu belegt — keine Komponente kennt
-eine `dark:`-Variante.
+Nach dem [Corporate Design](https://cd.uni-freiburg.de): Blau `#344A9A`, Sandtöne, Schwarz
+für Text; CD-Grün ausschließlich für Belege. Die Hausschrift „Social" ist lizenzpflichtig
+und nicht im Repository — zu sehen ist **Arial**, die vom CD vorgesehene Zweitschrift
+(`apps/web/public/fonts/README.md`). Wo das Design über das CD hinausgeht, steht in
+`docs/design-system.md`, Abschnitt 10.
 
-![Derselbe Arbeitsbereich im dunklen Thema](docs/bilder/dunkles-thema.png)
+![Design „Universität Freiburg" mit angeklicktem Beleg](docs/bilder/design-uni-freiburg.png)
 
-### Schmaler Bildschirm
+### huskynarr
 
-Unter 1280 px wird aus den drei Spalten eine, mit Tabs. Bei 390 px scrollt die Seite nicht
-waagerecht — ein E2E-Test prüft das.
+Angenähert an <https://huskynarr.de>. **Belegt ist nur die Grundfarbe `#0c0a09`**; Schriften
+und Akzente der Vorlage sind nicht bekannt, der Rest ist Ableitung (`docs/design-system.md`,
+Abschnitt 11).
 
-<img src="docs/bilder/schmaler-bildschirm.png" alt="Einspaltige Ansicht bei 390 px Breite mit den Tabs Quellen, Chat und Notizen" width="390">
+![Design „huskynarr" im dunklen Erscheinungsbild mit angeklicktem Beleg](docs/bilder/design-huskynarr.png)
+
+### Einstellungen
+
+Design und Erscheinungsbild (System, Hell, Dunkel). Änderungen wirken sofort und bleiben
+auf dem Gerät gespeichert.
+
+![Dialog „Einstellungen" mit den drei Designs und den drei Erscheinungsbildern](docs/bilder/einstellungen.png)
 
 ## Schnellstart
 
@@ -84,7 +99,8 @@ konfigurierbar, `VITE_API_BASE_URL`.
 ## Aufbau
 
 ```
-apps/web        Vite + React 19, TypeScript strict, Tailwind 4, eigenes Design
+apps/web        Vite + React 19, TypeScript strict, Tailwind 4, drei Designs
+tools           build-theme.py - erzeugt theme.css aus den Paletten
 apps/api        Fastify, SQLite aus Nodes Standardbibliothek, FTS5/BM25
 packages/shared zod-Schemata — der gemeinsame API-Vertrag
 e2e             Playwright, prüft den Hauptablauf Ende zu Ende
@@ -114,6 +130,12 @@ docs            Produkt, Entscheidungen, Fortschritt, Design-System
 | `pnpm test` | Unit- und Integrationstests (vitest) |
 | `pnpm test:e2e` | Hauptablauf im Browser (Playwright) |
 | `pnpm format` | Formatierung schreiben |
+| `pnpm theme` | `theme.css` aus den Paletten neu erzeugen |
+
+## Branches
+
+`main` trägt alle drei Designs umschaltbar. `design/uni-freiburg` ist ein Schnappschuss des
+Zwischenstands „nur Corporate Design, ohne Umschalter" und wird nicht weiterentwickelt.
 
 ## Stand
 
