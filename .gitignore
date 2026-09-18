@@ -13,4 +13,6 @@ test-results/
 .DS_Store
 *.log
 .git-STALE-bitte-loeschen/
+# Vom Claude-Desktop angelegt, wenn Dateien in den Chat geliefert werden.
+Claude outputs/
 apps/api/.e2e/

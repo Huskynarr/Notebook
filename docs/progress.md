@@ -114,4 +114,6 @@ Relevant, weil sie bestimmen, was lokal überhaupt geprüft werden konnte:
   und hineingespiegelt wurde.
 - Im Ordner liegen aus fehlgeschlagenen Zwischenschritten `.git-STALE-bitte-loeschen`,
   `.probe-stale` und `.transfer-tmp.tar`. Alle drei sind funktionslos und müssen von Hand
-  gelöscht werden.
+  gelöscht werden. Dazu kommt `Claude outputs/` mit denselben Bildschirmfotos, die in
+  `docs/bilder/` versioniert sind — vom Desktop angelegt, in `.gitignore` eingetragen,
+  kann weg.
