@@ -53,6 +53,25 @@ jobs:
       # nicht auf der Fehlerseite von GitHub.
       - run: cp apps/web/dist/index.html apps/web/dist/404.html
 
+      # Pages muss aus diesem Workflow ausliefern, nicht aus dem Branch. Steht
+      # die Quelle auf "Deploy from a branch", baut GitHub daneben die README
+      # mit Jekyll und ueberschreibt die Anwendung - und dieser Workflow
+      # meldet trotzdem Erfolg. Deshalb hier pruefen, umstellen wenn moeglich,
+      # sonst laut scheitern.
+      - name: Pages-Quelle pruefen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          quelle=$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq .build_type 2>/dev/null || echo unbekannt)
+          echo "Pages-Quelle: ${quelle}"
+          if [ "${quelle}" != "legacy" ]; then exit 0; fi
+          if gh api -X PUT "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow >/dev/null 2>&1; then
+            echo "Auf 'GitHub Actions' umgestellt."
+            exit 0
+          fi
+          echo "::error::Pages liefert aus dem Branch (${quelle}) statt aus diesem Workflow. In den Repository-Einstellungen unter Pages > Build and deployment > Source 'GitHub Actions' waehlen."
+          exit 1
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
