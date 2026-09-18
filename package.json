@@ -18,7 +18,7 @@
     "test:watch": "vitest",
     "verify": "pnpm theme && pnpm --filter @notebook/shared build && pnpm typecheck && pnpm lint && pnpm test && pnpm --filter @notebook/web build",
     "test:e2e": "playwright test",
-    "theme": "python3 tools/build-theme.py"
+    "theme": "python3 tools/build-theme.py && prettier --write apps/web/src/styles/theme.css --log-level warn"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
