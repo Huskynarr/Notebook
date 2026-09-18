@@ -116,6 +116,10 @@ Festgehalten, weil jeder davon zeigt, welche Prüfung ihn gefunden hat:
 8. **Ein später Erstabruf überschrieb die Quellenauswahl.** Die Anwendung fragte dann
    andere Quellen ab, als angezeigt waren. Gefunden im E2E-Lauf — erst sichtbar, nachdem
    ein schnellerer Seitenaufbau das Zeitfenster geöffnet hatte.
+9. **`pnpm test` scheiterte auf einem frischen Checkout.** `@notebook/shared` zeigt auf
+   `dist/`, das nur `pnpm verify` baute. Gefunden vom Auftraggeber beim ersten eigenen
+   Aufruf — die CI hätte es nie gemerkt, weil sie das Paket in einem eigenen Schritt baute
+   und damit einen anderen Weg ging als eine Person nach dem Klonen.
 
 ## Nächste sinnvolle Schritte
 

@@ -69,6 +69,9 @@ Gehört hierher, weil es den Wert des Protokolls ausmacht:
   verstümmelt an. Per `amend` und `rebase --onto` repariert, bevor etwas darauf aufbaute.
 - Die erste Fassung der Belegfarbe im CD war falsch (Grün als Schrift, ~3,3:1). Die Messung
   hat den Zuschnitt geändert, nicht die Planung.
+- `pnpm test` scheiterte auf einem frischen Checkout, weil das geteilte Paket nicht gebaut
+  war. Ich hatte immer im vorbereiteten Arbeitsverzeichnis geprüft, nie im Zustand nach
+  dem Klonen — und die CI ebenso wenig. Gefunden hat es der Auftraggeber.
 - Drei weitere Fehler fanden sich erst im laufenden Programm (Nr. 7 und 8 in
   `docs/progress.md`, dazu sechs Build-Warnungen durch Schriftpfade). Keiner wäre durch
   Lesen des Codes aufgefallen.
