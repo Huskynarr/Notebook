@@ -6,9 +6,11 @@ import { InlineNote } from './ui/Status.tsx';
 export function LoginScreen({
   apiBaseUrl,
   onLogin,
+  onOpenSettings,
 }: {
   apiBaseUrl: string;
   onLogin: (username: string, password: string) => Promise<void>;
+  onOpenSettings: () => void;
 }): ReactElement {
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('');
@@ -74,7 +76,12 @@ export function LoginScreen({
           </InlineNote>
         </div>
 
-        <p className="text-meta text-content-subtle mt-4 font-mono">Backend: {apiBaseUrl}</p>
+        <div className="mt-4 flex items-center justify-between gap-2">
+          <p className="text-meta text-content-subtle font-mono">Backend: {apiBaseUrl}</p>
+          <Button size="sm" variant="ghost" onClick={onOpenSettings}>
+            Einstellungen
+          </Button>
+        </div>
       </form>
     </main>
   );

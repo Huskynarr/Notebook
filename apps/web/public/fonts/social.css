@@ -1,0 +1,41 @@
+/* Einbindung der lizenzpflichtigen Hausschrift "Social".
+
+   Diese Datei liegt bewusst in public/ und nicht in src/: Vite verarbeitet
+   public/ nicht, sodass die fehlenden Schriftdateien beim Bauen keine Warnung
+   erzeugen. Fehlen sie, laedt der Browser sie schlicht nicht und faellt auf
+   Arial zurueck - die vom Corporate Design vorgesehene Zweitschrift.
+
+   Die Pfade sind relativ zu dieser Datei: unter GitHub Pages liegt alles in
+   einem Unterpfad, und absolute Pfade zeigten dort ins Leere.
+
+   Woher die Dateien kommen: siehe README.md in diesem Ordner. */
+
+@font-face {
+  font-family: 'Social';
+  src:
+    url('./Social-Book.woff2') format('woff2'),
+    url('./Social-Book.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Social';
+  src:
+    url('./Social-Book-Italic.woff2') format('woff2'),
+    url('./Social-Book-Italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Social Extended';
+  src:
+    url('./Social-Extended-Medium.woff2') format('woff2'),
+    url('./Social-Extended-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}

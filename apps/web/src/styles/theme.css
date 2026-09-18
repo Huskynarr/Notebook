@@ -1,3 +1,7 @@
+/* ERZEUGTE DATEI - nicht von Hand aendern.
+   Quelle: tools/build-theme.py - neu erzeugen mit `pnpm theme`.
+   Siehe docs/design-system.md. */
+
 @import 'tailwindcss';
 
 @import '@fontsource-variable/inter';
@@ -5,12 +9,12 @@
 @import '@fontsource/source-serif-4/600.css';
 @import '@fontsource-variable/jetbrains-mono';
 
-/* Umsetzung von docs/design-system.md. Weicht etwas hier ab, ist diese Datei
-   falsch, nicht das Dokument.
-
-   Die Tokens liegen als CSS-Variablen vor und werden fuer das dunkle Thema neu
-   belegt. Dadurch braucht keine Komponente eine dark:-Variante - sie nennt nur
-   den semantischen Namen. */
+/* Die Hausschrift "Social" des Designs uni-freiburg ist lizenzpflichtig und
+   liegt nicht im Repo. Ihre @font-face-Regeln stehen in public/fonts/social.css
+   und werden in index.html eingebunden - dort verarbeitet Vite sie nicht, sodass
+   fehlende Schriftdateien weder den Build brechen noch ihn mit Warnungen fluten.
+   Ohne die Dateien faellt das Design auf Arial zurueck, die vom Corporate Design
+   der Universitaet vorgesehene Zweitschrift. Siehe public/fonts/README.md. */
 
 @theme {
   --color-surface-sunken: var(--t-surface-sunken);
@@ -18,48 +22,47 @@
   --color-surface-raised: var(--t-surface-raised);
   --color-surface-overlay: var(--t-surface-overlay);
   --color-surface-inset: var(--t-surface-inset);
-
   --color-content-strong: var(--t-content-strong);
   --color-content: var(--t-content);
   --color-content-muted: var(--t-content-muted);
   --color-content-subtle: var(--t-content-subtle);
   --color-content-inverted: var(--t-content-inverted);
-
   --color-border-subtle: var(--t-border-subtle);
   --color-border: var(--t-border);
   --color-border-strong: var(--t-border-strong);
-
   --color-accent: var(--t-accent);
   --color-accent-hover: var(--t-accent-hover);
   --color-accent-surface: var(--t-accent-surface);
+  --color-accent-surface-strong: var(--t-accent-surface-strong);
   --color-accent-border: var(--t-accent-border);
-
+  --color-accent-contrast: var(--t-accent-contrast);
   --color-action: var(--t-action);
   --color-action-hover: var(--t-action-hover);
   --color-action-surface: var(--t-action-surface);
-
-  --color-success: var(--t-success);
-  --color-success-surface: var(--t-success-surface);
-  --color-warning: var(--t-warning);
-  --color-warning-surface: var(--t-warning-surface);
-  --color-danger: var(--t-danger);
-  --color-danger-surface: var(--t-danger-surface);
+  --color-action-contrast: var(--t-action-contrast);
   --color-info: var(--t-info);
   --color-info-surface: var(--t-info-surface);
-
+  --color-warning: var(--t-warning);
+  --color-warning-surface: var(--t-warning-surface);
+  --color-warning-mark: var(--t-warning-mark);
+  --color-danger: var(--t-danger);
+  --color-danger-surface: var(--t-danger-surface);
   --color-focus-ring: var(--t-focus-ring);
-
-  --font-ui: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-reading: 'Source Serif 4', ui-serif, Georgia, serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --font-ui: var(--t-font-ui);
+  --font-display: var(--t-font-display);
+  --font-reading: var(--t-font-reading);
+  --font-mono: var(--t-font-mono);
+  --radius-xs: var(--t-radius-xs);
+  --radius-sm: var(--t-radius-sm);
+  --radius-md: var(--t-radius-md);
+  --radius-lg: var(--t-radius-lg);
 
   --text-display: 1.875rem;
   --text-display--line-height: 2.25rem;
-  --text-display--letter-spacing: -0.02em;
+  --text-display--letter-spacing: -0.01em;
   --text-display--font-weight: 600;
   --text-title: 1.375rem;
   --text-title--line-height: 1.875rem;
-  --text-title--letter-spacing: -0.01em;
   --text-title--font-weight: 600;
   --text-heading: 1.0625rem;
   --text-heading--line-height: 1.5rem;
@@ -71,10 +74,9 @@
   --text-label: 0.8125rem;
   --text-label--line-height: 1.125rem;
   --text-label--letter-spacing: 0.01em;
-  --text-label--font-weight: 500;
+  --text-label--font-weight: 600;
   --text-meta: 0.75rem;
   --text-meta--line-height: 1rem;
-  --text-meta--letter-spacing: 0.01em;
   --text-micro: 0.6875rem;
   --text-micro--line-height: 0.875rem;
   --text-micro--letter-spacing: 0.04em;
@@ -82,14 +84,9 @@
 
   --spacing: 0.25rem;
 
-  --radius-xs: 3px;
-  --radius-sm: 5px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-
-  --shadow-sm: 0 1px 2px rgb(20 23 26 / 0.06);
-  --shadow-md: 0 4px 12px rgb(20 23 26 / 0.1);
-  --shadow-lg: 0 16px 40px rgb(20 23 26 / 0.18);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.07);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.12);
+  --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.2);
 
   --container-reading: 68ch;
 
@@ -98,87 +95,99 @@
   --ease-slow: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-:root {
+/* --- eigen: Papier und Tinte - eigenes Design, Vorgabe --- */
+:root,
+:root[data-design='eigen'] {
   --t-surface-sunken: #f2efe9;
   --t-surface: #faf8f4;
   --t-surface-raised: #ffffff;
   --t-surface-overlay: #ffffff;
   --t-surface-inset: #efece5;
-
   --t-content-strong: #14171a;
   --t-content: #2c3238;
   --t-content-muted: #5b6470;
   --t-content-subtle: #7d8794;
   --t-content-inverted: #faf8f4;
-
   --t-border-subtle: #e4e0d8;
   --t-border: #d3cec4;
   --t-border-strong: #b0a99c;
-
   --t-accent: #7a4a12;
   --t-accent-hover: #5e380b;
   --t-accent-surface: #fbeed7;
+  --t-accent-surface-strong: #f3ddb0;
   --t-accent-border: #d9a55c;
-
+  --t-accent-contrast: #ffffff;
   --t-action: #25405e;
   --t-action-hover: #1a2f47;
   --t-action-surface: #e6ecf3;
-
-  --t-success: #1f6b3f;
-  --t-success-surface: #e2f1e7;
-  --t-warning: #8a5a00;
-  --t-warning-surface: #fbf0d8;
-  --t-danger: #9b2226;
-  --t-danger-surface: #fae6e6;
+  --t-action-contrast: #ffffff;
   --t-info: #1f5a73;
   --t-info-surface: #e2eff4;
-
+  --t-warning: #8a5a00;
+  --t-warning-surface: #fbf0d8;
+  --t-warning-mark: #e0a533;
+  --t-danger: #9b2226;
+  --t-danger-surface: #fae6e6;
   --t-focus-ring: #25405e;
   --t-scrim: rgb(20 23 26 / 0.45);
+  --t-font-ui: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --t-font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --t-font-reading: 'Source Serif 4', ui-serif, Georgia, serif;
+  --t-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --t-radius-xs: 3px;
+  --t-radius-sm: 5px;
+  --t-radius-md: 8px;
+  --t-radius-lg: 12px;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root:not([data-design]):not([data-theme='light']),
+  :root[data-design='eigen']:not([data-theme='light']) {
     --t-surface-sunken: #15171a;
     --t-surface: #1c1f23;
     --t-surface-raised: #24282d;
     --t-surface-overlay: #2b3036;
     --t-surface-inset: #141619;
-
     --t-content-strong: #f4f2ee;
     --t-content: #d6d3cd;
     --t-content-muted: #9aa1a9;
     --t-content-subtle: #6f767e;
     --t-content-inverted: #14171a;
-
     --t-border-subtle: #2f343a;
     --t-border: #3b4148;
     --t-border-strong: #545c65;
-
     --t-accent: #e0a95f;
     --t-accent-hover: #f0bd78;
     --t-accent-surface: #453318;
+    --t-accent-surface-strong: #5c451f;
     --t-accent-border: #8a6526;
-
+    --t-accent-contrast: #14171a;
     --t-action: #b9cde6;
     --t-action-hover: #cfdff2;
     --t-action-surface: #2a3a4c;
-
-    --t-success: #7cc79a;
-    --t-success-surface: #1b3326;
-    --t-warning: #e8bc63;
-    --t-warning-surface: #3a2e14;
-    --t-danger: #f08d8f;
-    --t-danger-surface: #3a1d1e;
+    --t-action-contrast: #14171a;
     --t-info: #7fc0da;
     --t-info-surface: #16303b;
-
+    --t-warning: #e8bc63;
+    --t-warning-surface: #3a2e14;
+    --t-warning-mark: #e8bc63;
+    --t-danger: #f08d8f;
+    --t-danger-surface: #3a1d1e;
     --t-focus-ring: #9fc2ea;
     --t-scrim: rgb(0 0 0 / 0.6);
+    --t-font-ui: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --t-font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --t-font-reading: 'Source Serif 4', ui-serif, Georgia, serif;
+    --t-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+    --t-radius-xs: 3px;
+    --t-radius-sm: 5px;
+    --t-radius-md: 8px;
+    --t-radius-lg: 12px;
   }
 }
 
-:root[data-theme='dark'] {
+:root:not([data-design])[data-theme='dark'],
+:root[data-design='eigen'][data-theme='dark'] {
   --t-surface-sunken: #15171a;
   --t-surface: #1c1f23;
   --t-surface-raised: #24282d;
@@ -195,20 +204,294 @@
   --t-accent: #e0a95f;
   --t-accent-hover: #f0bd78;
   --t-accent-surface: #453318;
+  --t-accent-surface-strong: #5c451f;
   --t-accent-border: #8a6526;
+  --t-accent-contrast: #14171a;
   --t-action: #b9cde6;
   --t-action-hover: #cfdff2;
   --t-action-surface: #2a3a4c;
-  --t-success: #7cc79a;
-  --t-success-surface: #1b3326;
-  --t-warning: #e8bc63;
-  --t-warning-surface: #3a2e14;
-  --t-danger: #f08d8f;
-  --t-danger-surface: #3a1d1e;
+  --t-action-contrast: #14171a;
   --t-info: #7fc0da;
   --t-info-surface: #16303b;
+  --t-warning: #e8bc63;
+  --t-warning-surface: #3a2e14;
+  --t-warning-mark: #e8bc63;
+  --t-danger: #f08d8f;
+  --t-danger-surface: #3a1d1e;
   --t-focus-ring: #9fc2ea;
   --t-scrim: rgb(0 0 0 / 0.6);
+  --t-font-ui: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --t-font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --t-font-reading: 'Source Serif 4', ui-serif, Georgia, serif;
+  --t-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --t-radius-xs: 3px;
+  --t-radius-sm: 5px;
+  --t-radius-md: 8px;
+  --t-radius-lg: 12px;
+}
+
+/* --- uni-freiburg: Universitaet Freiburg - cd.uni-freiburg.de --- */
+:root[data-design='uni-freiburg'] {
+  --t-surface-sunken: #f6f1e3;
+  --t-surface: #faf8f1;
+  --t-surface-raised: #ffffff;
+  --t-surface-overlay: #ffffff;
+  --t-surface-inset: #f6f1e3;
+  --t-content-strong: #000000;
+  --t-content: #000000;
+  --t-content-muted: #5c5c5c;
+  --t-content-subtle: #6e6e6e;
+  --t-content-inverted: #ffffff;
+  --t-border-subtle: #d7d8ec;
+  --t-border: #afb1d8;
+  --t-border-strong: #868dc2;
+  --t-accent: #00a082;
+  --t-accent-hover: #27b29b;
+  --t-accent-surface: #daede7;
+  --t-accent-surface-strong: #afdace;
+  --t-accent-border: #00a082;
+  --t-accent-contrast: #000000;
+  --t-action: #344a9a;
+  --t-action-hover: #00004a;
+  --t-action-surface: #d7d8ec;
+  --t-action-contrast: #ffffff;
+  --t-info: #344a9a;
+  --t-info-surface: #d7d8ec;
+  --t-warning: #8f6b30;
+  --t-warning-surface: #fffae0;
+  --t-warning-mark: #ffe863;
+  --t-danger: #a4232b;
+  --t-danger-surface: #f7e6e7;
+  --t-focus-ring: #344a9a;
+  --t-scrim: rgb(0 0 74 / 0.5);
+  --t-font-ui: 'Social', Arial, Helvetica, sans-serif;
+  --t-font-display: 'Social Extended', 'Social', Arial, Helvetica, sans-serif;
+  --t-font-reading: 'Social', Arial, Helvetica, sans-serif;
+  --t-font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+  --t-radius-xs: 2px;
+  --t-radius-sm: 3px;
+  --t-radius-md: 4px;
+  --t-radius-lg: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-design='uni-freiburg']:not([data-theme='light']) {
+    --t-surface-sunken: #000033;
+    --t-surface: #00004a;
+    --t-surface-raised: #131a5c;
+    --t-surface-overlay: #1a2270;
+    --t-surface-inset: #000033;
+    --t-content-strong: #ffffff;
+    --t-content: #e9eaf6;
+    --t-content-muted: #b6b9dd;
+    --t-content-subtle: #8b8fc4;
+    --t-content-inverted: #000000;
+    --t-border-subtle: #1c2470;
+    --t-border: #2e3792;
+    --t-border-strong: #5d6bad;
+    --t-accent: #27b29b;
+    --t-accent-hover: #7bc6b4;
+    --t-accent-surface: #0a3a33;
+    --t-accent-surface-strong: #0f5449;
+    --t-accent-border: #27b29b;
+    --t-accent-contrast: #000000;
+    --t-action: #afb1d8;
+    --t-action-hover: #d7d8ec;
+    --t-action-surface: #2e3792;
+    --t-action-contrast: #00004a;
+    --t-info: #afb1d8;
+    --t-info-surface: #1c2470;
+    --t-warning: #ffe863;
+    --t-warning-surface: #3a3410;
+    --t-warning-mark: #ffe863;
+    --t-danger: #f08d8f;
+    --t-danger-surface: #3a1d1e;
+    --t-focus-ring: #d7d8ec;
+    --t-scrim: rgb(0 0 0 / 0.65);
+    --t-font-ui: 'Social', Arial, Helvetica, sans-serif;
+    --t-font-display: 'Social Extended', 'Social', Arial, Helvetica, sans-serif;
+    --t-font-reading: 'Social', Arial, Helvetica, sans-serif;
+    --t-font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+    --t-radius-xs: 2px;
+    --t-radius-sm: 3px;
+    --t-radius-md: 4px;
+    --t-radius-lg: 6px;
+  }
+}
+
+:root[data-design='uni-freiburg'][data-theme='dark'] {
+  --t-surface-sunken: #000033;
+  --t-surface: #00004a;
+  --t-surface-raised: #131a5c;
+  --t-surface-overlay: #1a2270;
+  --t-surface-inset: #000033;
+  --t-content-strong: #ffffff;
+  --t-content: #e9eaf6;
+  --t-content-muted: #b6b9dd;
+  --t-content-subtle: #8b8fc4;
+  --t-content-inverted: #000000;
+  --t-border-subtle: #1c2470;
+  --t-border: #2e3792;
+  --t-border-strong: #5d6bad;
+  --t-accent: #27b29b;
+  --t-accent-hover: #7bc6b4;
+  --t-accent-surface: #0a3a33;
+  --t-accent-surface-strong: #0f5449;
+  --t-accent-border: #27b29b;
+  --t-accent-contrast: #000000;
+  --t-action: #afb1d8;
+  --t-action-hover: #d7d8ec;
+  --t-action-surface: #2e3792;
+  --t-action-contrast: #00004a;
+  --t-info: #afb1d8;
+  --t-info-surface: #1c2470;
+  --t-warning: #ffe863;
+  --t-warning-surface: #3a3410;
+  --t-warning-mark: #ffe863;
+  --t-danger: #f08d8f;
+  --t-danger-surface: #3a1d1e;
+  --t-focus-ring: #d7d8ec;
+  --t-scrim: rgb(0 0 0 / 0.65);
+  --t-font-ui: 'Social', Arial, Helvetica, sans-serif;
+  --t-font-display: 'Social Extended', 'Social', Arial, Helvetica, sans-serif;
+  --t-font-reading: 'Social', Arial, Helvetica, sans-serif;
+  --t-font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+  --t-radius-xs: 2px;
+  --t-radius-sm: 3px;
+  --t-radius-md: 4px;
+  --t-radius-lg: 6px;
+}
+
+/* --- huskynarr: huskynarr - Naeherung, siehe docs/design-system.md Abschnitt 11 --- */
+:root[data-design='huskynarr'] {
+  --t-surface-sunken: #f5f5f4;
+  --t-surface: #fafaf9;
+  --t-surface-raised: #ffffff;
+  --t-surface-overlay: #ffffff;
+  --t-surface-inset: #f5f5f4;
+  --t-content-strong: #0c0a09;
+  --t-content: #1c1917;
+  --t-content-muted: #57534e;
+  --t-content-subtle: #78716c;
+  --t-content-inverted: #fafaf9;
+  --t-border-subtle: #e7e5e4;
+  --t-border: #d6d3d1;
+  --t-border-strong: #a8a29e;
+  --t-accent: #0f766e;
+  --t-accent-hover: #115e59;
+  --t-accent-surface: #ccfbf1;
+  --t-accent-surface-strong: #99f6e4;
+  --t-accent-border: #0f766e;
+  --t-accent-contrast: #ffffff;
+  --t-action: #292524;
+  --t-action-hover: #0c0a09;
+  --t-action-surface: #e7e5e4;
+  --t-action-contrast: #fafaf9;
+  --t-info: #0369a1;
+  --t-info-surface: #e0f2fe;
+  --t-warning: #92400e;
+  --t-warning-surface: #fef3c7;
+  --t-warning-mark: #f59e0b;
+  --t-danger: #b91c1c;
+  --t-danger-surface: #fee2e2;
+  --t-focus-ring: #292524;
+  --t-scrim: rgb(12 10 9 / 0.5);
+  --t-font-ui: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --t-font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --t-font-reading: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --t-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --t-radius-xs: 4px;
+  --t-radius-sm: 6px;
+  --t-radius-md: 10px;
+  --t-radius-lg: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-design='huskynarr']:not([data-theme='light']) {
+    --t-surface-sunken: #0c0a09;
+    --t-surface: #1c1917;
+    --t-surface-raised: #292524;
+    --t-surface-overlay: #292524;
+    --t-surface-inset: #0c0a09;
+    --t-content-strong: #fafaf9;
+    --t-content: #e7e5e4;
+    --t-content-muted: #a8a29e;
+    --t-content-subtle: #78716c;
+    --t-content-inverted: #0c0a09;
+    --t-border-subtle: #292524;
+    --t-border: #44403c;
+    --t-border-strong: #57534e;
+    --t-accent: #2dd4bf;
+    --t-accent-hover: #5eead4;
+    --t-accent-surface: #0d3c38;
+    --t-accent-surface-strong: #115e59;
+    --t-accent-border: #2dd4bf;
+    --t-accent-contrast: #0c0a09;
+    --t-action: #f5f5f4;
+    --t-action-hover: #ffffff;
+    --t-action-surface: #292524;
+    --t-action-contrast: #0c0a09;
+    --t-info: #7dd3fc;
+    --t-info-surface: #0c2b3b;
+    --t-warning: #fbbf24;
+    --t-warning-surface: #3a2a06;
+    --t-warning-mark: #fbbf24;
+    --t-danger: #f87171;
+    --t-danger-surface: #3f1212;
+    --t-focus-ring: #f5f5f4;
+    --t-scrim: rgb(0 0 0 / 0.7);
+    --t-font-ui: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --t-font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --t-font-reading: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --t-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+    --t-radius-xs: 4px;
+    --t-radius-sm: 6px;
+    --t-radius-md: 10px;
+    --t-radius-lg: 14px;
+  }
+}
+
+:root[data-design='huskynarr'][data-theme='dark'] {
+  --t-surface-sunken: #0c0a09;
+  --t-surface: #1c1917;
+  --t-surface-raised: #292524;
+  --t-surface-overlay: #292524;
+  --t-surface-inset: #0c0a09;
+  --t-content-strong: #fafaf9;
+  --t-content: #e7e5e4;
+  --t-content-muted: #a8a29e;
+  --t-content-subtle: #78716c;
+  --t-content-inverted: #0c0a09;
+  --t-border-subtle: #292524;
+  --t-border: #44403c;
+  --t-border-strong: #57534e;
+  --t-accent: #2dd4bf;
+  --t-accent-hover: #5eead4;
+  --t-accent-surface: #0d3c38;
+  --t-accent-surface-strong: #115e59;
+  --t-accent-border: #2dd4bf;
+  --t-accent-contrast: #0c0a09;
+  --t-action: #f5f5f4;
+  --t-action-hover: #ffffff;
+  --t-action-surface: #292524;
+  --t-action-contrast: #0c0a09;
+  --t-info: #7dd3fc;
+  --t-info-surface: #0c2b3b;
+  --t-warning: #fbbf24;
+  --t-warning-surface: #3a2a06;
+  --t-warning-mark: #fbbf24;
+  --t-danger: #f87171;
+  --t-danger-surface: #3f1212;
+  --t-focus-ring: #f5f5f4;
+  --t-scrim: rgb(0 0 0 / 0.7);
+  --t-font-ui: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --t-font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --t-font-reading: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --t-font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --t-radius-xs: 4px;
+  --t-radius-sm: 6px;
+  --t-radius-md: 10px;
+  --t-radius-lg: 14px;
 }
 
 @layer base {
@@ -221,6 +504,20 @@
     font-family: var(--font-ui);
     -webkit-font-smoothing: antialiased;
   }
+  /* Layoutregel des Freiburger CD, fuer alle Designs uebernommen:
+     ausschliesslich linksbuendiger Flattersatz. */
+  body,
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  li,
+  td,
+  th,
+  label {
+    text-align: left;
+  }
   /* Deutsche Komposita erzeugen im Flattersatz sonst Loecher. */
   .prose-reading {
     hyphens: auto;
@@ -230,14 +527,14 @@
     outline-offset: 2px;
   }
   ::selection {
-    background-color: var(--t-accent-surface);
+    background-color: var(--t-accent-surface-strong);
   }
 }
 
 /* Aufblitzen der Belegstelle nach dem Sprung (motion-slow, 420 ms). */
 @keyframes citation-flash {
   0% {
-    background-color: var(--t-accent-border);
+    background-color: var(--t-accent);
   }
   100% {
     background-color: var(--t-accent-surface);

@@ -76,9 +76,18 @@ export function CitationMarker({
         }}
         className={cx(
           'rounded-xs text-micro mx-0.5 px-1 align-super font-mono transition-colors duration-[80ms]',
+          // Die Belegfarbe liegt auf der Flaeche, nie auf der Schrift: CD-Gruen
+          // haelt als Textfarbe auf hellem Grund nur rund 3,3:1.
+          //
+          // Die Textfarbe steht ausschliesslich in den beiden Zweigen. Stuende
+          // zusaetzlich eine im gemeinsamen Teil, konkurrierten zwei
+          // gleichrangige Utilities, und welche gewinnt, entscheidet die
+          // Reihenfolge im erzeugten CSS - nicht die im Klassenstring. Genau so
+          // fiel der Marker im dunklen Thema auf 2,65:1.
+          'focus-visible:outline-accent',
           isActive
-            ? 'bg-accent text-content-inverted'
-            : 'bg-accent-surface text-accent hover:text-accent-hover hover:underline',
+            ? 'bg-accent text-accent-contrast'
+            : 'bg-accent-surface text-content-strong hover:bg-accent-surface-strong hover:underline',
         )}
       >
         [{resolved.map((c) => c.marker).join(',')}]

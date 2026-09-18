@@ -25,11 +25,10 @@ export function useToast(): (tone: Tone, message: string) => void {
 }
 
 const TONE: Record<Tone, string> = {
-  neutral: 'text-content',
-  success: 'text-success',
-  warning: 'text-warning',
-  danger: 'text-danger',
-  info: 'text-info',
+  neutral: 'bg-surface-inset',
+  info: 'bg-info-surface',
+  warning: 'bg-warning-surface',
+  danger: 'bg-danger-surface',
 };
 
 export function ToastProvider({ children }: { children: ReactNode }): ReactElement {

@@ -9,7 +9,7 @@ type Size = 'sm' | 'md' | 'lg';
    Keine Variante traegt accent - die Akzentfarbe gehoert dem Beleg. */
 const VARIANTS: Record<Variant, string> = {
   primary:
-    'bg-action text-content-inverted hover:bg-action-hover disabled:bg-surface-inset disabled:text-content-subtle',
+    'bg-action text-action-contrast hover:bg-action-hover disabled:bg-surface-inset disabled:text-content-subtle',
   secondary:
     'bg-surface-raised text-content border border-border hover:border-border-strong disabled:bg-surface-inset disabled:text-content-subtle disabled:border-border-subtle',
   ghost:

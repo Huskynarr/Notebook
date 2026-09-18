@@ -203,9 +203,11 @@ function AnswerSection({
                 onClick={() => {
                   onSelectCitation(citation);
                 }}
-                className="text-meta text-content-muted hover:text-accent text-left"
+                className="text-meta text-content-muted hover:text-content-strong text-left"
               >
-                <span className="text-accent font-mono">[{citation.marker}]</span>{' '}
+                <span className="bg-accent-surface rounded-xs px-1 font-mono">
+                  [{citation.marker}]
+                </span>{' '}
                 {citation.sourceTitle}
                 {citation.headingPath === '' ? '' : ` · ${citation.headingPath}`} · Zeichen{' '}
                 {citation.startOffset}–{citation.endOffset}

@@ -9,6 +9,13 @@ import type {
 } from '@notebook/shared';
 import { ApiClient, ApiRequestError } from './lib/api.ts';
 import { API_BASE_URL } from './lib/config.ts';
+import {
+  anwenden as erscheinungsbildAnwenden,
+  lesen as erscheinungsbildLesen,
+  schreiben as erscheinungsbildSchreiben,
+  type Erscheinungsbild,
+} from './lib/appearance.ts';
+import { SettingsDialog } from './components/SettingsDialog.tsx';
 import { readToken, writeToken } from './lib/session.ts';
 import { ChatPanel, type Exchange } from './components/ChatPanel.tsx';
 import { LoginScreen } from './components/LoginScreen.tsx';
@@ -51,6 +58,15 @@ export function App(): ReactElement {
   const [mobileTab, setMobileTab] = useState<MobileTab>('chat');
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [erscheinungsbild, setErscheinungsbild] = useState<Erscheinungsbild>(() =>
+    erscheinungsbildLesen(),
+  );
+
+  useEffect(() => {
+    erscheinungsbildAnwenden(erscheinungsbild);
+    erscheinungsbildSchreiben(erscheinungsbild);
+  }, [erscheinungsbild]);
 
   const activeCitation = citationList[citationIndex] ?? null;
   const loadedSources = sources ?? [];
@@ -185,7 +201,7 @@ export function App(): ReactElement {
     if (activeId === null) return;
     const created = await api.createSource(activeId, input);
     setSources((current) => (current === null ? [created] : [...current, created]));
-    toast('success', `„${created.title}" hinzugefügt (${created.chunkCount} Abschnitte).`);
+    toast('info', `„${created.title}" hinzugefügt (${created.chunkCount} Abschnitte).`);
   };
 
   const toggleSource = (source: Source, isSelected: boolean): void => {
@@ -231,7 +247,7 @@ export function App(): ReactElement {
       .then((note) => {
         setNotes((current) => [note, ...current]);
         setRightTab('notes');
-        toast('success', 'Als Notiz gespeichert — mit allen Belegen.');
+        toast('info', 'Als Notiz gespeichert — mit allen Belegen.');
       })
       .catch((cause: unknown) => {
         report(cause, 'Die Notiz konnte nicht gespeichert werden.');
@@ -255,8 +271,31 @@ export function App(): ReactElement {
       });
   };
 
+  const einstellungen = (
+    <SettingsDialog
+      open={settingsOpen}
+      wert={erscheinungsbild}
+      apiBaseUrl={API_BASE_URL}
+      onChange={setErscheinungsbild}
+      onClose={() => {
+        setSettingsOpen(false);
+      }}
+    />
+  );
+
   if (token === null) {
-    return <LoginScreen apiBaseUrl={API_BASE_URL} onLogin={login} />;
+    return (
+      <>
+        <LoginScreen
+          apiBaseUrl={API_BASE_URL}
+          onLogin={login}
+          onOpenSettings={() => {
+            setSettingsOpen(true);
+          }}
+        />
+        {einstellungen}
+      </>
+    );
   }
 
   const notesPanel = (
@@ -317,7 +356,7 @@ export function App(): ReactElement {
               current === null ? current : current.filter((s) => s.id !== source.id),
             );
             if (openSource?.id === source.id) setOpenSource(null);
-            toast('success', `„${source.title}" gelöscht.`);
+            toast('info', `„${source.title}" gelöscht.`);
           })
           .catch((cause: unknown) => {
             report(cause, 'Die Quelle konnte nicht gelöscht werden.');
@@ -377,10 +416,19 @@ export function App(): ReactElement {
 
         <div className="ml-auto flex shrink-0 items-center gap-2 xl:gap-3">
           {health !== null && (
-            <Badge tone={health.llm.configured ? 'success' : 'warning'}>
+            <Badge tone={health.llm.configured ? 'info' : 'warning'}>
               {health.llm.configured ? health.llm.model : 'kein Modell verbunden'}
             </Badge>
           )}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              setSettingsOpen(true);
+            }}
+          >
+            Einstellungen
+          </Button>
           <Button
             size="sm"
             variant="ghost"
@@ -463,6 +511,8 @@ export function App(): ReactElement {
           </div>
         </aside>
       </div>
+
+      {einstellungen}
 
       <Dialog
         open={creating}
