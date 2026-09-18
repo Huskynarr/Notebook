@@ -85,8 +85,9 @@ Diese Punkte sind offen, nicht „vermutlich in Ordnung":
   „Deploy from a branch"; GitHub rendert dann die README mit Jekyll und überschreibt die
   Ausgabe des Pages-Workflows, der trotzdem Erfolg meldet. Die Prüfung vom Vormittag
   („Seitentitel wird ausgeliefert") war zu schwach — der Titel stimmte, der Inhalt nicht.
-  Der Workflow scheitert jetzt laut, wenn die Quelle nicht „GitHub Actions" ist; die
-  Umstellung selbst braucht die Repository-Einstellungen (Settings › Pages › Source).
+  Der Workflow scheitert jetzt laut, wenn die Quelle nicht „GitHub Actions" ist. Die
+  Quelle wurde am 2026-09-18 vom Auftraggeber in den Repository-Einstellungen umgestellt;
+  dieser Commit löst den ersten Pages-Lauf unter der neuen Quelle aus.
 - **Corporate Design nicht abgestimmt.** Das Design `uni-freiburg` geht an zehn Stellen
   über das CD hinaus (`docs/design-system.md`, Abschnitt 10). Nicht mit
   cd@zv.uni-freiburg.de abgestimmt; Hausschrift nie gesehen; Logo-Frage offen.
