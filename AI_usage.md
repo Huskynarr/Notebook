@@ -51,6 +51,22 @@ Gehört hierher, weil es den Wert des Protokolls ausmacht:
 
 ---
 
+## 2026-09-18
+
+| # | Aufgabe | Übernommen | Geprüft durch |
+|---|---|---|---|
+| 7 | Bildschirmfotos in die README aufgenommen | `docs/bilder/`, Abschnitt „So sieht es aus" | README als HTML gerendert und im Browser aufgerufen: alle vier Bilder laden, keine fehlende Ressource. |
+| 8 | Corporate Design der Universität umgesetzt | Farb- und Schriftsystem, `docs/design-system.md`, D-012 bis D-014 | Farbwerte selbst über `cd.uni-freiburg.de/farben/` und `/schrift/` abgerufen, nicht aus dem Gedächtnis. Kontraste an der gebauten Oberfläche in beiden Themes gemessen. Der Rückfall auf Arial wurde nicht angenommen, sondern mit `document.fonts.check` und einer Breitenmessung belegt. |
+
+**Dabei aufgefallen, gehört zur Ehrlichkeit des Protokolls:** Die erste Fassung der
+Belegfarbe war falsch. CD-Grün als Textfarbe hält auf hellem Grund nur rund 3,3:1 — das kam
+nicht aus der Planung, sondern aus der Messung, und hat den Zuschnitt geändert (Beleg als
+Fläche statt als Schrift). Zwei weitere Fehler fanden sich erst im laufenden Programm:
+konkurrierende Textfarben am Marker (2,65:1 im dunklen Thema) und ein Wettlauf zwischen
+Erstabruf und Quellenauswahl. Keiner der drei wäre durch Lesen des Codes aufgefallen.
+
+---
+
 ## Regeln für Einträge
 
 - Jeder Eintrag nennt Datum, Werkzeug, Aufgabe und Prüfung.

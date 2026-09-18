@@ -3,7 +3,7 @@
 Zustand, nicht Plan. Was hier als funktionierend steht, wurde ausgeführt und die Ausgabe
 angesehen. Was nicht geprüft werden konnte, steht unter „Nicht geprüft" — nicht weggelassen.
 
-Stand: 2026-09-17 · Version 0.1.0 (noch ohne Release-Tag)
+Stand: 2026-09-18 · Version 0.1.0 (noch ohne Release-Tag)
 
 ## Funktioniert (geprüft)
 
@@ -22,21 +22,23 @@ Pflichtumfang aus `docs/product.md`:
 | P9 | Sofort nutzbares Beispiel | funktioniert | E2E („Beispiel-Notebook ist nach dem Start sofort nutzbar") |
 | P10 | Fester Zugang `admin:admin` | funktioniert | `auth.test.ts`, `server.test.ts` |
 
-Zuletzt tatsächlich ausgeführt (2026-09-17):
+Zuletzt tatsächlich ausgeführt (2026-09-18):
 
 ```
 pnpm typecheck        5 Projekte, keine Ausgabe
 pnpm lint             keine Ausgabe
 pnpm format:check     alle Dateien konform
-pnpm test             61 Tests in 7 Dateien bestanden
-pnpm --filter @notebook/web build   erfolgreich, JS 345 kB (gzip 104 kB)
+pnpm test             62 Tests in 7 Dateien bestanden
+pnpm --filter @notebook/web build   erfolgreich, JS 346 kB (gzip 104 kB), CSS 29 kB
 pnpm exec playwright test           7 Tests bestanden
 ```
 
 Gemessen, nicht geschätzt:
 
-- Kontrast in beiden Themes an der gebauten Oberfläche: niedrigster Wert 5,24:1
+- Kontrast in beiden Themes an der gebauten Oberfläche: niedrigster Wert 6,35:1
   (`docs/design-system.md`, Abschnitt 1).
+- Rückfall auf Arial trägt: `document.fonts.check('16px Social')` ist `false`, und die
+  gemessene Textbreite stimmt exakt mit Arial überein.
 - Bei 390 px Breite kein waagerechtes Scrollen (E2E-Test).
 - Keine Fehler in der Browserkonsole beim Hauptablauf.
 
@@ -54,8 +56,16 @@ Diese Punkte sind offen, nicht „vermutlich in Ordnung":
 - **Leistungszusage** aus `docs/product.md` (Abruf und Validierung unter 300 ms bei 30
   Quellen): nicht gemessen. Die einzige belastbare Zahl ist `elapsedMs` in der Antwort,
   im Beispielkorpus einstellig.
-- **Barrierefreiheit:** Ränder und Fokusringe gegen ihre Umgebung (3:1) sowie Bedienung bei
-  200 % Zoom stehen weiter auf der Prüfliste in `docs/design-system.md`, Abschnitt 9.
+- **Barrierefreiheit:** Ränder und Fokusringe gegen ihre Umgebung (3:1), Bedienung bei
+  200 % Zoom, vollständige Tastaturbedienung und die Ansage des Sprungs zur Quellenstelle
+  stehen weiter auf der Prüfliste in `docs/design-system.md`, Abschnitt 9.
+- **Abnahme des Corporate Design.** Die Umsetzung folgt cd.uni-freiburg.de, geht aber an
+  neun Stellen darüber hinaus (`docs/design-system.md`, Abschnitt 10) — vor allem: CD-Grün
+  trägt die Belegmechanik, obwohl das CD die Zusatzfarben „primär für die externe
+  Kommunikation" vorsieht. Nicht mit cd@zv.uni-freiburg.de abgestimmt.
+- **Hausschrift Social nie gesehen.** Die Anwendung wurde ausschließlich mit dem
+  Arial-Rückfall betrachtet; wie sie mit der lizenzierten Hausschrift aussieht, ist ungeprüft.
+- **Das Universitätslogo fehlt.** Ob ein internes Werkzeug es tragen darf, ist nicht geklärt.
 - **Die CI-Workflows sind nie gelaufen.** Sie sind geschrieben, aber bis zum ersten Push
   ungetestet. Erwartbare Stolperstellen: `pnpm exec playwright install` und das Verhalten
   des Release-Laufs beim allerersten Tag.
@@ -93,6 +103,13 @@ Festgehalten, weil jeder davon zeigt, welche Prüfung ihn gefunden hat:
    Bildschirmfotos, von keinem Test abgedeckt — jetzt schon.
 6. **Fachfremde Frage wurde scheinbar beantwortet,** weil `hoch*` „Hochschule" traf.
    Gefunden durch einen Test, der bewusst nach etwas außerhalb des Korpus fragte.
+7. **Zwei gleichrangige Textfarben am Zitatmarker.** Welche gewinnt, entscheidet die
+   Reihenfolge im erzeugten CSS, nicht die im Klassenstring — im dunklen Thema fiel der
+   Kontrast auf 2,65:1. Gefunden durch die Kontrastmessung, nicht durch einen Test.
+8. **Ein später Erstabruf überschrieb die Quellenauswahl.** Die Anwendung fragte dann
+   andere Quellen ab, als angezeigt waren. Gefunden im E2E-Lauf — und erst sichtbar,
+   nachdem das Entfernen der Schriftpakete den Seitenaufbau beschleunigt hatte. Der Fehler
+   war die ganze Zeit da, die Ladezeit der Schriften hatte ihn verdeckt.
 
 ## Nächste sinnvolle Schritte
 
@@ -100,7 +117,9 @@ Festgehalten, weil jeder davon zeigt, welche Prüfung ihn gefunden hat:
 2. Belegtreue von zwei bis drei Modellen an einem echten Korpus messen und die Quote
    `exact` gegenüber `chunk` festhalten.
 3. CI einmal laufen lassen und die Workflows nachziehen.
-4. Erst danach PDFs als Erweiterung.
+4. CD-Umsetzung mit cd@zv.uni-freiburg.de abstimmen, besonders Abschnitt 10 und die
+   Logo-Frage.
+5. Erst danach PDFs als Erweiterung.
 
 ## Einschränkungen der Entwicklungsumgebung
 
