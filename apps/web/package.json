@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@notebook/shared": "workspace:*",
+    "docx": "^9.7.1",
+    "html-to-image": "^1.11.13",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "zod": "^4.6.5"

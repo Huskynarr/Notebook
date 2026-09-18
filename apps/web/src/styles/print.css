@@ -1,0 +1,40 @@
+/* Druckansicht (PDF ueber den Druckdialog).
+   data-printing="target": nur das markierte Element wird gedruckt.
+   data-printing="all":    die ganze Seite ohne Bedienelemente. */
+@media print {
+  body[data-printing='target'] > * {
+    display: none !important;
+  }
+  body[data-printing='target'] [data-print-target],
+  body[data-printing='target'] [data-print-target] * {
+    display: revert !important;
+  }
+  body[data-printing='target'] [data-print-target] {
+    position: fixed;
+    inset: 0;
+    overflow: visible;
+    max-width: none;
+    padding: 16mm;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  header,
+  button,
+  textarea,
+  input,
+  [role='tablist'],
+  .no-print {
+    display: none !important;
+  }
+  * {
+    box-shadow: none !important;
+  }
+  mark {
+    background: #e6e6e6 !important;
+    color: #000 !important;
+  }
+  a[href]::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+  }
+}
