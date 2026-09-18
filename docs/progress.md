@@ -66,12 +66,10 @@ Diese Punkte sind offen, nicht „vermutlich in Ordnung":
 - **Barrierefreiheit:** Ränder und Fokusringe gegen ihre Umgebung (3:1), Bedienung bei
   200 % Zoom und vollständige Tastaturbedienung stehen weiter auf der Prüfliste in
   `docs/design-system.md`, Abschnitt 9.
-- **Die CI-Workflows sind einmal gelaufen und gescheitert** — an einer doppelten
-  pnpm-Versionsangabe, noch vor der ersten eigentlichen Prüfung. Behoben; ob der Rest der
-  Workflows durchläuft, zeigt erst der nächste Push. Pages muss im Repository einmalig aktiviert werden
-  (Settings › Pages › Source: GitHub Actions); ob das Repository öffentlich ist, konnte
-  nicht geprüft werden (API-Abruf 403). Bei einem privaten Repository braucht Pages einen
-  bezahlten Plan.
+- **CI-Workflows:** der erste Lauf scheiterte an einer doppelten pnpm-Versionsangabe,
+  behoben. Pages ist aktiv und liefert unter <https://huskynarr.is-a.dev/Notebook/> aus
+  (geprüft 2026-09-18: Seitentitel wird ausgeliefert). Ob `ci.yml` und `release.yml`
+  vollständig durchlaufen, zeigt erst der nächste Lauf.
 - **Corporate Design nicht abgestimmt.** Das Design `uni-freiburg` geht an zehn Stellen
   über das CD hinaus (`docs/design-system.md`, Abschnitt 10). Nicht mit
   cd@zv.uni-freiburg.de abgestimmt; Hausschrift nie gesehen; Logo-Frage offen.

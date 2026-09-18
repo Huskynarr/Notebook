@@ -22,11 +22,10 @@ formuliert, sondern eine Aufzählung der gefundenen Stellen.
 
 ### Vorschau ansehen
 
-**<https://huskynarr.github.io/Notebook/>** — sobald der Pages-Workflow einmal gelaufen ist
-und Pages im Repository aktiviert wurde (Settings › Pages › Source: *GitHub Actions*).
-Dort läuft **kein Backend**: alle Inhalte sind Beispieldaten im Browser, es werden keine
-KI-Antworten erzeugt, und nichts wird gespeichert. Die Seite dient dazu, Oberfläche und
-Designs anzusehen.
+**<https://huskynarr.is-a.dev/Notebook/>**
+
+Dort läuft kein Backend: alle Inhalte sind Beispieldaten im Browser, es werden keine
+KI-Antworten erzeugt, und nichts wird gespeichert. Die Seite zeigt Oberfläche und Designs.
 
 ### Papier und Tinte (Vorgabe)
 
@@ -134,11 +133,6 @@ docs            Produkt, Entscheidungen, Fortschritt, Design-System
 | `pnpm test:e2e` | Hauptablauf im Browser (Playwright); baut Frontend und geteiltes Paket vorher |
 | `pnpm format` | Formatierung schreiben |
 | `pnpm theme` | `theme.css` aus den Paletten neu erzeugen |
-
-## Branches
-
-`main` trägt alle drei Designs umschaltbar. `design/uni-freiburg` ist ein Schnappschuss des
-Zwischenstands „nur Corporate Design, ohne Umschalter" und wird nicht weiterentwickelt.
 
 ## Stand
 
