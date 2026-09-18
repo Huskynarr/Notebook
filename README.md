@@ -10,11 +10,19 @@ Verbindliche Arbeitsregeln: [`AGENTS.md`](AGENTS.md).
 
 ## So sieht es aus
 
-Alle Aufnahmen entstanden am 2026-09-17 an der laufenden Anwendung, **im Offline-Modus ohne
+Die Oberfläche folgt dem [Corporate Design der Universität Freiburg](https://cd.uni-freiburg.de):
+Blau `#344A9A`, Sandtöne, Schwarz für Text. Grün ist ausschließlich der Belegmechanik
+vorbehalten — deshalb ist ein Zitat die einzige grüne Stelle im Bild.
+
+Alle Aufnahmen entstanden am 2026-09-18 an der laufenden Anwendung, **im Offline-Modus ohne
 verbundenes Sprachmodell** — daher die Plakette „kein Modell verbunden" oben rechts und der
 Warnhinweis über der Antwort. Die Belegkette ist darin vollständig echt: die Marker zeigen
 auf tatsächlich abgerufene Abschnitte. Nur der Antworttext ist nicht formuliert, sondern
 eine Aufzählung der gefundenen Stellen.
+
+Die Hausschrift „Social" ist lizenzpflichtig und liegt nicht im Repository; die Aufnahmen
+zeigen daher **Arial**, die vom CD vorgesehene Zweitschrift. Siehe
+`apps/web/public/fonts/README.md`.
 
 ### Ein Beleg wird geprüft
 
@@ -32,8 +40,9 @@ Quellen links, Dialog in der Mitte, Notizen und Quellenansicht rechts.
 
 ### Dunkles Thema
 
-Dieselben semantischen Tokens, für das dunkle Thema neu belegt — keine Komponente kennt
-eine `dark:`-Variante.
+Aus den CD-Farben abgeleitet (Dunkelblau `#00004a` als Grundfläche). Das CD sieht kein
+dunkles Thema vor — die Abweichung ist in `docs/design-system.md`, Abschnitt 10,
+ausgewiesen. Keine Komponente kennt eine `dark:`-Variante.
 
 ![Derselbe Arbeitsbereich im dunklen Thema](docs/bilder/dunkles-thema.png)
 
@@ -84,7 +93,7 @@ konfigurierbar, `VITE_API_BASE_URL`.
 ## Aufbau
 
 ```
-apps/web        Vite + React 19, TypeScript strict, Tailwind 4, eigenes Design
+apps/web        Vite + React 19, TypeScript strict, Tailwind 4, CD der Universität
 apps/api        Fastify, SQLite aus Nodes Standardbibliothek, FTS5/BM25
 packages/shared zod-Schemata — der gemeinsame API-Vertrag
 e2e             Playwright, prüft den Hauptablauf Ende zu Ende
