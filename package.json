@@ -8,17 +8,19 @@
     "node": ">=20.11"
   },
   "scripts": {
-    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "prepare": "pnpm --filter @notebook/shared build",
+    "build:shared": "pnpm --filter @notebook/shared build",
+    "dev": "pnpm build:shared && pnpm -r --parallel dev",
     "build": "pnpm -r build",
-    "typecheck": "pnpm -r typecheck",
-    "lint": "eslint . --max-warnings=0",
+    "theme": "python3 tools/build-theme.py && prettier --write apps/web/src/styles/theme.css --log-level warn",
+    "typecheck": "pnpm build:shared && pnpm -r typecheck",
+    "lint": "pnpm build:shared && eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "verify": "pnpm theme && pnpm --filter @notebook/shared build && pnpm typecheck && pnpm lint && pnpm test && pnpm --filter @notebook/web build",
-    "test:e2e": "playwright test",
-    "theme": "python3 tools/build-theme.py && prettier --write apps/web/src/styles/theme.css --log-level warn"
+    "test": "pnpm build:shared && vitest run",
+    "test:watch": "pnpm build:shared && vitest",
+    "test:e2e": "pnpm build:shared && pnpm --filter @notebook/web build && playwright test",
+    "verify": "pnpm theme && pnpm build:shared && pnpm -r typecheck && eslint . --max-warnings=0 && prettier --check . && vitest run && pnpm --filter @notebook/web build"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

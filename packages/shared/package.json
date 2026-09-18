@@ -13,7 +13,8 @@
   },
   "scripts": {
     "build": "tsc -b",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "dev": "tsc -b --watch --preserveWatchOutput"
   },
   "dependencies": {
     "zod": "^4.6.5"

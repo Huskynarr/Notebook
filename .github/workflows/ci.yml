@@ -25,12 +25,11 @@ jobs:
           node-version: 22
           cache: pnpm
 
+      # Kein eigener Schritt fuer das geteilte Paket: pnpm install baut es ueber
+      # `prepare`, und typecheck/lint/test bauen es selbst. Die CI geht damit
+      # denselben Weg wie eine Person nach dem Klonen - genau der Weg, der
+      # einmal an einem fehlenden Vor-Schritt scheiterte.
       - run: pnpm install --frozen-lockfile
-
-      # Muss vor typecheck laufen: apps/* beziehen ihre Typen aus dem
-      # gebauten Deklarationsstand von packages/shared.
-      - name: Geteiltes Paket bauen
-        run: pnpm --filter @notebook/shared build
 
       - name: Typen pruefen
         run: pnpm typecheck
@@ -71,12 +70,10 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @notebook/shared build
-      - run: pnpm --filter @notebook/web build
       - run: pnpm exec playwright install --with-deps chromium
 
       - name: Hauptablauf pruefen
-        run: pnpm exec playwright test
+        run: pnpm test:e2e
 
       - uses: actions/upload-artifact@v4
         if: failure()

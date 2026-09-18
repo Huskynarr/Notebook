@@ -37,7 +37,6 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @notebook/shared build
 
       # Die erzeugte theme.css muss zum Generator passen; weicht sie ab, ist
       # jemand von Hand hineingeraten.

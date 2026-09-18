@@ -65,9 +65,12 @@ Voraussetzung: Node 22 oder neuer und pnpm 9. Sonst nichts — keine Datenbank, 
 
 ```bash
 pnpm install
-pnpm --filter @notebook/shared build   # erzeugt die geteilten Typen
 pnpm dev
 ```
+
+`pnpm install` baut das geteilte Paket `@notebook/shared` gleich mit (`prepare`); `test`,
+`typecheck`, `lint` und `dev` bauen es vor dem Start erneut, damit ein `git pull` mit
+Änderungen an den Schemata nicht zu veralteten Typen führt.
 
 Frontend: <http://localhost:5173> · Backend: <http://localhost:8787> · Zugang: `admin` / `admin`
 
@@ -128,7 +131,7 @@ docs            Produkt, Entscheidungen, Fortschritt, Design-System
 | `pnpm dev` | Frontend und Backend parallel |
 | `pnpm verify` | Typen, Stil, Tests, Build — das, was die CI prüft |
 | `pnpm test` | Unit- und Integrationstests (vitest) |
-| `pnpm test:e2e` | Hauptablauf im Browser (Playwright) |
+| `pnpm test:e2e` | Hauptablauf im Browser (Playwright); baut Frontend und geteiltes Paket vorher |
 | `pnpm format` | Formatierung schreiben |
 | `pnpm theme` | `theme.css` aus den Paletten neu erzeugen |
 
