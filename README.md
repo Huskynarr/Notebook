@@ -10,6 +10,11 @@ Verbindliche Arbeitsregeln: [`AGENTS.md`](AGENTS.md).
 
 ## So sieht es aus
 
+Oberfläche auf **Deutsch und Englisch**; die Einführung beim ersten Start fragt Sprache und
+Design ab. Quellen kommen als Text, Datei oder **Adresse** (Webseite, Text-/JSON-Endpunkt)
+hinein; **Teilen** exportiert das Notebook oder eine einzelne Antwort als Markdown, Word,
+PDF oder PNG. Die Spalten lassen sich am Trenner ziehen.
+
 Drei Designs, in den **Einstellungen** umschaltbar, je hell und dunkel. Die Komponenten
 kennen kein Design — ein Design ist nur ein Satz von Farb-, Schrift- und Radius-Werten
 (`tools/build-theme.py`). In jedem Design ist ein Zitat die einzige Stelle in der
@@ -55,10 +60,14 @@ Abschnitt 11).
 
 ### Einstellungen
 
-Design und Erscheinungsbild (System, Hell, Dunkel). Änderungen wirken sofort und bleiben
-auf dem Gerät gespeichert.
+Sprache, Design und Erscheinungsbild (System, Hell, Dunkel). Änderungen wirken sofort und
+bleiben auf dem Gerät gespeichert.
 
-![Dialog „Einstellungen" mit den drei Designs und den drei Erscheinungsbildern](docs/bilder/einstellungen.png)
+![Dialog „Einstellungen" mit Sprache, den drei Designs und den drei Erscheinungsbildern](docs/bilder/einstellungen.png)
+
+### Einführung beim ersten Start
+
+![Einführung, Schritt 1 von 3: Sprache wählen](docs/bilder/einfuehrung.png)
 
 ## Schnellstart
 
@@ -142,5 +151,5 @@ Was tatsächlich funktioniert und was offen ist, steht in
 [`docs/progress.md`](docs/progress.md) — nicht hier, damit es nicht veraltet.
 
 Nicht-Ziele dieser Version: Nutzerkonten, Zusammenarbeit, Audio- und Videogenerierung,
-Website-Crawling, umfangreiche Vektor-Infrastruktur. PDFs sind als spätere Erweiterung
-vorgesehen.
+Website-Crawling (eine einzelne Adresse als Quelle geht), umfangreiche
+Vektor-Infrastruktur. PDFs sind als spätere Erweiterung vorgesehen.
