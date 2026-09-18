@@ -1,7 +1,7 @@
 import type { Notebook, Note, Source, SourceContent, Citation } from '@notebook/shared';
-import { CitationSchema } from '@notebook/shared';
+import { CitationSchema, chunkText, countWords } from '@notebook/shared';
 import { z } from 'zod';
-import { chunkText, countWords } from '../domain/chunking.ts';
+
 import { fromSqliteBool, newId, nowIso, toSqliteBool, type Db } from './database.ts';
 import {
   ChunkRowSchema,

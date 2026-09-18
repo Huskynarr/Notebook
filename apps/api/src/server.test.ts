@@ -8,11 +8,12 @@ import {
   NotebookSchema,
   SourceSchema,
 } from '@notebook/shared';
+import { EXAMPLE_SOURCES } from '@notebook/shared';
 import { loadConfig } from './config.ts';
 import { createContext, type AppContext } from './context.ts';
 import { openDatabase } from './db/database.ts';
 import { buildServer } from './server.ts';
-import { EXAMPLE_SOURCES } from './seed/example.ts';
+
 import type { CompletionRequest, CompletionResult, LlmProvider } from './llm/provider.ts';
 
 /** Ein Modell-Doppel, das genau das tut, was der Test braucht. Es ist als

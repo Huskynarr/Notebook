@@ -1,5 +1,5 @@
 import type { AppContext } from '../context.ts';
-import { EXAMPLE_NOTEBOOK_TITLE, EXAMPLE_SOURCES } from './example.ts';
+import { EXAMPLE_NOTEBOOK_TITLE, EXAMPLE_SOURCES } from '@notebook/shared';
 
 /** Legt das Beispiel-Notebook an, wenn die Datenbank leer ist (P9).
  *  Laeuft nur bei leerer Datenbank - bestehende Daten werden nie angefasst. */

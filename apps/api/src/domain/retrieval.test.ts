@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { EXAMPLE_SOURCES } from '@notebook/shared';
 import { loadConfig } from '../config.ts';
 import { createContext, type AppContext } from '../context.ts';
 import { openDatabase } from '../db/database.ts';
-import { EXAMPLE_SOURCES } from '../seed/example.ts';
+
 import { buildMatchQuery, retrieve } from './retrieval.ts';
 
 describe('buildMatchQuery', () => {

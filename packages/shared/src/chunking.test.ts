@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chunkText, countWords } from './chunking.ts';
+import { chunkText, countWords } from './chunking.js';
 
 const MARKDOWN = `# Pruefungsordnung
 
