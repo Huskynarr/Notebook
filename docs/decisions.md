@@ -329,3 +329,64 @@ mehr, weil mehr die Bedienung überlagert, und nicht weniger, weil weniger Regel
 **Verworfen:** Ein echtes Modell über einen vom Prüfer eingegebenen Schlüssel („bring your
 own key") — möglich, aber nicht verlangt; wäre der nächste Schritt, wenn die Demo echte
 Antworten zeigen soll.
+
+---
+
+## D-018 · 2026-09-18 · Zweisprachige Oberfläche ohne i18n-Bibliothek
+
+**Entscheidung:** Alle sichtbaren Texte liegen in `apps/web/src/i18n/{de,en}.ts` unter einem
+gemeinsamen Schlüsseltyp; `useT()` liefert die Funktion, Platzhalter stehen als `{name}` im
+Text. Die Sprache kommt aus `localStorage` (`notebook.lang`), sonst aus
+`navigator.language`; die Einführung beim ersten Start fragt sie ab. Die Antwortsprache
+geht als `language` an die API und den Demo-Client, damit Offline-Antworten und Hinweise in
+derselben Sprache erscheinen wie die Oberfläche.
+
+**Grund:** Zwei Sprachen, keine Pluralregeln, keine Formate — eine Bibliothek brächte mehr
+Konfiguration als Nutzen (Regel 6). Der Schlüsseltyp lässt `tsc` fehlende Texte finden;
+ein Test prüft, dass beide Sprachen dieselben Platzhalter tragen.
+
+**Verworfen:** `i18next`/`react-intl` (Gewicht ohne Bedarf). Texte im JSX belassen und nur
+Englisch anbieten (der Auftraggeber wollte beides).
+
+---
+
+## D-019 · 2026-09-18 · Webseiten und Endpunkte als Quelle — der Server holt, die Demo sagt es ehrlich
+
+**Ergänzt D-002 und hebt ein Nicht-Ziel aus `docs/product.md` teilweise auf.** Eine einzelne
+Adresse als Quelle ist erlaubt; Crawling und Recherche bleiben ausgeschlossen.
+
+**Entscheidung:** `POST /v1/notebooks/:id/sources` nimmt `kind: 'url'` an. Der Server ruft
+die Adresse ab (nur `http(s)`, 15 s, 2 MB, höchstens 3 Weiterleitungen), verwirft private
+und lokale Ziele nach der Namensauflösung (SSRF-Schutz), zieht aus HTML den Text ohne
+Skripte, Navigation und Fußzeilen und speichert ihn als gewöhnliche Quelle mit `origin`. Der
+Original-Link bleibt in der Quellansicht sichtbar. Belege zeigen auf den extrahierten
+Text — was gespeichert ist, ist genau das, worauf verwiesen wird.
+
+**Demo ohne Server:** Der Browser versucht den Abruf selbst. Sperrt die Zielseite ihn (CORS),
+sagt der Dialog genau das und benennt den Unterschied zum Betrieb mit Backend. Ein
+Proxy-Dienst zum Umgehen wäre Infrastruktur ohne Auftrag (Regel 6) — und würde die Grenze
+der Demo verschleiern (Regel 5).
+
+**Verworfen:** Ein öffentlicher CORS-Proxy in der Demo. Die Seite zu rendern statt den Text
+zu extrahieren (Belege brauchen Zeichenpositionen in einem festen Text).
+
+---
+
+## D-020 · 2026-09-18 · Teilen als Export im Browser: Markdown, Word, PDF, PNG
+
+**Entscheidung:** „Teilen" heißt hier Export in eine Datei — für das ganze Notebook (Kopf)
+und für eine einzelne Antwort. Markdown entsteht aus den Daten; Word über `docx` ebenfalls
+aus den Daten (Überschriften, Absätze, Belegliste); PDF über den Druckdialog des Browsers
+mit einem eigenen Druck-Stylesheet, das genau das gewählte Element zeigt; PNG über
+`html-to-image` vom Frage-Antwort-Block ohne Bedienelemente. Die beiden Bibliotheken liegen
+in einem eigenen Chunk (~105 kB gzip) und laden erst beim ersten Teilen.
+
+**Grund:** Der Auftraggeber wollte die vier Formate sichtbar an einem Knopf. Ein serverseitiger
+PDF-Renderer wäre Infrastruktur (Regel 6); der Druckdialog liefert dasselbe Ergebnis mit
+den Schriften der Anwendung. Datenbasierte Exporte (MD, DOCX) enthalten die Belegangaben
+mit Zeichenpositionen und bleiben damit nachprüfbar; die Bildexporte sind Abbild, nicht
+Beleg.
+
+**Verworfen:** `jsPDF`/`pdfmake` (eigene Schriftbehandlung, zweite Typografie).
+`react-to-print` (ein Stylesheet genügt). Ein „Teilen-Link" in der Demo — Daten liegen im
+Browser des Betrachters; der Knopf kopiert die Adresse und sagt, dass Inhalte nicht mitgehen.

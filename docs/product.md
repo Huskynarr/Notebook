@@ -59,8 +59,8 @@ Ohne diese Punkte ist die Version nicht abgenommen:
 | # | Anforderung | Abnahmekriterium |
 |---|---|---|
 | P1 | Notebook-Verwaltung | Anlegen, umbenennen, löschen, öffnen; Liste überlebt Neustart |
-| P2 | Text-/Markdown-Import | Einfügen und Datei-Upload `.txt`/`.md`; Original bleibt unverändert gespeichert |
-| P3 | Text-/Markdown-Export | Notebook als Markdown exportierbar, inkl. Notizen und Belegangaben |
+| P2 | Text-/Markdown-Import | Einfügen und Datei-Upload `.txt`/`.md`; Original bleibt unverändert gespeichert. Seit 0.1: zusätzlich eine einzelne Adresse (Webseite oder Text-/JSON-Endpunkt), deren extrahierter Text gespeichert wird (D-019) |
+| P3 | Text-/Markdown-Export | Notebook als Markdown exportierbar, inkl. Notizen und Belegangaben. Seit 0.1: dazu Word, PDF (Druck) und je Antwort PNG über „Teilen" (D-020) |
 | P4 | Quellenwahl | Pro Anfrage aktivierbar/deaktivierbar; abgewählte Quellen erscheinen nachweislich nicht im Abruf |
 | P5 | Echte KI-Antworten | Aufruf eines real konfigurierten, OpenAI-kompatiblen Endpunkts; kein fest verdrahteter Text |
 | P6 | Überprüfbare Quellenverweise | Marker → Quell-ID + Zeichen-Offsets; Klick hebt die Stelle hervor; ungültige Marker werden serverseitig verworfen |
@@ -80,9 +80,9 @@ Ohne diese Punkte ist die Version nicht abgenommen:
 Bewusst ausgeschlossen, nicht vergessen:
 
 - Nutzerkonten, Registrierung, Rollen, Rechteverwaltung
-- Zusammenarbeit, Teilen, Kommentare, Mehrbenutzerbetrieb
+- Zusammenarbeit, Kommentare, Mehrbenutzerbetrieb („Teilen" meint hier nur den Export in Dateien, keinen geteilten Zustand)
 - Audio- oder Videogenerierung
-- Beliebiges Website-Crawling oder Web-Recherche
+- Beliebiges Website-Crawling oder Web-Recherche. Eine einzelne, vom Nutzer genannte Adresse als Quelle ist davon ausgenommen (D-019)
 - Umfangreiche Vektor-Infrastruktur (eigener Vektordatenbank-Dienst, Cluster, Index-Tuning)
 
 ## Qualitätsanforderungen

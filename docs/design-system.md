@@ -423,6 +423,51 @@ der sagt, worauf gewartet wird.
 **Leere Zustände** gelten als Statusanzeige: sie nennen immer den nächsten Schritt.
 „Noch keine Quelle. Text einfügen oder Datei wählen." — nie nur „Keine Daten".
 
+### 8.9 Aufklappmenü
+
+Verwendung: Notebook-Menü im Kopf (wechseln, neu, umbenennen, löschen), „Teilen" im Kopf
+und an jeder Antwort.
+
+Auslöser ist ein Button mit `aria-haspopup="menu"` und `aria-expanded`. Die Liste
+(`role="menu"`) hängt am `document.body` mit fester Position, damit kein Scrollbereich sie
+abschneidet, und klappt nach oben, wenn unter dem Auslöser weniger Platz ist als über ihm.
+Fläche `surface-overlay`, Rand `border-subtle`, `radius-lg`, `shadow-md`, Mindestbreite
+14 rem, Gruppen durch eine Linie getrennt, Gruppentitel `text-micro` in Versalien.
+
+| Zustand | Darstellung |
+|---|---|
+| Eintrag Ruhe | `text-body`, `content`; optionaler Hinweis `text-meta` in `content-muted` |
+| Zeigerkontakt / Fokus | Fläche `surface-sunken` |
+| Gefährlich | Text `danger` (nur Löschen) |
+
+Tastatur: Pfeile bewegen zyklisch, `Pos1`/`Ende`, `Esc` schließt und gibt den Fokus an den
+Auslöser zurück; Klick außerhalb schließt. Der erste Eintrag erhält beim Öffnen den Fokus.
+
+### 8.10 Spaltentrenner
+
+Verwendung: zwischen Quellen und Chat, zwischen Chat und Notizen (nur ab `xl`).
+
+8 px breit, unsichtbar bis auf eine 1-px-Linie `border-subtle`; bei Zeigerkontakt und
+während des Ziehens 2 px in `action`. `role="separator"`, `aria-orientation="vertical"`,
+`aria-valuenow/min/max` in Pixeln, `aria-label` nennt die Spalte. Pfeiltasten ändern die
+Breite um 16 px. Grenzen: links 240–420 px, rechts 280–480 px; die Breiten liegen in
+`localStorage` (`notebook.columns`).
+
+### 8.11 Einführung
+
+Ein Dialog (8.3) in drei Schritten beim ersten Start: Sprache, Design und Erscheinungsbild,
+Ablauf der Anwendung. Fortschritt als „Schritt n von 3" in `text-meta`; jede Wahl wirkt
+sofort (kein „Übernehmen"). „Überspringen" beendet an jeder Stelle. Erscheint nur, solange
+`notebook.tour.v1` nicht gesetzt ist; aus den Einstellungen erneut aufrufbar.
+
+### 8.12 Teilen
+
+Ein Aufklappmenü (8.9) mit einer Gruppe „Ganzes Notebook" bzw. „Diese Antwort":
+Markdown, PDF (Druckansicht, mit Hinweis „Als PDF speichern"), Word, bei Antworten
+zusätzlich Bild (PNG). Das Druck-Stylesheet zeigt nur das markierte Element
+(`data-print-target`) auf weißem Grund mit den Schriften der Anwendung; Bedienelemente
+tragen `no-print` und fehlen in Druck und PNG.
+
 ---
 
 ## 9. Zugänglichkeit
