@@ -3,7 +3,7 @@
 Zustand, nicht Plan. Was hier als funktionierend steht, wurde ausgeführt und die Ausgabe
 angesehen. Was nicht geprüft werden konnte, steht unter „Nicht geprüft" — nicht weggelassen.
 
-Stand: 2026-09-17 · Version 0.1.0 (noch ohne Release-Tag)
+Stand: 2026-09-18 · Version 0.1.0 (noch ohne Release-Tag)
 
 ## Funktioniert (geprüft)
 
@@ -22,21 +22,30 @@ Pflichtumfang aus `docs/product.md`:
 | P9 | Sofort nutzbares Beispiel | funktioniert | E2E („Beispiel-Notebook ist nach dem Start sofort nutzbar") |
 | P10 | Fester Zugang `admin:admin` | funktioniert | `auth.test.ts`, `server.test.ts` |
 
-Zuletzt tatsächlich ausgeführt (2026-09-17):
+Darüber hinaus, nicht im Pflichtumfang:
+
+- **Drei umschaltbare Designs** (eigen, Universität Freiburg, huskynarr), je hell und
+  dunkel, in den Einstellungen; Auswahl überlebt das Neuladen ohne Aufblitzen.
+- **Vorschau ohne Backend** (`VITE_PREVIEW=true`) für GitHub Pages, sichtbar gekennzeichnet.
+
+Zuletzt tatsächlich ausgeführt (2026-09-18):
 
 ```
 pnpm typecheck        5 Projekte, keine Ausgabe
 pnpm lint             keine Ausgabe
 pnpm format:check     alle Dateien konform
-pnpm test             61 Tests in 7 Dateien bestanden
-pnpm --filter @notebook/web build   erfolgreich, JS 345 kB (gzip 104 kB)
+pnpm test             65 Tests in 8 Dateien bestanden
+pnpm --filter @notebook/web build   erfolgreich, JS 360 kB (gzip 109 kB)
 pnpm exec playwright test           7 Tests bestanden
 ```
 
 Gemessen, nicht geschätzt:
 
-- Kontrast in beiden Themes an der gebauten Oberfläche: niedrigster Wert 5,24:1
-  (`docs/design-system.md`, Abschnitt 1).
+- Kontrast in allen sechs Design-/Theme-Kombinationen an der gebauten Oberfläche:
+  niedrigster Wert 5,47:1 (`docs/design-system.md`, Abschnitt 1).
+- Rückfall auf Arial im Design `uni-freiburg` trägt: `document.fonts.check('16px Social')`
+  ist `false`, gemessene Textbreite identisch mit Arial.
+- Designwahl steht vor dem Bundle am Wurzelelement (geprüft mit `waitUntil: 'commit'`).
 - Bei 390 px Breite kein waagerechtes Scrollen (E2E-Test).
 - Keine Fehler in der Browserkonsole beim Hauptablauf.
 
@@ -54,11 +63,19 @@ Diese Punkte sind offen, nicht „vermutlich in Ordnung":
 - **Leistungszusage** aus `docs/product.md` (Abruf und Validierung unter 300 ms bei 30
   Quellen): nicht gemessen. Die einzige belastbare Zahl ist `elapsedMs` in der Antwort,
   im Beispielkorpus einstellig.
-- **Barrierefreiheit:** Ränder und Fokusringe gegen ihre Umgebung (3:1) sowie Bedienung bei
-  200 % Zoom stehen weiter auf der Prüfliste in `docs/design-system.md`, Abschnitt 9.
-- **Die CI-Workflows sind nie gelaufen.** Sie sind geschrieben, aber bis zum ersten Push
-  ungetestet. Erwartbare Stolperstellen: `pnpm exec playwright install` und das Verhalten
-  des Release-Laufs beim allerersten Tag.
+- **Barrierefreiheit:** Ränder und Fokusringe gegen ihre Umgebung (3:1), Bedienung bei
+  200 % Zoom und vollständige Tastaturbedienung stehen weiter auf der Prüfliste in
+  `docs/design-system.md`, Abschnitt 9.
+- **Die CI-Workflows sind nie gelaufen** — auch `pages.yml` nicht. Sie sind geschrieben,
+  aber bis zum ersten Push ungetestet. Pages muss im Repository einmalig aktiviert werden
+  (Settings › Pages › Source: GitHub Actions); ob das Repository öffentlich ist, konnte
+  nicht geprüft werden (API-Abruf 403). Bei einem privaten Repository braucht Pages einen
+  bezahlten Plan.
+- **Corporate Design nicht abgestimmt.** Das Design `uni-freiburg` geht an zehn Stellen
+  über das CD hinaus (`docs/design-system.md`, Abschnitt 10). Nicht mit
+  cd@zv.uni-freiburg.de abgestimmt; Hausschrift nie gesehen; Logo-Frage offen.
+- **Design `huskynarr` ist eine Näherung.** Belegt ist eine Farbe; alles andere ist
+  Ableitung (Abschnitt 11).
 
 ## Bekannte Grenzen
 
@@ -93,6 +110,12 @@ Festgehalten, weil jeder davon zeigt, welche Prüfung ihn gefunden hat:
    Bildschirmfotos, von keinem Test abgedeckt — jetzt schon.
 6. **Fachfremde Frage wurde scheinbar beantwortet,** weil `hoch*` „Hochschule" traf.
    Gefunden durch einen Test, der bewusst nach etwas außerhalb des Korpus fragte.
+7. **Zwei gleichrangige Textfarben am Zitatmarker.** Welche gewinnt, entscheidet die
+   Reihenfolge im erzeugten CSS — im dunklen Thema fiel der Kontrast auf 2,65:1. Gefunden
+   durch die Kontrastmessung, nicht durch einen Test.
+8. **Ein später Erstabruf überschrieb die Quellenauswahl.** Die Anwendung fragte dann
+   andere Quellen ab, als angezeigt waren. Gefunden im E2E-Lauf — erst sichtbar, nachdem
+   ein schnellerer Seitenaufbau das Zeitfenster geöffnet hatte.
 
 ## Nächste sinnvolle Schritte
 
@@ -100,7 +123,10 @@ Festgehalten, weil jeder davon zeigt, welche Prüfung ihn gefunden hat:
 2. Belegtreue von zwei bis drei Modellen an einem echten Korpus messen und die Quote
    `exact` gegenüber `chunk` festhalten.
 3. CI einmal laufen lassen und die Workflows nachziehen.
-4. Erst danach PDFs als Erweiterung.
+4. Pages einmal laufen lassen und die Vorschau im echten Browser ansehen.
+5. CD-Umsetzung mit cd@zv.uni-freiburg.de abstimmen; huskynarr-Werte vom Besitzer der Seite
+   erfragen und eintragen.
+6. Erst danach PDFs als Erweiterung.
 
 ## Einschränkungen der Entwicklungsumgebung
 
