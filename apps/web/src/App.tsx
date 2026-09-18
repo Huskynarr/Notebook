@@ -35,7 +35,11 @@ export function App(): ReactElement {
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [sources, setSources] = useState<Source[]>([]);
+  // null = wird geladen. Waehrend des Ladens zeigt die Quellenspalte keine
+  // Kaestchen an; sonst kann eine Auswahl angeklickt werden, bevor die
+  // Antwort des ersten Abrufs eintrifft - und diese Antwort stellt sie
+  // anschliessend wieder zurueck.
+  const [sources, setSources] = useState<Source[] | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [exchanges, setExchanges] = useState<Exchange[]>([]);
   const [pending, setPending] = useState(false);
@@ -49,7 +53,8 @@ export function App(): ReactElement {
   const [newTitle, setNewTitle] = useState('');
 
   const activeCitation = citationList[citationIndex] ?? null;
-  const selected = sources.filter((s) => s.selected);
+  const loadedSources = sources ?? [];
+  const selected = loadedSources.filter((s) => s.selected);
 
   /** Wie oft eine Quelle zur letzten Antwort beigetragen hat - die Plakette
    *  "n Treffer" auf der Quellenkarte. */
@@ -98,18 +103,29 @@ export function App(): ReactElement {
   }, [api, token, report]);
 
   useEffect(() => {
-    if (token === null || activeId === null) return;
+    if (token === null || activeId === null) return undefined;
     setExchanges([]);
     setOpenSource(null);
     setCitationList([]);
+    setSources(null);
+
+    // Beim Wechsel des Notebooks darf die Antwort des vorherigen Abrufs nicht
+    // mehr ankommen - sonst zeigt die Spalte die Quellen des falschen
+    // Notebooks.
+    let veraltet = false;
     Promise.all([api.listSources(activeId), api.listNotes(activeId)])
       .then(([s, n]) => {
+        if (veraltet) return;
         setSources(s);
         setNotes(n);
       })
       .catch((cause: unknown) => {
+        if (veraltet) return;
         report(cause, 'Das Notebook konnte nicht geladen werden.');
       });
+    return () => {
+      veraltet = true;
+    };
   }, [api, token, activeId, report]);
 
   const login = async (username: string, password: string): Promise<void> => {
@@ -168,7 +184,7 @@ export function App(): ReactElement {
   }): Promise<void> => {
     if (activeId === null) return;
     const created = await api.createSource(activeId, input);
-    setSources((current) => [...current, created]);
+    setSources((current) => (current === null ? [created] : [...current, created]));
     toast('info', `„${created.title}" hinzugefügt (${created.chunkCount} Abschnitte).`);
   };
 
@@ -177,7 +193,9 @@ export function App(): ReactElement {
     // das Kaestchen auf die Serverantwort, fuehlt es sich bei jeder Verzoegerung
     // kaputt an - es haekt sich sichtbar zurueck.
     setSources((current) =>
-      current.map((s) => (s.id === source.id ? { ...s, selected: isSelected } : s)),
+      current === null
+        ? current
+        : current.map((s) => (s.id === source.id ? { ...s, selected: isSelected } : s)),
     );
     api
       .updateSource(source.id, { selected: isSelected })
@@ -193,7 +211,9 @@ export function App(): ReactElement {
         // Auswahl anzuzeigen, die serverseitig nicht gilt, waere eine stille
         // Luege ueber den Abruf.
         setSources((current) =>
-          current.map((s) => (s.id === source.id ? { ...s, selected: !isSelected } : s)),
+          current === null
+            ? current
+            : current.map((s) => (s.id === source.id ? { ...s, selected: !isSelected } : s)),
         );
         report(cause, 'Die Auswahl konnte nicht gespeichert werden.');
       });
@@ -271,6 +291,7 @@ export function App(): ReactElement {
   const sourcesPanel = (
     <SourcesPanel
       sources={sources}
+      loading={sources === null}
       openSourceId={openSource?.id ?? null}
       hitCounts={hitCounts}
       onToggle={toggleSource}
@@ -292,7 +313,9 @@ export function App(): ReactElement {
         api
           .deleteSource(source.id)
           .then(() => {
-            setSources((current) => current.filter((s) => s.id !== source.id));
+            setSources((current) =>
+              current === null ? current : current.filter((s) => s.id !== source.id),
+            );
             if (openSource?.id === source.id) setOpenSource(null);
             toast('info', `„${source.title}" gelöscht.`);
           })
@@ -378,7 +401,7 @@ export function App(): ReactElement {
           value={mobileTab}
           onChange={setMobileTab}
           items={[
-            { id: 'sources', label: 'Quellen', count: sources.length },
+            { id: 'sources', label: 'Quellen', count: loadedSources.length },
             { id: 'chat', label: 'Chat' },
             { id: 'notes', label: 'Notizen', count: notes.length },
           ]}
