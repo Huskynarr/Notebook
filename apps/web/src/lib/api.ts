@@ -13,16 +13,19 @@ import {
   SourceSchema,
   type AskResponse,
   type Citation,
+  type CreateSourceRequest,
   type HealthResponse,
+  type Language,
   type Note,
   type Notebook,
   type Source,
   type SourceContent,
 } from '@notebook/shared';
 import { API_BASE_URL } from './config.ts';
+import type { Uebersetzer } from '../i18n/index.ts';
 
 /** Fehler mit einer Meldung, die einer Person etwas sagt. Der Code erlaubt dem
- *  UI, einzelne Faelle zu unterscheiden (z. B. abgelaufene Sitzung). */
+ *  UI, einzelne Faelle zu unterscheiden (z. B. abgelaufene Sitzung, CORS). */
 export class ApiRequestError extends Error {
   readonly code: string;
   readonly status: number;
@@ -39,8 +42,7 @@ export type TokenProvider = () => string | null;
 
 /** Was die Anwendung von ihrer Datenquelle braucht. `ApiClient` spricht damit
  *  das Backend an, `DemoClient` liefert dieselbe Form aus dem Browser heraus
- *  (siehe demo/demoClient.ts). Die Anwendung kennt nur diese
- *  Schnittstelle und damit an keiner Stelle den Unterschied. */
+ *  (siehe demo/demoClient.ts). Die Anwendung kennt nur diese Schnittstelle. */
 export interface NotebookApi {
   health(): Promise<HealthResponse>;
   login(username: string, password: string): Promise<{ token: string; expiresAt: string }>;
@@ -50,14 +52,16 @@ export interface NotebookApi {
   deleteNotebook(id: string): Promise<void>;
   exportNotebook(id: string): Promise<string>;
   listSources(notebookId: string): Promise<Source[]>;
-  createSource(
-    notebookId: string,
-    input: { title: string; kind: 'text' | 'markdown'; content: string },
-  ): Promise<Source>;
+  createSource(notebookId: string, input: CreateSourceRequest): Promise<Source>;
   updateSource(id: string, patch: { selected?: boolean; title?: string }): Promise<Source>;
   deleteSource(id: string): Promise<void>;
   getSource(id: string): Promise<SourceContent>;
-  ask(notebookId: string, question: string, sourceIds: string[]): Promise<AskResponse>;
+  ask(
+    notebookId: string,
+    question: string,
+    sourceIds: string[],
+    language: Language,
+  ): Promise<AskResponse>;
   listNotes(notebookId: string): Promise<Note[]>;
   createNote(
     notebookId: string,
@@ -70,9 +74,11 @@ export interface NotebookApi {
 export class ApiClient implements NotebookApi {
   private readonly baseUrl: string;
   private readonly getToken: TokenProvider;
+  private readonly t: Uebersetzer;
 
-  constructor(getToken: TokenProvider, baseUrl: string = API_BASE_URL) {
+  constructor(getToken: TokenProvider, t: Uebersetzer, baseUrl: string = API_BASE_URL) {
     this.getToken = getToken;
+    this.t = t;
     this.baseUrl = baseUrl.replace(/\/$/, '');
   }
 
@@ -96,17 +102,15 @@ export class ApiClient implements NotebookApi {
         headers: this.headers(init.body !== undefined),
       });
     } catch {
-      throw new ApiRequestError(
-        `Das Backend unter ${this.baseUrl} ist nicht erreichbar.`,
-        'network',
-        0,
-      );
+      throw new ApiRequestError(this.t('error.network', { url: this.baseUrl }), 'network', 0);
     }
 
     if (!response.ok) {
       const parsed = ApiErrorSchema.safeParse(await response.json().catch(() => null));
       throw new ApiRequestError(
-        parsed.success ? parsed.data.error.message : `Fehler ${response.status}.`,
+        parsed.success
+          ? parsed.data.error.message
+          : this.t('error.status', { status: response.status }),
         parsed.success ? parsed.data.error.code : 'internal',
         response.status,
       );
@@ -118,11 +122,7 @@ export class ApiClient implements NotebookApi {
     const parsed = schema.safeParse(payload);
     if (!parsed.success) {
       // Ein Vertragsbruch soll auffallen, nicht als halb gefuelltes UI enden.
-      throw new ApiRequestError(
-        'Die Antwort des Backends entspricht nicht dem erwarteten Format.',
-        'validation_failed',
-        response.status,
-      );
+      throw new ApiRequestError(this.t('error.contract'), 'validation_failed', response.status);
     }
     return parsed.data;
   }
@@ -130,7 +130,11 @@ export class ApiClient implements NotebookApi {
   private async requestText(path: string): Promise<string> {
     const response = await fetch(`${this.baseUrl}${path}`, { headers: this.headers(false) });
     if (!response.ok) {
-      throw new ApiRequestError(`Fehler ${response.status}.`, 'internal', response.status);
+      throw new ApiRequestError(
+        this.t('error.status', { status: response.status }),
+        'internal',
+        response.status,
+      );
     }
     return response.text();
   }
@@ -177,10 +181,7 @@ export class ApiClient implements NotebookApi {
       .sources;
   }
 
-  createSource(
-    notebookId: string,
-    input: { title: string; kind: 'text' | 'markdown'; content: string },
-  ): Promise<Source> {
+  createSource(notebookId: string, input: CreateSourceRequest): Promise<Source> {
     return this.request(`/v1/notebooks/${notebookId}/sources`, SourceSchema, {
       method: 'POST',
       body: JSON.stringify(input),
@@ -202,10 +203,15 @@ export class ApiClient implements NotebookApi {
     return this.request(`/v1/sources/${id}`, SourceContentSchema);
   }
 
-  ask(notebookId: string, question: string, sourceIds: string[]): Promise<AskResponse> {
+  ask(
+    notebookId: string,
+    question: string,
+    sourceIds: string[],
+    language: Language,
+  ): Promise<AskResponse> {
     return this.request(`/v1/notebooks/${notebookId}/ask`, AskResponseSchema, {
       method: 'POST',
-      body: JSON.stringify({ question, sourceIds }),
+      body: JSON.stringify({ question, sourceIds, language }),
     });
   }
 

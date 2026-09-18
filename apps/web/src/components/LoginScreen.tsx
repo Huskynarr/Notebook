@@ -1,4 +1,5 @@
 import { useState, type ReactElement } from 'react';
+import { useT } from '../i18n/index.ts';
 import { Button } from './ui/Button.tsx';
 import { TextField } from './ui/Field.tsx';
 import { InlineNote } from './ui/Status.tsx';
@@ -14,6 +15,7 @@ export function LoginScreen({
   onLogin: (username: string, password: string) => Promise<void>;
   onOpenSettings: () => void;
 }): ReactElement {
+  const t = useT();
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | undefined>(undefined);
@@ -25,7 +27,7 @@ export function LoginScreen({
     try {
       await onLogin(username, password);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Anmeldung fehlgeschlagen.');
+      setError(cause instanceof Error ? cause.message : t('login.failed'));
     } finally {
       setBusy(false);
     }
@@ -40,14 +42,12 @@ export function LoginScreen({
           void submit();
         }}
       >
-        <h1 className="text-title text-content-strong">Notebook</h1>
-        <p className="text-body text-content-muted mt-1">
-          Quellenbasiertes Arbeiten mit überprüfbaren Belegen.
-        </p>
+        <h1 className="text-title text-content-strong font-display">{t('app.name')}</h1>
+        <p className="text-body text-content-muted mt-1">{t('app.tagline')}</p>
 
         <div className="mt-6 flex flex-col gap-4">
           <TextField
-            label="Benutzername"
+            label={t('login.username')}
             autoComplete="username"
             value={username}
             onChange={(event) => {
@@ -55,7 +55,7 @@ export function LoginScreen({
             }}
           />
           <TextField
-            label="Passwort"
+            label={t('login.password')}
             type="password"
             autoComplete="current-password"
             value={password}
@@ -66,24 +66,22 @@ export function LoginScreen({
             }}
           />
           <Button type="submit" variant="primary" size="lg" loading={busy}>
-            Anmelden
+            {t('login.submit')}
           </Button>
         </div>
 
         <div className="mt-5">
-          <InlineNote tone="info" title="Lokaler Zugang">
-            Voreinstellung <code className="font-mono">admin / admin</code>. Der Zugang ist für den
-            Betrieb auf dem eigenen Rechner gedacht — vor einer Erreichbarkeit im Netz muss er
-            geändert werden.
+          <InlineNote tone="info" title={t('login.localTitle')}>
+            {t('login.localBody', { creds: 'admin / admin' })}
           </InlineNote>
         </div>
 
         <div className="mt-4 flex items-center justify-between gap-2">
           <p className="text-meta text-content-subtle font-mono">
-            {demo ? 'Demo · läuft ohne Server in diesem Browser' : `Backend: ${apiBaseUrl}`}
+            {demo ? t('login.demo') : t('login.backend', { url: apiBaseUrl })}
           </p>
           <Button size="sm" variant="ghost" onClick={onOpenSettings}>
-            Einstellungen
+            {t('common.settings')}
           </Button>
         </div>
       </form>

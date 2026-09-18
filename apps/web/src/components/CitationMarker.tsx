@@ -1,15 +1,16 @@
 import { useRef, useState, type ReactElement } from 'react';
 import type { Citation } from '@notebook/shared';
+import { useT } from '../i18n/index.ts';
 import { cx } from './ui/cx.ts';
 
 /**
  * Design-System 8.6. Ein echtes <button>: anklickbar, mit Tabulator erreichbar,
- * mit sprechender Beschriftung fuer Hilfstechnik.
+ * mit sprechender Beschriftung für Hilfstechnik.
  *
- * Diese Komponente wird nur fuer Marker gerendert, die das Backend gegen einen
- * tatsaechlich abgerufenen Abschnitt aufloesen konnte. Gibt es zu einer Nummer
- * keinen Beleg, erscheint gar nichts - ein Marker ins Leere ist ein Fehler,
- * kein Darstellungsfall.
+ * Wird nur für Marker gerendert, die das Backend gegen einen tatsächlich
+ * abgerufenen Abschnitt auflösen konnte. Gibt es zu einer Nummer keinen Beleg,
+ * erscheint gar nichts - ein Marker ins Leere ist ein Fehler, kein
+ * Darstellungsfall.
  */
 export function CitationMarker({
   markers,
@@ -22,15 +23,13 @@ export function CitationMarker({
   activeMarker: number | null;
   onSelect: (citation: Citation) => void;
 }): ReactElement | null {
+  const t = useT();
   const [preview, setPreview] = useState<Citation | null>(null);
   const timer = useRef<number | null>(null);
 
   const resolved = markers
     .map((n) => citations.find((c) => c.marker === n))
     .filter((c): c is Citation => c !== undefined);
-
-  if (resolved.length === 0) return null;
-
   const first = resolved[0];
   if (first === undefined) return null;
   const isActive = resolved.some((c) => c.marker === activeMarker);
@@ -49,9 +48,11 @@ export function CitationMarker({
   };
 
   const label = resolved
-    .map(
-      (c) =>
-        `Beleg ${c.marker}: ${c.sourceTitle}${c.headingPath === '' ? '' : `, ${c.headingPath}`}`,
+    .map((c) =>
+      t('citation.label', {
+        marker: c.marker,
+        source: c.headingPath === '' ? c.sourceTitle : `${c.sourceTitle}, ${c.headingPath}`,
+      }),
     )
     .join('; ');
 
@@ -76,14 +77,8 @@ export function CitationMarker({
         }}
         className={cx(
           'rounded-xs text-micro mx-0.5 px-1 align-super font-mono transition-colors duration-[80ms]',
-          // Die Belegfarbe liegt auf der Flaeche, nie auf der Schrift: CD-Gruen
-          // haelt als Textfarbe auf hellem Grund nur rund 3,3:1.
-          //
-          // Die Textfarbe steht ausschliesslich in den beiden Zweigen. Stuende
-          // zusaetzlich eine im gemeinsamen Teil, konkurrierten zwei
-          // gleichrangige Utilities, und welche gewinnt, entscheidet die
-          // Reihenfolge im erzeugten CSS - nicht die im Klassenstring. Genau so
-          // fiel der Marker im dunklen Thema auf 2,65:1.
+          // Die Belegfarbe liegt auf der Fläche, nie auf der Schrift; die
+          // Textfarbe steht ausschließlich in den beiden Zweigen (D-012).
           'focus-visible:outline-accent',
           isActive
             ? 'bg-accent text-accent-contrast'
@@ -106,12 +101,12 @@ export function CitationMarker({
           {preview.headingPath !== '' && (
             <span className="text-meta text-content-muted block">{preview.headingPath}</span>
           )}
-          <span className="bg-accent-surface font-reading text-reading text-content mt-2 block max-h-40 overflow-y-auto px-2 py-1">
+          <span className="bg-accent-surface font-reading text-reading text-content-strong rounded-xs mt-2 block max-h-40 overflow-y-auto px-2 py-1">
             {preview.excerpt}
           </span>
           <span className="text-meta text-content-muted mt-2 block font-mono">
-            Zeichen {preview.startOffset}–{preview.endOffset}
-            {preview.precision === 'chunk' && ' · ganzer Abschnitt'}
+            {t('citation.range', { start: preview.startOffset, end: preview.endOffset })}
+            {preview.precision === 'chunk' && ` · ${t('chat.wholeSection')}`}
           </span>
         </span>
       )}

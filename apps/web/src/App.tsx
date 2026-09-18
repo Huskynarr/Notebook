@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import type {
   Citation,
+  CreateSourceRequest,
   HealthResponse,
   Note,
   Notebook,
@@ -9,51 +10,94 @@ import type {
 } from '@notebook/shared';
 import { ApiClient, ApiRequestError, type NotebookApi } from './lib/api.ts';
 import { API_BASE_URL, DEMO_MODE } from './lib/config.ts';
+import { readToken, writeToken } from './lib/session.ts';
 import {
   anwenden as erscheinungsbildAnwenden,
   lesen as erscheinungsbildLesen,
   schreiben as erscheinungsbildSchreiben,
   type Erscheinungsbild,
 } from './lib/appearance.ts';
+import {
+  SpracheContext,
+  spracheLesen,
+  spracheSchreiben,
+  uebersetzen,
+  type Sprache,
+  type Uebersetzer,
+} from './i18n/index.ts';
+import type * as ExportModul from './lib/export.ts';
 import { DemoClient } from './demo/demoClient.ts';
-import { SettingsDialog } from './components/SettingsDialog.tsx';
-import { readToken, writeToken } from './lib/session.ts';
+import { useResizableColumns } from './hooks/useResizableColumns.ts';
 import { ChatPanel, type Exchange } from './components/ChatPanel.tsx';
 import { LoginScreen } from './components/LoginScreen.tsx';
 import { NotesPanel } from './components/NotesPanel.tsx';
+import { SettingsDialog } from './components/SettingsDialog.tsx';
+import { ShareMenu } from './components/ShareMenu.tsx';
 import { SourceViewer } from './components/SourceViewer.tsx';
 import { SourcesPanel } from './components/SourcesPanel.tsx';
+import { Tour, tourGesehen } from './components/Tour.tsx';
 import { Button } from './components/ui/Button.tsx';
 import { Dialog } from './components/ui/Dialog.tsx';
 import { TextField } from './components/ui/Field.tsx';
-import { Tabs } from './components/ui/Tabs.tsx';
+import { Menu } from './components/ui/Menu.tsx';
+import { ResizeHandle } from './components/ui/ResizeHandle.tsx';
 import { Badge } from './components/ui/Status.tsx';
+import { Tabs } from './components/ui/Tabs.tsx';
 import { useToast } from './components/ui/Toast.tsx';
 import { cx } from './components/ui/cx.ts';
 
 type RightTab = 'notes' | 'source';
+
+/* Die Exportbibliotheken (docx, html-to-image) sind zusammen groesser als
+ * der Rest der Anwendung; sie werden erst beim ersten Teilen geladen. */
+const exportModul = (): Promise<typeof ExportModul> => import('./lib/export.ts');
 type MobileTab = 'sources' | 'chat' | 'notes';
 
 export function App(): ReactElement {
+  const [sprache, setSprache] = useState<Sprache>(() => spracheLesen());
+  const t = useCallback<Uebersetzer>((key, params) => uebersetzen(sprache, key, params), [sprache]);
+  useEffect(() => {
+    spracheSchreiben(sprache);
+  }, [sprache]);
+
+  return (
+    <SpracheContext.Provider value={{ sprache, t }}>
+      <Arbeitsbereich sprache={sprache} onSprache={setSprache} t={t} />
+    </SpracheContext.Provider>
+  );
+}
+
+function Arbeitsbereich({
+  sprache,
+  onSprache,
+  t,
+}: {
+  sprache: Sprache;
+  onSprache: (s: Sprache) => void;
+  t: Uebersetzer;
+}): ReactElement {
   const [token, setToken] = useState<string | null>(() => readToken());
   const toast = useToast();
+
+  // Eine stabile Uebersetzungsfunktion: Client und Ladeeffekte haengen an ihr,
+  // nicht an `t` - sonst wuerde ein Sprachwechsel den Client neu bauen und den
+  // Arbeitsstand (Chatverlauf, geoeffnete Quelle) verwerfen.
+  const tRef = useRef(t);
+  tRef.current = t;
+  const tStabil = useCallback<Uebersetzer>((key, params) => tRef.current(key, params), []);
 
   // In der Demo laeuft die Anwendung vollstaendig im Browser. Sie kennt nur
   // die Schnittstelle NotebookApi und an keiner Stelle den Unterschied -
   // sichtbar ist er ueber `simulated` in jeder Antwort, wie beim Server ohne
   // Modell.
   const api = useMemo<NotebookApi>(
-    () => (DEMO_MODE ? new DemoClient() : new ApiClient(() => token)),
-    [token],
+    () => (DEMO_MODE ? new DemoClient(undefined, tStabil) : new ApiClient(() => token, tStabil)),
+    [token, tStabil],
   );
 
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
-  // null = wird geladen. Waehrend des Ladens zeigt die Quellenspalte keine
-  // Kaestchen an; sonst kann eine Auswahl angeklickt werden, bevor die
-  // Antwort des ersten Abrufs eintrifft - und diese Antwort stellt sie
-  // anschliessend wieder zurueck.
   const [sources, setSources] = useState<Source[] | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [exchanges, setExchanges] = useState<Exchange[]>([]);
@@ -64,12 +108,17 @@ export function App(): ReactElement {
   const [citationIndex, setCitationIndex] = useState(0);
   const [rightTab, setRightTab] = useState<RightTab>('notes');
   const [mobileTab, setMobileTab] = useState<MobileTab>('chat');
+
   const [creating, setCreating] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
+  const [renaming, setRenaming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [titelEntwurf, setTitelEntwurf] = useState('');
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [tourOpen, setTourOpen] = useState(() => !tourGesehen());
   const [erscheinungsbild, setErscheinungsbild] = useState<Erscheinungsbild>(() =>
     erscheinungsbildLesen(),
   );
+  const { spalten, ziehenStarten, perTaste, grenzen } = useResizableColumns();
 
   useEffect(() => {
     erscheinungsbildAnwenden(erscheinungsbild);
@@ -79,9 +128,8 @@ export function App(): ReactElement {
   const activeCitation = citationList[citationIndex] ?? null;
   const loadedSources = sources ?? [];
   const selected = loadedSources.filter((s) => s.selected);
+  const aktivesNotebook = notebooks.find((n) => n.id === activeId) ?? null;
 
-  /** Wie oft eine Quelle zur letzten Antwort beigetragen hat - die Plakette
-   *  "n Treffer" auf der Quellenkarte. */
   const hitCounts = useMemo(() => {
     const last = exchanges[exchanges.length - 1]?.response;
     const counts = new Map<string, number>();
@@ -96,12 +144,12 @@ export function App(): ReactElement {
       if (cause instanceof ApiRequestError && cause.status === 401) {
         writeToken(null);
         setToken(null);
-        toast('warning', 'Die Sitzung ist abgelaufen. Bitte neu anmelden.');
+        toast('warning', tStabil('error.sessionExpired'));
         return;
       }
       toast('danger', cause instanceof Error ? cause.message : fallback);
     },
-    [toast],
+    [toast, tStabil],
   );
 
   useEffect(() => {
@@ -122,9 +170,9 @@ export function App(): ReactElement {
         setActiveId((current) => current ?? list[0]?.id ?? null);
       })
       .catch((cause: unknown) => {
-        report(cause, 'Die Notebooks konnten nicht geladen werden.');
+        report(cause, tStabil('error.loadNotebooks'));
       });
-  }, [api, token, report]);
+  }, [api, token, report, tStabil]);
 
   useEffect(() => {
     if (token === null || activeId === null) return undefined;
@@ -132,10 +180,6 @@ export function App(): ReactElement {
     setOpenSource(null);
     setCitationList([]);
     setSources(null);
-
-    // Beim Wechsel des Notebooks darf die Antwort des vorherigen Abrufs nicht
-    // mehr ankommen - sonst zeigt die Spalte die Quellen des falschen
-    // Notebooks.
     let veraltet = false;
     Promise.all([api.listSources(activeId), api.listNotes(activeId)])
       .then(([s, n]) => {
@@ -145,12 +189,12 @@ export function App(): ReactElement {
       })
       .catch((cause: unknown) => {
         if (veraltet) return;
-        report(cause, 'Das Notebook konnte nicht geladen werden.');
+        report(cause, tStabil('error.loadNotebook'));
       });
     return () => {
       veraltet = true;
     };
-  }, [api, token, activeId, report]);
+  }, [api, token, activeId, report, tStabil]);
 
   const login = async (username: string, password: string): Promise<void> => {
     const session = await api.login(username, password);
@@ -169,11 +213,11 @@ export function App(): ReactElement {
         try {
           setOpenSource(await api.getSource(citation.sourceId));
         } catch (cause) {
-          report(cause, 'Die Quelle konnte nicht geladen werden.');
+          report(cause, t('error.loadSource'));
         }
       }
     },
-    [api, openSource, report],
+    [api, openSource, report, t],
   );
 
   const ask = (question: string): void => {
@@ -186,13 +230,12 @@ export function App(): ReactElement {
     ]);
     setPending(true);
     api
-      .ask(activeId, question, ids)
+      .ask(activeId, question, ids, sprache)
       .then((response) => {
         setExchanges((current) => current.map((e) => (e.id === id ? { ...e, response } : e)));
       })
       .catch((cause: unknown) => {
-        const message =
-          cause instanceof Error ? cause.message : 'Die Frage konnte nicht gestellt werden.';
+        const message = cause instanceof Error ? cause.message : t('chat.askFailed');
         setExchanges((current) => current.map((e) => (e.id === id ? { ...e, error: message } : e)));
         if (cause instanceof ApiRequestError && cause.status === 401) report(cause, message);
       })
@@ -201,21 +244,16 @@ export function App(): ReactElement {
       });
   };
 
-  const addSource = async (input: {
-    title: string;
-    kind: 'text' | 'markdown';
-    content: string;
-  }): Promise<void> => {
+  const addSource = async (input: CreateSourceRequest): Promise<void> => {
     if (activeId === null) return;
     const created = await api.createSource(activeId, input);
     setSources((current) => (current === null ? [created] : [...current, created]));
-    toast('info', `„${created.title}" hinzugefügt (${created.chunkCount} Abschnitte).`);
+    toast('info', t('addSource.added', { title: created.title, count: created.chunkCount }));
   };
 
   const toggleSource = (source: Source, isSelected: boolean): void => {
-    // Die Auswahl wird sofort umgestellt und erst danach gespeichert. Wartet
-    // das Kaestchen auf die Serverantwort, fuehlt es sich bei jeder Verzoegerung
-    // kaputt an - es haekt sich sichtbar zurueck.
+    // Sofort umstellen, erst danach speichern; die Serverantwort wird nicht
+    // uebernommen (D-010), nur ein Fehler nimmt die Anzeige zurueck.
     setSources((current) =>
       current === null
         ? current
@@ -223,23 +261,14 @@ export function App(): ReactElement {
     );
     api
       .updateSource(source.id, { selected: isSelected })
-      .then(() => {
-        // Die Antwort wird bewusst NICHT uebernommen. Beim schnellen
-        // Umschalten kommen die Antworten nicht zwingend in der Reihenfolge
-        // der Anfragen zurueck; eine spaet eintreffende aeltere Antwort haette
-        // die Auswahl wieder umgestellt. Der angezeigte Zustand entspricht
-        // ohnehin dem, was gerade bestaetigt wurde.
-      })
+      .then(() => undefined)
       .catch((cause: unknown) => {
-        // Scheitert das Speichern, wird die Anzeige zurueckgenommen. Eine
-        // Auswahl anzuzeigen, die serverseitig nicht gilt, waere eine stille
-        // Luege ueber den Abruf.
         setSources((current) =>
           current === null
             ? current
             : current.map((s) => (s.id === source.id ? { ...s, selected: !isSelected } : s)),
         );
-        report(cause, 'Die Auswahl konnte nicht gespeichert werden.');
+        report(cause, t('error.saveSelection'));
       });
   };
 
@@ -255,39 +284,141 @@ export function App(): ReactElement {
       .then((note) => {
         setNotes((current) => [note, ...current]);
         setRightTab('notes');
-        toast('info', 'Als Notiz gespeichert — mit allen Belegen.');
+        toast('info', t('notes.saved'));
       })
       .catch((cause: unknown) => {
-        report(cause, 'Die Notiz konnte nicht gespeichert werden.');
+        report(cause, t('error.saveNote'));
       });
   };
 
-  const exportNotebook = (): void => {
-    if (activeId === null) return;
-    api
-      .exportNotebook(activeId)
-      .then((markdown) => {
-        const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${notebooks.find((n) => n.id === activeId)?.title ?? 'notebook'}.md`;
-        link.click();
-        URL.revokeObjectURL(url);
-      })
-      .catch((cause: unknown) => {
-        report(cause, 'Der Export ist fehlgeschlagen.');
+  /* ---------------------------- Teilen ---------------------------- */
+
+  const quellenMitText = async (): Promise<Array<Source & { content: string }>> =>
+    Promise.all(loadedSources.map(async (s) => ({ ...s, ...(await api.getSource(s.id)) })));
+
+  const notebookTeilen = {
+    markdown: () => {
+      if (aktivesNotebook === null) return;
+      void Promise.all([exportModul(), quellenMitText()])
+        .then(([ex, q]) => {
+          ex.markdownSpeichern(
+            ex.notebookAlsMarkdown(aktivesNotebook, q, notes, t),
+            aktivesNotebook.title,
+          );
+          toast('info', t('share.exported', { format: 'Markdown' }));
+        })
+        .catch((cause: unknown) => {
+          report(cause, t('share.failed'));
+        });
+    },
+    pdf: () => {
+      void exportModul().then((ex) => {
+        ex.drucken(null);
       });
+    },
+    docx: () => {
+      if (aktivesNotebook === null) return;
+      void Promise.all([exportModul(), quellenMitText()])
+        .then(
+          async ([ex, q]) => [ex, await ex.notebookAlsDocx(aktivesNotebook, q, notes, t)] as const,
+        )
+        .then(([ex, blob]) => {
+          ex.docxSpeichern(blob, aktivesNotebook.title);
+          toast('info', t('share.exported', { format: 'Word' }));
+        })
+        .catch((cause: unknown) => {
+          report(cause, t('share.failed'));
+        });
+    },
+    copyLink: () => {
+      void navigator.clipboard.writeText(window.location.href).then(() => {
+        toast('info', DEMO_MODE ? t('share.linkDemo') : t('share.linkCopied'));
+      });
+    },
   };
+
+  const antwortTeilen = (exchange: Exchange, element: HTMLElement | null) => {
+    const response = exchange.response;
+    const basis = exchange.question.slice(0, 60);
+    return {
+      markdown: () => {
+        if (response === null) return;
+        void exportModul()
+          .then((ex) => {
+            ex.markdownSpeichern(
+              ex.antwortAlsMarkdown({ question: exchange.question, response }, t),
+              basis,
+            );
+            toast('info', t('share.exported', { format: 'Markdown' }));
+          })
+          .catch((cause: unknown) => {
+            report(cause, t('share.failed'));
+          });
+      },
+      pdf: () => {
+        void exportModul().then((ex) => {
+          ex.drucken(element);
+        });
+      },
+      docx: () => {
+        if (response === null) return;
+        void exportModul()
+          .then(async (ex) => {
+            ex.docxSpeichern(
+              await ex.antwortAlsDocx({ question: exchange.question, response }, t),
+              basis,
+            );
+            toast('info', t('share.exported', { format: 'Word' }));
+          })
+          .catch((cause: unknown) => {
+            report(cause, t('share.failed'));
+          });
+      },
+      image: () => {
+        if (element === null) return;
+        void exportModul()
+          .then((ex) => ex.elementAlsPng(element, basis))
+          .then(() => {
+            toast('info', t('share.exported', { format: 'PNG' }));
+          })
+          .catch((cause: unknown) => {
+            report(cause, t('share.failed'));
+          });
+      },
+    };
+  };
+
+  /* ---------------------------- Dialoge ---------------------------- */
 
   const einstellungen = (
     <SettingsDialog
       open={settingsOpen}
       wert={erscheinungsbild}
+      sprache={sprache}
       apiBaseUrl={API_BASE_URL}
       demo={DEMO_MODE}
       onChange={setErscheinungsbild}
+      onSprache={onSprache}
+      onShowTour={() => {
+        setSettingsOpen(false);
+        setTourOpen(true);
+      }}
       onClose={() => {
         setSettingsOpen(false);
+      }}
+    />
+  );
+
+  const tour = (
+    <Tour
+      open={tourOpen}
+      demo={DEMO_MODE}
+      sprache={sprache}
+      erscheinungsbild={erscheinungsbild}
+      onSprache={onSprache}
+      onErscheinungsbild={setErscheinungsbild}
+      onClose={() => {
+        setTourOpen(false);
       }}
     />
   );
@@ -304,6 +435,7 @@ export function App(): ReactElement {
           }}
         />
         {einstellungen}
+        {tour}
       </>
     );
   }
@@ -321,7 +453,7 @@ export function App(): ReactElement {
             setNotes((current) => current.map((n) => (n.id === updated.id ? updated : n)));
           })
           .catch((cause: unknown) => {
-            report(cause, 'Die Notiz konnte nicht geändert werden.');
+            report(cause, t('error.updateNote'));
           });
       }}
       onDelete={(note) => {
@@ -331,7 +463,7 @@ export function App(): ReactElement {
             setNotes((current) => current.filter((n) => n.id !== note.id));
           })
           .catch((cause: unknown) => {
-            report(cause, 'Die Notiz konnte nicht gelöscht werden.');
+            report(cause, t('error.deleteNote'));
           });
       }}
     />
@@ -354,7 +486,7 @@ export function App(): ReactElement {
             setMobileTab('notes');
           })
           .catch((cause: unknown) => {
-            report(cause, 'Die Quelle konnte nicht geladen werden.');
+            report(cause, t('error.loadSource'));
           });
       }}
       onAdd={addSource}
@@ -366,10 +498,10 @@ export function App(): ReactElement {
               current === null ? current : current.filter((s) => s.id !== source.id),
             );
             if (openSource?.id === source.id) setOpenSource(null);
-            toast('info', `„${source.title}" gelöscht.`);
+            toast('info', t('error.sourceDeleted', { title: source.title }));
           })
           .catch((cause: unknown) => {
-            report(cause, 'Die Quelle konnte nicht gelöscht werden.');
+            report(cause, t('error.deleteSource'));
           });
       }}
     />
@@ -387,49 +519,86 @@ export function App(): ReactElement {
         void showCitation(citation, last?.citations ?? [citation]);
       }}
       onSaveNote={saveNote}
+      shareActions={antwortTeilen}
     />
+  );
+
+  const notebookMenue = (
+    <Menu
+      label={t('header.chooseNotebook')}
+      align="start"
+      buttonProps={{ variant: 'ghost', size: 'md', className: 'max-w-[60vw] xl:max-w-[44ch]' }}
+      groups={[
+        {
+          items: notebooks.map((n) => ({
+            id: n.id,
+            label: n.title,
+            hint: `${n.sourceCount} ${t('sources.title').toLowerCase()} · ${n.noteCount} ${t('notes.title').toLowerCase()}`,
+            onSelect: () => {
+              setActiveId(n.id);
+            },
+          })),
+        },
+        {
+          items: [
+            {
+              id: 'neu',
+              label: t('notebook.new.title'),
+              onSelect: () => {
+                setTitelEntwurf('');
+                setCreating(true);
+              },
+            },
+            ...(aktivesNotebook === null
+              ? []
+              : [
+                  {
+                    id: 'umbenennen',
+                    label: t('notebook.rename'),
+                    onSelect: () => {
+                      setTitelEntwurf(aktivesNotebook.title);
+                      setRenaming(true);
+                    },
+                  },
+                  {
+                    id: 'loeschen',
+                    label: t('notebook.delete.title'),
+                    danger: true,
+                    onSelect: () => {
+                      setDeleting(true);
+                    },
+                  },
+                ]),
+          ],
+        },
+      ]}
+    >
+      <span className="flex min-w-0 items-center gap-2">
+        <span className="text-heading text-content-strong truncate" title={aktivesNotebook?.title}>
+          {aktivesNotebook?.title ?? t('app.name')}
+        </span>
+        <span aria-hidden="true" className="text-content-muted shrink-0">
+          ▾
+        </span>
+      </span>
+    </Menu>
   );
 
   return (
     <div className="bg-surface-sunken flex h-screen flex-col">
-      {/* Bis 1280 px umbricht die Leiste, statt aus dem Bildschirm zu laufen -
-          waagerechtes Scrollen der Seite ist ausgeschlossen. */}
       <header className="border-border-subtle bg-surface xl:h-13 flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2 xl:flex-nowrap xl:gap-3 xl:px-4 xl:py-0">
-        <span className="text-label text-content-strong hidden font-semibold xl:inline">
-          Notebook
+        <span className="text-label text-content-muted hidden font-semibold uppercase tracking-wide xl:inline">
+          {t('app.name')}
         </span>
-        <select
-          value={activeId ?? ''}
-          aria-label="Notebook wählen"
-          onChange={(event) => {
-            setActiveId(event.target.value);
-          }}
-          className="border-border bg-surface-raised text-body text-content min-w-0 flex-1 rounded-sm border px-2 py-1 xl:max-w-[320px] xl:flex-none"
-        >
-          {notebooks.map((notebook) => (
-            <option key={notebook.id} value={notebook.id}>
-              {notebook.title}
-            </option>
-          ))}
-        </select>
-        <Button
-          size="sm"
-          onClick={() => {
-            setCreating(true);
-          }}
-        >
-          Neu
-        </Button>
-        <Button size="sm" variant="ghost" onClick={exportNotebook}>
-          Exportieren
-        </Button>
+        <div className="min-w-0 flex-1 xl:flex-none">{notebookMenue}</div>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2 xl:gap-3">
+        <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-1 xl:shrink-0 xl:gap-3">
           {health !== null && (
             <Badge tone={health.llm.configured ? 'info' : 'warning'}>
-              {health.llm.configured ? health.llm.model : 'kein Modell verbunden'}
+              {health.llm.configured ? health.llm.model : t('header.noModel')}
             </Badge>
           )}
+          <ShareMenu scope="notebook" actions={notebookTeilen} />
           <Button
             size="sm"
             variant="ghost"
@@ -437,7 +606,7 @@ export function App(): ReactElement {
               setSettingsOpen(true);
             }}
           >
-            Einstellungen
+            {t('common.settings')}
           </Button>
           <Button
             size="sm"
@@ -447,34 +616,44 @@ export function App(): ReactElement {
               setToken(null);
             }}
           >
-            Abmelden
+            {t('common.logout')}
           </Button>
         </div>
       </header>
 
-      {/* Schmale Ansicht: eine Spalte, Wechsel ueber Tabs. */}
       <div className="xl:hidden">
         <Tabs
-          label="Bereich"
+          label={t('tabs.area')}
           value={mobileTab}
           onChange={setMobileTab}
           items={[
-            { id: 'sources', label: 'Quellen', count: loadedSources.length },
-            { id: 'chat', label: 'Chat' },
-            { id: 'notes', label: 'Notizen', count: notes.length },
+            { id: 'sources', label: t('tabs.sources'), count: loadedSources.length },
+            { id: 'chat', label: t('tabs.chat') },
+            { id: 'notes', label: t('tabs.notes'), count: notes.length },
           ]}
         />
       </div>
 
       <div className="flex min-h-0 flex-1">
         <aside
+          style={{ ['--w' as string]: `${spalten.links}px` }}
           className={cx(
-            'border-border-subtle bg-surface w-full shrink-0 overflow-hidden border-r xl:w-[300px]',
+            'bg-surface w-full shrink-0 overflow-hidden xl:w-[var(--w)]',
             mobileTab === 'sources' ? 'block' : 'hidden xl:block',
           )}
         >
           {sourcesPanel}
         </aside>
+        <ResizeHandle
+          label={t('tabs.sources')}
+          value={spalten.links}
+          min={grenzen.links[0]}
+          max={grenzen.links[1]}
+          onPointerDown={ziehenStarten('links')}
+          onStep={(d) => {
+            perTaste('links', d);
+          }}
+        />
 
         <main
           className={cx(
@@ -485,19 +664,30 @@ export function App(): ReactElement {
           {chatPanel}
         </main>
 
+        <ResizeHandle
+          label={t('tabs.notes')}
+          value={spalten.rechts}
+          min={grenzen.rechts[0]}
+          max={grenzen.rechts[1]}
+          onPointerDown={ziehenStarten('rechts')}
+          onStep={(d) => {
+            perTaste('rechts', d);
+          }}
+        />
         <aside
+          style={{ ['--w' as string]: `${spalten.rechts}px` }}
           className={cx(
-            'border-border-subtle bg-surface flex w-full shrink-0 flex-col overflow-hidden border-l xl:w-[340px]',
+            'bg-surface flex w-full shrink-0 flex-col overflow-hidden xl:w-[var(--w)]',
             mobileTab === 'notes' ? 'flex' : 'hidden xl:flex',
           )}
         >
           <Tabs
-            label="Rechte Spalte"
+            label={t('tabs.right')}
             value={rightTab}
             onChange={setRightTab}
             items={[
-              { id: 'notes', label: 'Notizen', count: notes.length },
-              { id: 'source', label: 'Quelle' },
+              { id: 'notes', label: t('tabs.notes'), count: notes.length },
+              { id: 'source', label: t('tabs.source') },
             ]}
           />
           <div className="min-h-0 flex-1 overflow-hidden">
@@ -512,8 +702,7 @@ export function App(): ReactElement {
                 onStep={(delta) => {
                   setCitationIndex((current) => {
                     const next = current + delta;
-                    if (next < 0 || next >= citationList.length) return current;
-                    return next;
+                    return next < 0 || next >= citationList.length ? current : next;
                   });
                 }}
               />
@@ -523,15 +712,16 @@ export function App(): ReactElement {
       </div>
 
       {einstellungen}
+      {tour}
 
       <Dialog
-        open={creating}
-        title="Neues Notebook"
-        description="Ein Notebook ist ein abgegrenzter Quellenraum. Es greift nie auf die Quellen eines anderen Notebooks zu."
-        dismissable={newTitle === ''}
+        open={creating || renaming}
+        title={renaming ? t('notebook.rename') : t('notebook.new.title')}
+        {...(renaming ? {} : { description: t('notebook.new.description') })}
+        dismissable={titelEntwurf === '' || renaming}
         onClose={() => {
           setCreating(false);
-          setNewTitle('');
+          setRenaming(false);
         }}
         footer={
           <>
@@ -539,40 +729,90 @@ export function App(): ReactElement {
               variant="ghost"
               onClick={() => {
                 setCreating(false);
-                setNewTitle('');
+                setRenaming(false);
               }}
             >
-              Abbrechen
+              {t('common.cancel')}
             </Button>
             <Button
               variant="primary"
               onClick={() => {
-                api
-                  .createNotebook(newTitle.trim() === '' ? 'Ohne Titel' : newTitle.trim())
-                  .then((notebook) => {
-                    setNotebooks((current) => [notebook, ...current]);
-                    setActiveId(notebook.id);
+                const titel =
+                  titelEntwurf.trim() === '' ? t('common.untitled') : titelEntwurf.trim();
+                const aktion =
+                  renaming && aktivesNotebook !== null
+                    ? api.renameNotebook(aktivesNotebook.id, titel).then((nb) => {
+                        setNotebooks((current) => current.map((n) => (n.id === nb.id ? nb : n)));
+                      })
+                    : api.createNotebook(titel).then((nb) => {
+                        setNotebooks((current) => [nb, ...current.filter((n) => n.id !== nb.id)]);
+                        setActiveId(nb.id);
+                      });
+                aktion
+                  .then(() => {
                     setCreating(false);
-                    setNewTitle('');
+                    setRenaming(false);
                   })
                   .catch((cause: unknown) => {
-                    report(cause, 'Das Notebook konnte nicht angelegt werden.');
+                    report(cause, t('error.createNotebook'));
                   });
               }}
             >
-              Anlegen
+              {renaming ? t('common.save') : t('notebook.new.submit')}
             </Button>
           </>
         }
       >
         <TextField
-          label="Titel"
-          value={newTitle}
-          placeholder="z. B. Seminar Stochastik"
+          label={t('notebook.new.titleLabel')}
+          value={titelEntwurf}
+          placeholder={t('notebook.new.placeholder')}
           onChange={(event) => {
-            setNewTitle(event.target.value);
+            setTitelEntwurf(event.target.value);
           }}
         />
+      </Dialog>
+
+      <Dialog
+        open={deleting && aktivesNotebook !== null}
+        title={t('notebook.delete.title')}
+        onClose={() => {
+          setDeleting(false);
+        }}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setDeleting(false);
+              }}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                if (aktivesNotebook === null) return;
+                api
+                  .deleteNotebook(aktivesNotebook.id)
+                  .then(() => {
+                    setNotebooks((current) => current.filter((n) => n.id !== aktivesNotebook.id));
+                    setActiveId(notebooks.find((n) => n.id !== aktivesNotebook.id)?.id ?? null);
+                    setDeleting(false);
+                  })
+                  .catch((cause: unknown) => {
+                    report(cause, t('error.createNotebook'));
+                  });
+              }}
+            >
+              {t('notebook.delete.confirm')}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-body text-content">
+          {t('notebook.delete.body', { title: aktivesNotebook?.title ?? '' })}
+        </p>
       </Dialog>
     </div>
   );

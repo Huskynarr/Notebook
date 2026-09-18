@@ -29,6 +29,8 @@
           var modus = localStorage.getItem('notebook.mode');
           wurzel.dataset.design = designs.indexOf(design) >= 0 ? design : 'eigen';
           if (modi.indexOf(modus) >= 0) wurzel.dataset.theme = modus;
+          var sprache = localStorage.getItem('notebook.lang');
+          if (sprache === 'de' || sprache === 'en') wurzel.lang = sprache;
         } catch (e) {
           wurzel.dataset.design = 'eigen';
         }

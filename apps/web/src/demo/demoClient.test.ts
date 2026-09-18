@@ -27,8 +27,8 @@ function speicher(): Storage {
 describe('DemoClient', () => {
   it('prueft den festen Zugang statt jeden hereinzulassen', async () => {
     const client = new DemoClient(speicher());
-    await expect(client.login('admin', 'falsch')).rejects.toThrow(/stimmt nicht/);
-    await expect(client.login('root', 'admin')).rejects.toThrow(/stimmt nicht/);
+    await expect(client.login('admin', 'falsch')).rejects.toThrow(/fehlgeschlagen/);
+    await expect(client.login('root', 'admin')).rejects.toThrow(/fehlgeschlagen/);
     await expect(client.login('admin', 'admin')).resolves.toHaveProperty('token');
   });
 
@@ -71,6 +71,7 @@ describe('DemoClient', () => {
       notebook!.id,
       'Wie lange ist die Widerspruchsfrist?',
       quellen.map((q) => q.id),
+      'de',
     );
     expect(antwort.simulated).toBe(true);
     expect(antwort.citations.length).toBeGreaterThan(0);

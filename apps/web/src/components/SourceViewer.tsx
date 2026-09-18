@@ -1,15 +1,14 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import type { Citation, SourceContent } from '@notebook/shared';
+import { useT } from '../i18n/index.ts';
 import { Button } from './ui/Button.tsx';
 import { EmptyState } from './ui/Status.tsx';
 
 /**
- * Quellenansicht mit hervorgehobener Belegstelle (Design-System 8.6, dritte
- * Erscheinungsform).
- *
+ * Quellenansicht mit hervorgehobener Belegstelle (Design-System 8.6).
  * Die Markierung entsteht aus den Zeichen-Offsets des Belegs, nicht aus einer
- * Textsuche. Deshalb trifft sie auch dann, wenn dieselbe Formulierung mehrfach
- * im Dokument vorkommt.
+ * Textsuche - sie trifft auch dann, wenn dieselbe Formulierung mehrfach im
+ * Dokument vorkommt.
  */
 export function SourceViewer({
   source,
@@ -24,21 +23,23 @@ export function SourceViewer({
   citationCount: number;
   onStep: (delta: number) => void;
 }): ReactElement {
+  const t = useT();
   const markRef = useRef<HTMLElement>(null);
   const [flash, setFlash] = useState(0);
 
+  // Haengt auch an `source`: der Beleg steht oft fest, bevor der Quelltext
+  // geladen ist - erst dann gibt es die Markierung, zu der gerollt wird.
   useEffect(() => {
     if (citation === null || markRef.current === null) return;
     markRef.current.scrollIntoView({ block: 'center', behavior: 'smooth' });
     setFlash((n) => n + 1);
-  }, [citation]);
+  }, [citation, source]);
 
   if (source === null) {
     return (
-      <EmptyState title="Keine Quelle geöffnet">
-        Wähle links eine Quelle aus oder klicke in einer Antwort auf einen Beleg, um die
-        Originalstelle zu sehen.
-      </EmptyState>
+      <div className="p-4">
+        <EmptyState title={t('viewer.emptyTitle')}>{t('viewer.emptyBody')}</EmptyState>
+      </div>
     );
   }
 
@@ -51,9 +52,24 @@ export function SourceViewer({
     <div className="flex h-full flex-col">
       <div className="border-border-subtle flex items-center justify-between gap-2 border-b px-4 py-2">
         <div className="min-w-0">
-          <p className="text-heading text-content-strong truncate">{source.title}</p>
+          <p className="text-heading text-content-strong truncate" title={source.title}>
+            {source.title}
+          </p>
           <p className="text-meta text-content-muted">
-            {source.wordCount} Wörter · {source.chunkCount} Abschnitte
+            {source.wordCount} {t('common.words')} · {source.chunkCount} {t('common.sections')}
+            {source.origin !== null && (
+              <>
+                {' · '}
+                <a
+                  href={source.origin}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-action underline-offset-2 hover:underline"
+                >
+                  {new URL(source.origin).hostname}
+                </a>
+              </>
+            )}
           </p>
         </div>
         {citationCount > 1 && (
@@ -61,7 +77,7 @@ export function SourceViewer({
             <Button
               size="sm"
               variant="ghost"
-              aria-label="Vorheriger Beleg"
+              aria-label={t('citation.prev')}
               onClick={() => {
                 onStep(-1);
               }}
@@ -69,12 +85,12 @@ export function SourceViewer({
               ←
             </Button>
             <span className="text-meta text-content-muted font-mono tabular-nums">
-              Beleg {citationIndex + 1} von {citationCount}
+              {t('citation.step', { index: citationIndex + 1, total: citationCount })}
             </span>
             <Button
               size="sm"
               variant="ghost"
-              aria-label="Nächster Beleg"
+              aria-label={t('citation.next')}
               onClick={() => {
                 onStep(1);
               }}
@@ -95,7 +111,7 @@ export function SourceViewer({
               <mark
                 key={flash}
                 ref={markRef}
-                className="citation-flash rounded-xs bg-accent-surface text-content-strong decoration-accent-border underline decoration-2 underline-offset-4"
+                className="citation-flash bg-accent-surface text-content-strong decoration-accent-border rounded-xs underline decoration-2 underline-offset-4"
               >
                 {source.content.slice(highlight.start, highlight.end)}
               </mark>
@@ -107,10 +123,8 @@ export function SourceViewer({
 
       {citation !== null && citation.sourceId === source.id && (
         <p className="border-border-subtle text-meta text-content-muted border-t px-4 py-2 font-mono">
-          Zeichen {citation.startOffset}–{citation.endOffset}
-          {citation.precision === 'chunk'
-            ? ' · ganzer Abschnitt (kein wörtliches Zitat gefunden)'
-            : ' · wörtlich belegt'}
+          {t('citation.range', { start: citation.startOffset, end: citation.endOffset })} ·{' '}
+          {citation.precision === 'chunk' ? t('citation.chunk') : t('citation.exact')}
         </p>
       )}
     </div>

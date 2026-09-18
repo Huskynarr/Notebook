@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import type { AskResponse, Citation } from '@notebook/shared';
+import { useT } from '../i18n/index.ts';
 import { AnswerBody } from './AnswerBody.tsx';
+import { ShareMenu, type ShareActions } from './ShareMenu.tsx';
 import { Button } from './ui/Button.tsx';
 import { InlineNote } from './ui/Status.tsx';
 import { cx } from './ui/cx.ts';
@@ -21,6 +23,7 @@ export function ChatPanel({
   onAsk,
   onSelectCitation,
   onSaveNote,
+  shareActions,
 }: {
   exchanges: readonly Exchange[];
   pending: boolean;
@@ -29,7 +32,11 @@ export function ChatPanel({
   onAsk: (question: string) => void;
   onSelectCitation: (citation: Citation) => void;
   onSaveNote: (exchange: Exchange) => void;
+  /** Liefert die Teilen-Aktionen für eine Antwort; `element` ist die Karte
+   *  für Bild und Druck. */
+  shareActions: (exchange: Exchange, element: HTMLElement | null) => ShareActions;
 }): ReactElement {
+  const t = useT();
   const [question, setQuestion] = useState('');
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -38,23 +45,48 @@ export function ChatPanel({
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [exchanges.length, pending]);
 
-  const submit = (): void => {
-    const trimmed = question.trim();
+  const submit = (text = question): void => {
+    const trimmed = text.trim();
     if (trimmed === '' || pending) return;
     onAsk(trimmed);
     setQuestion('');
   };
 
+  const beispiele = [t('chat.example1'), t('chat.example2'), t('chat.example3')];
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex-1 space-y-6 overflow-y-auto px-6 py-6">
         {exchanges.length === 0 && !pending && (
-          <div className="max-w-reading mx-auto">
-            <p className="text-title text-content-strong">Frage stellen</p>
-            <p className="text-body text-content-muted mt-2">
-              Antworten entstehen ausschließlich aus den links ausgewählten Quellen. Jede Aussage
-              trägt einen Beleg, der auf die Stelle im Original zeigt.
-            </p>
+          <div className="max-w-reading mx-auto flex h-full flex-col justify-center gap-5">
+            <div>
+              <p className="text-display text-content-strong font-display">
+                {t('chat.emptyTitle')}
+              </p>
+              <p className="text-body text-content-muted mt-2">{t('chat.emptyBody')}</p>
+            </div>
+            <div>
+              <p className="text-label text-content-muted mb-2">{t('chat.tryOne')}</p>
+              <div className="flex flex-wrap gap-2">
+                {beispiele.map((b) => (
+                  <button
+                    key={b}
+                    type="button"
+                    disabled={selectedCount === 0}
+                    onClick={() => {
+                      submit(b);
+                    }}
+                    className={cx(
+                      'text-body text-content border-border bg-surface-raised rounded-sm border px-3 py-1.5 text-left',
+                      'hover:border-border-strong hover:bg-surface-inset transition-colors duration-[80ms]',
+                      'disabled:text-content-subtle disabled:hover:bg-surface-raised disabled:cursor-not-allowed',
+                    )}
+                  >
+                    {b}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
@@ -63,26 +95,28 @@ export function ChatPanel({
             <div className="flex justify-end">
               <div className="border-border-subtle bg-surface-raised max-w-[80%] rounded-md border px-4 py-2">
                 <p className="text-body text-content">{exchange.question}</p>
-                <p className="text-meta text-content-muted mt-1 text-right">
-                  {exchange.selectedCount} Quellen berücksichtigt
+                <p className="text-meta text-content-muted mt-1">
+                  {t('chat.considered', { count: exchange.selectedCount })}
                 </p>
               </div>
             </div>
 
             {exchange.error !== null && (
-              <InlineNote tone="danger" title="Die Frage konnte nicht beantwortet werden">
+              <InlineNote tone="danger" title={t('chat.errorTitle')}>
                 {exchange.error}
               </InlineNote>
             )}
 
             {exchange.response !== null && (
               <AnswerSection
+                exchange={exchange}
                 response={exchange.response}
                 activeMarker={activeMarker}
                 onSelectCitation={onSelectCitation}
                 onSaveNote={() => {
                   onSaveNote(exchange);
                 }}
+                shareActions={shareActions}
               />
             )}
           </article>
@@ -91,17 +125,20 @@ export function ChatPanel({
         {pending && (
           <p className="text-meta text-content-muted flex items-center gap-2">
             <span className="bg-action size-2 animate-pulse rounded-full" aria-hidden="true" />
-            Durchsuche {selectedCount} {selectedCount === 1 ? 'Quelle' : 'Quellen'} …
+            {t('chat.searching', {
+              count: selectedCount,
+              noun: selectedCount === 1 ? t('chat.sourceOne') : t('chat.sourceMany'),
+            })}
           </p>
         )}
         <div ref={endRef} />
       </div>
 
-      <div className="border-border-subtle bg-surface border-t px-6 py-3">
+      <div className="border-border-subtle bg-surface no-print border-t px-6 py-3">
         {selectedCount === 0 && (
           <div className="mb-3">
-            <InlineNote tone="warning" title="Keine Quelle ausgewählt">
-              Wähle links mindestens eine Quelle aus. Ohne Quelle wird nicht geantwortet.
+            <InlineNote tone="warning" title={t('chat.noSourceTitle')}>
+              {t('chat.noSourceBody')}
             </InlineNote>
           </div>
         )}
@@ -110,8 +147,8 @@ export function ChatPanel({
             ref={inputRef}
             rows={Math.min(8, Math.max(1, question.split('\n').length))}
             value={question}
-            aria-label="Frage an die ausgewählten Quellen"
-            placeholder="Frage an die ausgewählten Quellen …"
+            aria-label={t('chat.inputLabel')}
+            placeholder={t('chat.inputPlaceholder')}
             onChange={(event) => {
               setQuestion(event.target.value);
             }}
@@ -126,49 +163,60 @@ export function ChatPanel({
               'text-body text-content placeholder:text-content-subtle hover:border-border-strong focus:border-action',
             )}
           />
-          <Button variant="primary" size="lg" loading={pending} onClick={submit}>
-            Fragen
+          <Button
+            variant="primary"
+            size="lg"
+            loading={pending}
+            onClick={() => {
+              submit();
+            }}
+          >
+            {t('chat.send')}
           </Button>
         </div>
-        <p className="text-meta text-content-muted mt-1">
-          Enter sendet, Umschalt+Enter erzeugt einen Zeilenumbruch.
-        </p>
+        <p className="text-meta text-content-muted mt-1">{t('chat.hint')}</p>
       </div>
     </div>
   );
 }
 
 function AnswerSection({
+  exchange,
   response,
   activeMarker,
   onSelectCitation,
   onSaveNote,
+  shareActions,
 }: {
+  exchange: Exchange;
   response: AskResponse;
   activeMarker: number | null;
   onSelectCitation: (citation: Citation) => void;
   onSaveNote: () => void;
+  shareActions: (exchange: Exchange, element: HTMLElement | null) => ShareActions;
 }): ReactElement {
+  const t = useT();
+  const karte = useRef<HTMLDivElement>(null);
   return (
     <div
+      ref={karte}
       className={cx(
-        'border-l-2 pl-4',
+        'rounded-md border-l-2 pl-4',
         response.citations.length > 0 ? 'border-accent' : 'border-border-subtle',
       )}
     >
       {response.simulated && (
         <div className="mb-3">
-          <InlineNote tone="warning" title="Simulierte Antwort — kein Modell verbunden">
-            Es ist kein Sprachmodell angebunden. Gezeigt werden die gefundenen Textstellen;
-            formuliert wurde nichts.
+          <InlineNote tone="warning" title={t('chat.simulatedTitle')}>
+            {t('chat.simulatedBody')}
           </InlineNote>
         </div>
       )}
 
       {!response.grounded && !response.simulated && (
         <div className="mb-3">
-          <InlineNote tone="warning" title="Nicht aus den Quellen belegbar">
-            Die ausgewählten Quellen decken diese Frage nicht ab.
+          <InlineNote tone="warning" title={t('chat.ungroundedTitle')}>
+            {t('chat.ungroundedBody')}
           </InlineNote>
         </div>
       )}
@@ -184,13 +232,12 @@ function AnswerSection({
 
       {response.droppedMarkers.length > 0 && (
         <p className="text-meta text-warning mt-3">
-          {response.droppedMarkers.length} vom Modell gesetzte Belege zeigten auf keine abgerufene
-          Textstelle und wurden entfernt.
+          {t('chat.dropped', { count: response.droppedMarkers.length })}
         </p>
       )}
       {response.unsupportedSentenceCount > 0 && (
         <p className="text-meta text-warning mt-1">
-          {response.unsupportedSentenceCount} Sätze ohne Beleg (gepunktet unterstrichen).
+          {t('chat.unsupported', { count: response.unsupportedSentenceCount })}
         </p>
       )}
 
@@ -209,19 +256,20 @@ function AnswerSection({
                   [{citation.marker}]
                 </span>{' '}
                 {citation.sourceTitle}
-                {citation.headingPath === '' ? '' : ` · ${citation.headingPath}`} · Zeichen{' '}
-                {citation.startOffset}–{citation.endOffset}
-                {citation.precision === 'chunk' && ' (ganzer Abschnitt)'}
+                {citation.headingPath === '' ? '' : ` · ${citation.headingPath}`} ·{' '}
+                {t('citation.range', { start: citation.startOffset, end: citation.endOffset })}
+                {citation.precision === 'chunk' && ` (${t('chat.wholeSection')})`}
               </button>
             </li>
           ))}
         </ul>
       )}
 
-      <div className="mt-3 flex items-center gap-2">
+      <div className="no-print mt-3 flex flex-wrap items-center gap-2">
         <Button size="sm" onClick={onSaveNote}>
-          Als Notiz speichern
+          {t('chat.saveNote')}
         </Button>
+        <ShareMenu scope="answer" actions={shareActions(exchange, karte.current)} />
         <Button
           size="sm"
           variant="ghost"
@@ -229,7 +277,7 @@ function AnswerSection({
             void navigator.clipboard.writeText(response.answer);
           }}
         >
-          Kopieren
+          {t('common.copy')}
         </Button>
         <span className="text-meta text-content-subtle font-mono">
           {response.model} · {response.elapsedMs} ms

@@ -6,7 +6,9 @@ import {
   type AskResponse,
   type Chunk,
   type Citation,
+  type CreateSourceRequest,
   type HealthResponse,
+  type Language,
   type Note,
   type Notebook,
   type RetrievedChunk,
@@ -14,6 +16,7 @@ import {
   type SourceContent,
 } from '@notebook/shared';
 import type { NotebookApi } from '../lib/api.ts';
+import { uebersetzen, type Uebersetzer } from '../i18n/index.ts';
 
 /**
  * Datenquelle für die Demo ohne Backend (GitHub Pages).
@@ -29,6 +32,9 @@ import type { NotebookApi } from '../lib/api.ts';
  * konfiguriert sein (AGENTS.md Regel 4). Jede Antwort trägt deshalb
  * `simulated: true`, und das UI kennzeichnet sie — nicht mehr und nicht weniger
  * als beim Server ohne Modell (Regel 5).
+ *
+ * Adressen holt die Demo direkt aus dem Browser. Die meisten Seiten erlauben
+ * das nicht (CORS); dann steht ein erklärter Fehler da, kein stilles Scheitern.
  */
 
 interface Eintrag {
@@ -63,7 +69,6 @@ const STOPWORDS = new Set([
   'einen',
   'einer',
   'für',
-  'für',
   'hat',
   'ich',
   'ist',
@@ -86,17 +91,30 @@ const STOPWORDS = new Set([
   'wird',
   'zum',
   'zur',
+  'the',
+  'and',
+  'for',
+  'are',
+  'with',
+  'what',
+  'when',
+  'which',
+  'from',
+  'that',
+  'this',
+  'does',
+  'how',
+  'long',
 ]);
 
-/** Bewusst schlicht: zaehlt, wie viele Suchbegriffe als Praefix im Abschnitt
- *  vorkommen. Der Server rechnet BM25 ueber FTS5; das hier ist eine Demo
- *  und gibt sich nicht als dasselbe aus. */
+/** Bewusst schlicht: zählt, wie viele Suchbegriffe als Präfix im Abschnitt
+ *  vorkommen. Der Server rechnet BM25 über FTS5; das hier ist eine Demo und
+ *  gibt sich nicht als dasselbe aus. */
 function bewerten(text: string, begriffe: readonly string[]): number {
   const klein = text.toLowerCase();
   let treffer = 0;
   for (const begriff of begriffe) {
-    const stelle = klein.indexOf(begriff);
-    if (stelle >= 0) treffer += begriff.length >= 6 ? 2 : 1;
+    if (klein.includes(begriff)) treffer += begriff.length >= 6 ? 2 : 1;
   }
   return treffer;
 }
@@ -115,7 +133,7 @@ function begriffeAus(frage: string): string[] {
 const SPEICHER_SCHLUESSEL = 'notebook.demo.v1';
 
 /** Fester Zugang wie beim Server (D-003). Hier im Klartext, weil es in einer
- *  Demo ohne Server nichts zu schuetzen gibt - die Pruefung ist Teil des
+ *  Demo ohne Server nichts zu schützen gibt - die Prüfung ist Teil des
  *  Bedienablaufs, nicht der Sicherheit. */
 const ZUGANG = { username: 'admin', password: 'admin' };
 
@@ -125,18 +143,56 @@ interface Gespeichert {
   notizen: Note[];
 }
 
+/** Sehr einfache Extraktion für den Browser: Skripte/Stile weg, Überschriften
+ *  als Markdown, Rest als Text. Der Server macht es gründlicher; hier reicht
+ *  es für Seiten, die den Abruf überhaupt erlauben. */
+function textAusHtml(html: string): { title: string; content: string } {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  for (const sel of [
+    'script',
+    'style',
+    'noscript',
+    'template',
+    'svg',
+    'iframe',
+    'nav',
+    'header',
+    'footer',
+    'aside',
+    'form',
+  ]) {
+    for (const el of doc.querySelectorAll(sel)) el.remove();
+  }
+  for (const h of doc.querySelectorAll('h1,h2,h3,h4,h5,h6')) {
+    const ebene = Number(h.tagName.slice(1));
+    h.replaceWith(doc.createTextNode(`\n\n${'#'.repeat(ebene)} ${h.textContent.trim()}\n\n`));
+  }
+  for (const li of doc.querySelectorAll('li')) li.prepend(doc.createTextNode('\n- '));
+  for (const block of doc.querySelectorAll('p,div,section,article,blockquote,pre,tr,ul,ol,br'))
+    block.append(doc.createTextNode('\n\n'));
+  const content = doc.body.textContent
+    .split('\n')
+    .map((z) => z.replace(/[ \t\u00a0]+/g, ' ').trim())
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+  return { title: doc.title.trim(), content };
+}
+
 export class DemoClient implements NotebookApi {
   private readonly notebookId = 'demo';
   private eintraege: Eintrag[] = [];
   private notizen: Note[] = [];
   private titel = EXAMPLE_NOTEBOOK_TITLE;
   private readonly speicher: Storage | null;
+  private readonly t: Uebersetzer;
 
-  constructor(speicher: Storage | null = fensterSpeicher()) {
+  constructor(speicher: Storage | null = fensterSpeicher(), t?: Uebersetzer) {
     this.speicher = speicher;
+    this.t = t ?? ((key, params) => uebersetzen('de', key, params));
     if (!this.laden()) {
       for (const quelle of EXAMPLE_SOURCES) {
-        this.anlegen(quelle.title, quelle.kind, quelle.content);
+        this.anlegen(quelle.title, quelle.kind, quelle.content, null);
       }
       this.sichern();
     }
@@ -166,12 +222,17 @@ export class DemoClient implements NotebookApi {
       };
       this.speicher?.setItem(SPEICHER_SCHLUESSEL, JSON.stringify(daten));
     } catch {
-      // Voller oder gesperrter Speicher: die Sitzung laeuft weiter, nur ohne
+      // Voller oder gesperrter Speicher: die Sitzung läuft weiter, nur ohne
       // Dauerhaftigkeit. Ein Fehler hier darf keine Bedienung abbrechen.
     }
   }
 
-  private anlegen(title: string, kind: 'text' | 'markdown', content: string): Source {
+  private anlegen(
+    title: string,
+    kind: 'text' | 'markdown' | 'url',
+    content: string,
+    origin: string | null,
+  ): Source {
     const sourceId = id('quelle');
     const chunks: Chunk[] = chunkText(content).map((c) => ({
       id: id('abschnitt'),
@@ -189,7 +250,7 @@ export class DemoClient implements NotebookApi {
       kind,
       wordCount: countWords(content),
       chunkCount: chunks.length,
-      origin: null,
+      origin,
       selected: true,
       createdAt: new Date().toISOString(),
     };
@@ -213,13 +274,13 @@ export class DemoClient implements NotebookApi {
     return Promise.resolve({
       status: 'ok',
       version: 'demo',
-      llm: { configured: false, provider: 'demo', model: 'kein Modell verbunden' },
+      llm: { configured: false, provider: 'demo', model: this.t('header.noModel') },
     });
   }
 
   login(username: string, password: string): Promise<{ token: string; expiresAt: string }> {
     if (username !== ZUGANG.username || password !== ZUGANG.password) {
-      return Promise.reject(new Error('Benutzername oder Passwort stimmt nicht.'));
+      return Promise.reject(new Error(this.t('login.failed')));
     }
     return Promise.resolve({
       token: 'demo',
@@ -248,7 +309,7 @@ export class DemoClient implements NotebookApi {
   }
 
   exportNotebook(_id: string): Promise<string> {
-    const zeilen = [`# ${this.titel}`, '', '_Export aus der Demo im Browser._', ''];
+    const zeilen = [`# ${this.titel}`, ''];
     for (const notiz of this.notizen) zeilen.push(`## ${notiz.title}`, '', notiz.body, '');
     for (const e of this.eintraege) zeilen.push(`## ${e.source.title}`, '', e.content, '');
     return Promise.resolve(zeilen.join('\n'));
@@ -258,21 +319,54 @@ export class DemoClient implements NotebookApi {
     return Promise.resolve(this.eintraege.map((e) => e.source));
   }
 
-  createSource(
-    _notebookId: string,
-    input: { title: string; kind: 'text' | 'markdown'; content: string },
-  ): Promise<Source> {
-    const source = this.anlegen(input.title, input.kind, input.content);
+  async createSource(_notebookId: string, input: CreateSourceRequest): Promise<Source> {
+    if (input.kind === 'url') {
+      let antwort: Response;
+      try {
+        antwort = await fetch(input.url, {
+          headers: { accept: 'text/html, text/plain, application/json' },
+        });
+      } catch {
+        // Ein TypeError beim fetch ist im Browser fast immer CORS oder Netz -
+        // der Browser verrät den Grund absichtlich nicht.
+        throw new Error(this.t('addSource.corsError'));
+      }
+      if (!antwort.ok) throw new Error(this.t('error.status', { status: antwort.status }));
+      const typ = antwort.headers.get('content-type') ?? '';
+      const text = await antwort.text();
+      let title = input.title ?? new URL(input.url).hostname;
+      let content = text.trim();
+      if (typ.includes('html') || /^\s*<(!doctype|html)/i.test(text)) {
+        const extrahiert = textAusHtml(text);
+        content = extrahiert.content;
+        if (input.title === undefined && extrahiert.title !== '') title = extrahiert.title;
+      } else if (typ.includes('json')) {
+        try {
+          content = JSON.stringify(JSON.parse(text) as unknown, null, 2);
+        } catch {
+          // dann bleibt der Rohtext
+        }
+      }
+      if (content === '') throw new Error(this.t('addSource.emptyError'));
+      const source = this.anlegen(title, 'url', content, input.url);
+      if (source.chunkCount === 0) {
+        this.eintraege.pop();
+        throw new Error(this.t('addSource.emptyError'));
+      }
+      return source;
+    }
+
+    const source = this.anlegen(input.title, input.kind, input.content, null);
     if (source.chunkCount === 0) {
       this.eintraege.pop();
-      return Promise.reject(new Error('Aus dieser Quelle ließ sich kein Abschnitt bilden.'));
+      throw new Error(this.t('addSource.emptyError'));
     }
-    return Promise.resolve(source);
+    return source;
   }
 
   updateSource(sourceId: string, patch: { selected?: boolean; title?: string }): Promise<Source> {
     const eintrag = this.eintraege.find((e) => e.source.id === sourceId);
-    if (eintrag === undefined) return Promise.reject(new Error('Quelle nicht gefunden.'));
+    if (eintrag === undefined) return Promise.reject(new Error(this.t('error.loadSource')));
     eintrag.source = {
       ...eintrag.source,
       selected: patch.selected ?? eintrag.source.selected,
@@ -291,12 +385,18 @@ export class DemoClient implements NotebookApi {
 
   getSource(sourceId: string): Promise<SourceContent> {
     const eintrag = this.eintraege.find((e) => e.source.id === sourceId);
-    if (eintrag === undefined) return Promise.reject(new Error('Quelle nicht gefunden.'));
+    if (eintrag === undefined) return Promise.reject(new Error(this.t('error.loadSource')));
     return Promise.resolve({ ...eintrag.source, content: eintrag.content });
   }
 
-  ask(_notebookId: string, question: string, sourceIds: string[]): Promise<AskResponse> {
+  ask(
+    _notebookId: string,
+    question: string,
+    sourceIds: string[],
+    language: Language,
+  ): Promise<AskResponse> {
     const beginn = Date.now();
+    const t: Uebersetzer = (key, params) => uebersetzen(language, key, params);
     const leer = (antwort: string): AskResponse => ({
       answer: antwort,
       citations: [],
@@ -305,21 +405,14 @@ export class DemoClient implements NotebookApi {
       unsupportedSentenceCount: 0,
       droppedMarkers: [],
       simulated: true,
-      model: 'demo (kein Modell verbunden)',
+      model: `demo (${t('header.noModel')})`,
       elapsedMs: Date.now() - beginn,
     });
 
-    if (sourceIds.length === 0) {
-      return Promise.resolve(
-        leer(
-          'Es ist keine Quelle ausgewählt. Wähle links mindestens eine Quelle aus, damit die Frage aus den Quellen beantwortet werden kann.',
-        ),
-      );
-    }
+    if (sourceIds.length === 0) return Promise.resolve(leer(t('answer.noSources')));
 
     const begriffe = begriffeAus(question);
-    if (begriffe.length === 0)
-      return Promise.resolve(leer('Die Frage enthält keine suchbaren Begriffe.'));
+    if (begriffe.length === 0) return Promise.resolve(leer(t('answer.noTerms')));
 
     const treffer: RetrievedChunk[] = [];
     for (const eintrag of this.eintraege) {
@@ -331,14 +424,7 @@ export class DemoClient implements NotebookApi {
     }
     treffer.sort((a, b) => b.score - a.score);
     const abgerufen = treffer.slice(0, 8);
-
-    if (abgerufen.length === 0) {
-      return Promise.resolve(
-        leer(
-          'In den ausgewählten Quellen findet sich zu dieser Frage keine Textstelle. Möglich ist, dass die Quellen das Thema nicht behandeln oder die Frage andere Begriffe verwendet als die Texte.',
-        ),
-      );
-    }
+    if (abgerufen.length === 0) return Promise.resolve(leer(t('answer.noMatch')));
 
     const citations: Citation[] = abgerufen.slice(0, 3).map((chunk, index) => ({
       marker: index + 1,
@@ -355,22 +441,19 @@ export class DemoClient implements NotebookApi {
     const liste = citations
       .map(
         (c) =>
-          `- Abschnitt [${c.marker}] aus ${c.sourceTitle}${c.headingPath === '' ? '' : ` · ${c.headingPath}`}`,
+          `- ${t('answer.stubItem', { marker: c.marker, source: c.sourceTitle })}${c.headingPath === '' ? '' : ` · ${c.headingPath}`}`,
       )
       .join('\n');
 
     return Promise.resolve({
-      answer:
-        'Es ist kein Sprachmodell verbunden. Diese Antwort ist daher nicht formuliert, sondern zeigt nur, welche Textstellen zu der Frage gefunden wurden:\n\n' +
-        liste +
-        '\n\nEin Klick auf einen Beleg springt zur Stelle im Originaltext.',
+      answer: `${t('answer.stubIntro')}\n\n${liste}\n\n${t('answer.stubOutro')}`,
       citations,
       retrieved: abgerufen,
       grounded: false,
       unsupportedSentenceCount: 0,
       droppedMarkers: [],
       simulated: true,
-      model: 'demo (kein Modell verbunden)',
+      model: `demo (${t('header.noModel')})`,
       elapsedMs: Date.now() - beginn,
     });
   }
@@ -400,7 +483,7 @@ export class DemoClient implements NotebookApi {
 
   updateNote(noteId: string, patch: { title?: string; body?: string }): Promise<Note> {
     const notiz = this.notizen.find((n) => n.id === noteId);
-    if (notiz === undefined) return Promise.reject(new Error('Notiz nicht gefunden.'));
+    if (notiz === undefined) return Promise.reject(new Error(this.t('error.updateNote')));
     const neu: Note = {
       ...notiz,
       title: patch.title ?? notiz.title,

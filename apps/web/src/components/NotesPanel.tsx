@@ -1,5 +1,6 @@
 import { useState, type ReactElement } from 'react';
 import type { Citation, Note } from '@notebook/shared';
+import { useT } from '../i18n/index.ts';
 import { Button } from './ui/Button.tsx';
 import { TextAreaField, TextField } from './ui/Field.tsx';
 import { EmptyState } from './ui/Status.tsx';
@@ -15,16 +16,14 @@ export function NotesPanel({
   onUpdate: (id: string, patch: { title?: string; body?: string }) => void;
   onDelete: (note: Note) => void;
 }): ReactElement {
+  const t = useT();
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState({ title: '', body: '' });
 
   if (notes.length === 0) {
     return (
       <div className="p-4">
-        <EmptyState title="Noch keine Notiz">
-          Speichere eine Antwort als Notiz. Die Belege werden dabei eingefroren und bleiben prüfbar,
-          auch wenn der Chat weiterläuft.
-        </EmptyState>
+        <EmptyState title={t('notes.empty.title')}>{t('notes.empty.body')}</EmptyState>
       </div>
     );
   }
@@ -41,14 +40,14 @@ export function NotesPanel({
             {isEditing ? (
               <div className="flex flex-col gap-3">
                 <TextField
-                  label="Titel"
+                  label={t('notes.fieldTitle')}
                   value={draft.title}
                   onChange={(event) => {
                     setDraft((d) => ({ ...d, title: event.target.value }));
                   }}
                 />
                 <TextAreaField
-                  label="Text"
+                  label={t('notes.fieldBody')}
                   rows={8}
                   value={draft.body}
                   onChange={(event) => {
@@ -63,7 +62,7 @@ export function NotesPanel({
                       setEditing(null);
                     }}
                   >
-                    Abbrechen
+                    {t('common.cancel')}
                   </Button>
                   <Button
                     size="sm"
@@ -73,7 +72,7 @@ export function NotesPanel({
                       setEditing(null);
                     }}
                   >
-                    Speichern
+                    {t('common.save')}
                   </Button>
                 </div>
               </div>
@@ -85,18 +84,18 @@ export function NotesPanel({
                     <Button
                       size="sm"
                       variant="ghost"
-                      aria-label="Notiz bearbeiten"
+                      aria-label={t('notes.editTitle')}
                       onClick={() => {
                         setDraft({ title: note.title, body: note.body });
                         setEditing(note.id);
                       }}
                     >
-                      Bearbeiten
+                      {t('common.edit')}
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
-                      aria-label="Notiz löschen"
+                      aria-label={t('notes.deleteTitle')}
                       onClick={() => {
                         onDelete(note);
                       }}
@@ -106,7 +105,9 @@ export function NotesPanel({
                   </div>
                 </div>
                 {note.question !== '' && (
-                  <p className="text-meta text-content-muted mt-1">Frage: {note.question}</p>
+                  <p className="text-meta text-content-muted mt-1">
+                    {t('notes.question', { question: note.question })}
+                  </p>
                 )}
                 <p className="max-w-reading font-reading text-reading text-content mt-2 whitespace-pre-wrap">
                   {note.body}
@@ -125,8 +126,11 @@ export function NotesPanel({
                           <span className="bg-accent-surface rounded-xs px-1 font-mono">
                             [{citation.marker}]
                           </span>{' '}
-                          {citation.sourceTitle} · Zeichen {citation.startOffset}–
-                          {citation.endOffset}
+                          {citation.sourceTitle} ·{' '}
+                          {t('citation.range', {
+                            start: citation.startOffset,
+                            end: citation.endOffset,
+                          })}
                         </button>
                       </li>
                     ))}
