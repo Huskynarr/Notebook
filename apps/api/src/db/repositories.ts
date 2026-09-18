@@ -19,7 +19,7 @@ const NOTEBOOK_SELECT = `
   FROM notebooks n`;
 
 const SOURCE_SELECT = `
-  SELECT s.id, s.notebook_id, s.title, s.kind, s.word_count, s.selected, s.created_at,
+  SELECT s.id, s.notebook_id, s.title, s.kind, s.origin, s.word_count, s.selected, s.created_at,
          (SELECT COUNT(*) FROM chunks c WHERE c.source_id = s.id) AS chunk_count
   FROM sources s`;
 
@@ -42,6 +42,7 @@ function toSource(row: unknown): Source {
     notebookId: r.notebook_id,
     title: r.title,
     kind: r.kind,
+    origin: r.origin,
     wordCount: r.word_count,
     chunkCount: r.chunk_count,
     selected: r.selected,
@@ -145,8 +146,9 @@ export class SourceRepository {
   create(input: {
     notebookId: string;
     title: string;
-    kind: 'text' | 'markdown';
+    kind: 'text' | 'markdown' | 'url';
     content: string;
+    origin?: string | undefined;
   }): Source {
     const id = newId();
     const now = nowIso();
@@ -156,14 +158,15 @@ export class SourceRepository {
     try {
       this.db
         .prepare(
-          `INSERT INTO sources (id, notebook_id, title, kind, content, word_count, selected, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO sources (id, notebook_id, title, kind, origin, content, word_count, selected, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .run(
           id,
           input.notebookId,
           input.title,
           input.kind,
+          input.origin ?? null,
           input.content,
           countWords(input.content),
           toSqliteBool(true),

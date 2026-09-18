@@ -15,7 +15,9 @@ CREATE TABLE IF NOT EXISTS sources (
   id          TEXT PRIMARY KEY,
   notebook_id TEXT NOT NULL REFERENCES notebooks(id) ON DELETE CASCADE,
   title       TEXT NOT NULL,
-  kind        TEXT NOT NULL CHECK (kind IN ('text', 'markdown', 'pdf')),
+  kind        TEXT NOT NULL CHECK (kind IN ('text', 'markdown', 'url', 'pdf')),
+  -- Adresse, von der der Text stammt; NULL bei eingefuegtem Text und Dateien.
+  origin      TEXT,
   -- Der unveraenderte Originaltext. Alle Beleg-Offsets zeigen hierauf; er darf
   -- nach dem Anlegen nie mehr veraendert werden.
   content     TEXT NOT NULL,

@@ -13,6 +13,7 @@ export type ModelAnswer = z.infer<typeof ModelAnswerSchema>;
 export interface CompletionRequest {
   readonly system: string;
   readonly user: string;
+  readonly language: 'de' | 'en';
 }
 
 export interface CompletionResult {

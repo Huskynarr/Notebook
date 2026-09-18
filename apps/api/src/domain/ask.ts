@@ -1,13 +1,13 @@
-import type { AskResponse } from '@notebook/shared';
+import type { AskResponse, Language } from '@notebook/shared';
 import type { Db } from '../db/database.ts';
 import { LlmUnavailableError, type LlmProvider } from '../llm/provider.ts';
 import { validateCitations } from './citations.ts';
 import {
-  NO_MATCH_ANSWER,
-  NO_SOURCES_ANSWER,
   SYSTEM_PROMPT,
   buildContext,
   buildUserPrompt,
+  noMatchAnswer,
+  noSourcesAnswer,
 } from './prompt.ts';
 import { retrieve } from './retrieval.ts';
 
@@ -26,13 +26,14 @@ export interface AskOptions {
 export async function ask(
   db: Db,
   provider: LlmProvider,
-  input: { question: string; sourceIds: readonly string[] },
+  input: { question: string; sourceIds: readonly string[]; language?: Language },
   options: AskOptions,
 ): Promise<AskResponse> {
   const startedAt = Date.now();
+  const language = input.language ?? 'de';
 
   if (input.sourceIds.length === 0) {
-    return emptyResponse(NO_SOURCES_ANSWER, provider, startedAt);
+    return emptyResponse(noSourcesAnswer(language), provider, startedAt);
   }
 
   const retrieved = retrieve(db, input.question, {
@@ -41,12 +42,13 @@ export async function ask(
   });
 
   if (retrieved.length === 0) {
-    return emptyResponse(NO_MATCH_ANSWER, provider, startedAt);
+    return emptyResponse(noMatchAnswer(language), provider, startedAt);
   }
 
   const completion = await provider.complete({
     system: SYSTEM_PROMPT,
-    user: buildUserPrompt(input.question, buildContext(retrieved)),
+    user: buildUserPrompt(input.question, buildContext(retrieved), language),
+    language,
   });
 
   const validated = validateCitations(

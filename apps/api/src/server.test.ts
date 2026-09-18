@@ -189,6 +189,51 @@ describe('Notebooks, Quellen und Notizen', () => {
     expect(source.selected).toBe(true);
   });
 
+  it('lehnt eine Adresse auf ein lokales oder privates Ziel ab, ohne sie abzurufen', async () => {
+    const notebook = body(
+      NotebookSchema,
+      await app.inject({
+        method: 'POST',
+        url: '/v1/notebooks',
+        headers: auth,
+        payload: { title: 'Test' },
+      }),
+    );
+    for (const adresse of [
+      'http://localhost:8787/x',
+      'http://127.0.0.1/',
+      'http://10.0.0.5/geheim',
+    ]) {
+      const response = await app.inject({
+        method: 'POST',
+        url: `/v1/notebooks/${notebook.id}/sources`,
+        headers: auth,
+        payload: { kind: 'url', url: adresse },
+      });
+      expect(response.statusCode).toBe(422);
+      expect(response.body).toContain('fetch_failed');
+    }
+  });
+
+  it('antwortet auf Englisch, wenn die Anfrage es verlangt', async () => {
+    const notebook = body(
+      NotebookSchema,
+      await app.inject({
+        method: 'POST',
+        url: '/v1/notebooks',
+        headers: auth,
+        payload: { title: 'Test' },
+      }),
+    );
+    const response = await app.inject({
+      method: 'POST',
+      url: `/v1/notebooks/${notebook.id}/ask`,
+      headers: auth,
+      payload: { question: 'Egal', sourceIds: [], language: 'en' },
+    });
+    expect(body(AskResponseSchema, response).answer).toContain('No source is selected');
+  });
+
   it('weist eine Quelle ohne Text ab', async () => {
     const notebook = body(
       NotebookSchema,

@@ -29,11 +29,20 @@ export type NotebookListResponse = z.infer<typeof NotebookListResponseSchema>;
 
 /* ---------- Quellen ---------- */
 
-export const CreateSourceRequestSchema = z.object({
-  title: z.string().min(1).max(300),
-  kind: z.enum(['text', 'markdown']),
-  content: z.string().min(1).max(2_000_000),
-});
+export const CreateSourceRequestSchema = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.enum(['text', 'markdown']),
+    title: z.string().min(1).max(300),
+    content: z.string().min(1).max(2_000_000),
+  }),
+  /** Der Server holt die Adresse und extrahiert den Text. Der Titel ist
+   *  optional; fehlt er, gilt der Seitentitel. */
+  z.object({
+    kind: z.literal('url'),
+    url: z.url().max(2000),
+    title: z.string().min(1).max(300).optional(),
+  }),
+]);
 export type CreateSourceRequest = z.infer<typeof CreateSourceRequestSchema>;
 
 export const UpdateSourceRequestSchema = z.object({
@@ -47,8 +56,14 @@ export type SourceListResponse = z.infer<typeof SourceListResponseSchema>;
 
 /* ---------- Fragen ---------- */
 
+export const LanguageSchema = z.enum(['de', 'en']);
+export type Language = z.infer<typeof LanguageSchema>;
+
 export const AskRequestSchema = z.object({
   question: z.string().min(1).max(4000),
+  /** Sprache der Oberflaeche: bestimmt die Sprache der Antwort und der
+   *  Systemauskuenfte ("keine Quelle ausgewaehlt"). Vorgabe Deutsch. */
+  language: LanguageSchema.default('de'),
   /** Leere Liste bedeutet: keine Quelle ausgewaehlt. Der Server antwortet dann
    *  mit `grounded: false` statt aus Modellwissen zu antworten. */
   sourceIds: z.array(IdSchema),
@@ -115,6 +130,7 @@ export const ApiErrorSchema = z.object({
       'not_found',
       'validation_failed',
       'llm_unavailable',
+      'fetch_failed',
       'conflict',
       'internal',
     ]),

@@ -189,6 +189,7 @@ export class DemoClient implements NotebookApi {
       kind,
       wordCount: countWords(content),
       chunkCount: chunks.length,
+      origin: null,
       selected: true,
       createdAt: new Date().toISOString(),
     };

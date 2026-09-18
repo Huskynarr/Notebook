@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import { IdSchema, IsoDateSchema } from './ids.js';
 
-/** Quelltypen. `pdf` ist als optionale Erweiterung vorgesehen (docs/product.md),
- *  in v0.1 nimmt die API sie noch nicht an. */
-export const SourceKindSchema = z.enum(['text', 'markdown', 'pdf']);
+/** Quelltypen. `url` ist ein abgerufener Text (Webseite, Text- oder
+ *  JSON-Endpunkt); `pdf` ist als optionale Erweiterung vorgesehen und wird von
+ *  der API noch nicht angenommen. */
+export const SourceKindSchema = z.enum(['text', 'markdown', 'url', 'pdf']);
 export type SourceKind = z.infer<typeof SourceKindSchema>;
 
 export const NotebookSchema = z.object({
@@ -24,6 +25,8 @@ export const SourceSchema = z.object({
   /** Wortzahl des Originaltexts. Nur zur Anzeige. */
   wordCount: z.number().int().nonnegative(),
   chunkCount: z.number().int().nonnegative(),
+  /** Adresse, von der der Text stammt - nur bei kind 'url'. */
+  origin: z.string().nullable(),
   /** Zaehlt diese Quelle fuer die naechste Frage? Wird pro Quelle gespeichert,
    *  damit die Auswahl einen Neuladen ueberlebt. */
   selected: z.boolean(),

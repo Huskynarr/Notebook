@@ -22,7 +22,8 @@ Regeln, ohne Ausnahme:
 3. Erfinde keine Nummern. Erlaubt sind nur die Nummern, die dir vorgelegt wurden.
 4. Tragen die Abschnitte die Frage nicht, setze "grounded": false und schreibe in "answer"
    einen Satz darueber, was fehlt. Rate nicht und fuelle nicht mit Allgemeinwissen auf.
-5. Antworte auf Deutsch, sachlich und ohne Einleitungsfloskeln.
+5. Antworte in der Sprache, die unter der Frage angegeben ist, sachlich und ohne
+   Einleitungsfloskeln.
 
 Antworte ausschließlich mit einem JSON-Objekt in genau dieser Form:
 {
@@ -35,12 +36,35 @@ Zu "quotes": Für jeden verwendeten Marker ein wörtliches, unveraendertes Zitat
 zugehörigen Abschnitt - so kurz wie möglich, aber lang genug, um die Aussage zu tragen
 (mindestens acht Zeichen). Schreibe nicht um, kuerze nicht mit Auslassungspunkten.`;
 
-export function buildUserPrompt(question: string, context: string): string {
-  return `Abschnitte:\n\n${context}\n\n---\n\nFrage: ${question}`;
+export function buildUserPrompt(
+  question: string,
+  context: string,
+  language: Language = 'de',
+): string {
+  const sprache = language === 'en' ? 'Antworte auf Englisch.' : 'Antworte auf Deutsch.';
+  return `Abschnitte:\n\n${context}\n\n---\n\n${sprache}\n\nFrage: ${question}`;
 }
 
-export const NO_SOURCES_ANSWER =
-  'Es ist keine Quelle ausgewählt. Wähle links mindestens eine Quelle aus, damit die Frage aus den Quellen beantwortet werden kann.';
+import type { Language } from '@notebook/shared';
 
-export const NO_MATCH_ANSWER =
-  'In den ausgewählten Quellen findet sich zu dieser Frage keine Textstelle. Möglich ist, dass die Quellen das Thema nicht behandeln oder die Frage andere Begriffe verwendet als die Texte.';
+const AUSKUENFTE: Record<Language, { noSources: string; noMatch: string }> = {
+  de: {
+    noSources:
+      'Es ist keine Quelle ausgewählt. Wähle links mindestens eine Quelle aus, damit die Frage aus den Quellen beantwortet werden kann.',
+    noMatch:
+      'In den ausgewählten Quellen findet sich zu dieser Frage keine Textstelle. Möglich ist, dass die Quellen das Thema nicht behandeln oder die Frage andere Begriffe verwendet als die Texte.',
+  },
+  en: {
+    noSources:
+      'No source is selected. Select at least one source on the left so the question can be answered from the sources.',
+    noMatch:
+      'The selected sources contain no passage for this question. Either they do not cover the topic, or the question uses different terms than the texts.',
+  },
+};
+
+export function noSourcesAnswer(language: Language): string {
+  return AUSKUENFTE[language].noSources;
+}
+export function noMatchAnswer(language: Language): string {
+  return AUSKUENFTE[language].noMatch;
+}

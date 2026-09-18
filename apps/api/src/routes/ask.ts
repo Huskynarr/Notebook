@@ -21,7 +21,7 @@ export function registerAskRoutes(app: FastifyInstance, ctx: AppContext): void {
       return await ask(
         ctx.db,
         ctx.llm,
-        { question: body.question, sourceIds },
+        { question: body.question, sourceIds, language: body.language },
         {
           topK: ctx.config.RETRIEVAL_TOP_K,
         },
