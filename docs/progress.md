@@ -66,8 +66,9 @@ Diese Punkte sind offen, nicht „vermutlich in Ordnung":
 - **Barrierefreiheit:** Ränder und Fokusringe gegen ihre Umgebung (3:1), Bedienung bei
   200 % Zoom und vollständige Tastaturbedienung stehen weiter auf der Prüfliste in
   `docs/design-system.md`, Abschnitt 9.
-- **Die CI-Workflows sind nie gelaufen** — auch `pages.yml` nicht. Sie sind geschrieben,
-  aber bis zum ersten Push ungetestet. Pages muss im Repository einmalig aktiviert werden
+- **Die CI-Workflows sind einmal gelaufen und gescheitert** — an einer doppelten
+  pnpm-Versionsangabe, noch vor der ersten eigentlichen Prüfung. Behoben; ob der Rest der
+  Workflows durchläuft, zeigt erst der nächste Push. Pages muss im Repository einmalig aktiviert werden
   (Settings › Pages › Source: GitHub Actions); ob das Repository öffentlich ist, konnte
   nicht geprüft werden (API-Abruf 403). Bei einem privaten Repository braucht Pages einen
   bezahlten Plan.
