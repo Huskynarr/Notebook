@@ -33,11 +33,19 @@ export default defineConfig({
       },
     },
   ],
+  // Beide Server ausdruecklich an 127.0.0.1 - und die Bereitschaft an
+  // derselben Adresse pruefen, die die Tests aufrufen. `localhost` loest auf
+  // Rechnern mit IPv6 (z. B. GitHub-Runnern) zuerst nach ::1 auf; ein Server,
+  // der nur dort lauscht, gilt als bereit, ist unter 127.0.0.1 aber nicht
+  // erreichbar, und jeder Test scheitert beim ersten Seitenaufruf.
   webServer: [
     {
-      command: 'node src/main.ts',
+      // Frische Datenbank je Lauf: die Tests veraendern die Quellenauswahl,
+      // und ein Vorgaenger-Lauf soll den ersten Test nicht faerben.
+      command:
+        "node -e \"require('node:fs').rmSync('.e2e', { recursive: true, force: true })\" && node src/main.ts",
       cwd: './apps/api',
-      port: 8787,
+      url: 'http://127.0.0.1:8787/v1/health',
       reuseExistingServer: false,
       env: {
         DATABASE_PATH: './.e2e/notebook.db',
@@ -46,11 +54,12 @@ export default defineConfig({
         CORS_ORIGIN: 'http://127.0.0.1:4173,http://localhost:4173',
         SEED_ON_EMPTY: 'true',
         LOG_LEVEL: 'warn',
+        HOST: '127.0.0.1',
       },
     },
     {
-      command: 'pnpm --filter @notebook/web preview --port 4173 --strictPort',
-      port: 4173,
+      command: 'pnpm --filter @notebook/web preview --host 127.0.0.1 --port 4173 --strictPort',
+      url: 'http://127.0.0.1:4173/',
       reuseExistingServer: false,
     },
   ],
