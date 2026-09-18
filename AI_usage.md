@@ -87,6 +87,11 @@ Gehört hierher, weil es den Wert des Protokolls ausmacht:
 - Beim Umbau auf Übersetzungen hing der API-Client an der Übersetzungsfunktion; jeder
   Sprachwechsel baute ihn neu und verwarf den Arbeitsstand. Der Fehler stand im Code, den
   ich selbst geschrieben hatte, und fiel erst im Bildschirmfoto nach dem Umschalten auf.
+- Ich habe die Live-Demo als „geprüft" gemeldet, weil der Seitentitel stimmte. Tatsächlich
+  lieferte Pages die von Jekyll gerenderte README, weil die Pages-Quelle auf dem Branch
+  stand — und der E2E-Job war in jedem CI-Lauf rot, was ich nicht nachgesehen hatte. Beides
+  hat der Auftraggeber gefunden. Die Prüfung war eine Stichprobe an der falschen Stelle;
+  richtig wäre gewesen, die Seite im Browser zu öffnen und die Workflow-Läufe zu lesen.
 - Zwei E2E-Tests schlugen nach dem Umbau fehl. Einer zeigte einen echten Fehler (Kopfzeile
   läuft über), einer eine Schwäche des Tests (Kästchen gezählt, bevor sie da waren). Ich
   habe beide vor dem Commit aufgeklärt statt den Test zu lockern — die Netzwerkaufzeichnung

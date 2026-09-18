@@ -76,10 +76,17 @@ Diese Punkte sind offen, nicht „vermutlich in Ordnung":
 - **Barrierefreiheit:** Ränder und Fokusringe gegen ihre Umgebung (3:1), Bedienung bei
   200 % Zoom und vollständige Tastaturbedienung stehen weiter auf der Prüfliste in
   `docs/design-system.md`, Abschnitt 9.
-- **CI-Workflows:** der erste Lauf scheiterte an einer doppelten pnpm-Versionsangabe,
-  behoben. Pages ist aktiv und liefert unter <https://huskynarr.is-a.dev/Notebook/> aus
-  (geprüft 2026-09-18: Seitentitel wird ausgeliefert). Ob `ci.yml` und `release.yml`
-  vollständig durchlaufen, zeigt erst der nächste Lauf.
+- **CI-Workflows:** Der Job „Typen, Stil, Tests, Build" läuft seit dem vierten Lauf grün.
+  Der Job „End-to-End" **ist in allen sechs Läufen gescheitert** — lokal nie. Ursache:
+  `vite preview` lauschte auf `localhost`, das auf dem Runner zuerst nach `::1` auflöst;
+  die Tests riefen `127.0.0.1` auf. Behoben durch feste Bindung an `127.0.0.1`
+  (Commit `5605fe1`); ob der Lauf damit grün wird, zeigt der nächste Push.
+- **GitHub Pages zeigte nicht die Anwendung, sondern die README.** Die Quelle steht auf
+  „Deploy from a branch"; GitHub rendert dann die README mit Jekyll und überschreibt die
+  Ausgabe des Pages-Workflows, der trotzdem Erfolg meldet. Die Prüfung vom Vormittag
+  („Seitentitel wird ausgeliefert") war zu schwach — der Titel stimmte, der Inhalt nicht.
+  Der Workflow scheitert jetzt laut, wenn die Quelle nicht „GitHub Actions" ist; die
+  Umstellung selbst braucht die Repository-Einstellungen (Settings › Pages › Source).
 - **Corporate Design nicht abgestimmt.** Das Design `uni-freiburg` geht an zehn Stellen
   über das CD hinaus (`docs/design-system.md`, Abschnitt 10). Nicht mit
   cd@zv.uni-freiburg.de abgestimmt; Hausschrift nie gesehen; Logo-Frage offen.
