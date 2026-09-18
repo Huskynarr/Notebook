@@ -191,3 +191,117 @@ geprüft. Das steht als Kommentar in der Spezifikation und als offener Punkt in
 
 **Verworfen:** E2E gegen ein echtes Modell (kein Endpunkt vorhanden, und ein Testergebnis,
 das vom Modell abhängt, ist als Regressionsprüfung wertlos).
+
+---
+
+## D-012 · 2026-09-18 · Corporate Design der Universität Freiburg übernommen
+
+**Entscheidung:** Das eigene Farb- und Schriftsystem wird durch das CD der Universität
+Freiburg (<https://cd.uni-freiburg.de>) ersetzt: Blau `#344A9A` als Bedienfarbe, Sand als
+Flächenfarbe, Schwarz für Text, Hausschrift Social mit Arial als Zweitschrift, linksbündiger
+Flattersatz. Die Belegmechanik behält eine eigene, ausschließlich ihr vorbehaltene Farbe —
+dafür wird CD-Grün `#00a082` verwendet.
+
+**Grund:** Die Anwendung wird an der Universität betrieben. Ein eigenes Erscheinungsbild
+neben dem CD wäre für Nutzende ein Fremdkörper.
+
+**Die eine Einschränkung, die den Zuschnitt bestimmt hat:** CD-Grün hält als **Textfarbe**
+auf hellem Grund nur rund 3,3:1 und ist damit nicht barrierearm. Der Beleg ist deshalb eine
+grüne **Fläche** mit schwarzer Schrift, nicht grüne Schrift. Gemessen: 6,35:1 im hellen und
+7,93:1 im dunklen Thema.
+
+**Verworfen:** Alles in Blau und den Beleg nur über Form unterscheiden (der Beleg fällt im
+Fließtext dann spürbar weniger auf, und das ist der Produktkern). CD-Braun statt Grün
+(ruhiger, aber auf Sand deutlich weniger auffällig). Das bisherige eigene Design behalten
+(kein Bezug zur Universität).
+
+**Nicht gedeckt vom CD** und daher in `docs/design-system.md` Abschnitt 10 einzeln
+aufgeführt: die Zusatzfarbe als tragendes Element, das dunkle Thema, Rot für Fehler,
+Grautöne für Metatext, das fehlende Logo. Vor einer förmlichen Abnahme mit
+cd@zv.uni-freiburg.de abzustimmen.
+
+---
+
+## D-013 · 2026-09-18 · Hausschrift optional, Arial als ausgelieferte Schrift
+
+**Entscheidung:** Die Schriftkaskade nennt zuerst `Social`, danach Arial. Die
+`@font-face`-Regeln liegen in `apps/web/public/fonts/social.css`; die lizenzpflichtigen
+Schriftdateien gehören in denselben Ordner und sind in `.gitignore` ausgeschlossen.
+
+**Grund:** Social ist lizenzpflichtig und darf nicht im Repository liegen. Wer die Lizenz
+hat, legt die Dateien ab und bekommt die Hausschrift ohne Bauschritt; alle anderen sehen
+Arial — die vom CD selbst vorgesehene Zweitschrift. Geprüft, dass das trägt:
+`document.fonts.check('16px Social')` ist `false`, und die gemessene Textbreite stimmt exakt
+mit Arial überein.
+
+**Warum in `public/` statt in `src/`:** Vite verarbeitet `public/` nicht. Lägen die Regeln in
+`src/styles/theme.css`, meldete jeder Build sechs Warnungen über nicht auflösbare
+Schriftpfade — Lärm, der echte Warnungen zudeckt.
+
+**Verworfen:** Nur Arial (die Anwendung sähe auch mit Lizenz nicht nach Hausschrift aus).
+Eine freie Schrift als Ersatz für Social (widerspricht dem Schriftsystem, ohne den
+Lizenzweg zu ersparen).
+
+---
+
+## D-014 · 2026-09-18 · Quellenspalte zeigt während des Ladens keine Auswahl
+
+**Entscheidung:** `sources` ist `null`, solange der Abruf läuft; die Spalte zeigt dann einen
+Ladehinweis statt der Kästchen. Zusätzlich verwirft der Ladeeffekt seine Antwort, wenn
+inzwischen das Notebook gewechselt wurde.
+
+**Grund:** Wurde ein Kästchen umgestellt, bevor der erste Abruf zurückkam, überschrieb
+dessen Antwort die Auswahl wieder — die Anwendung fragte dann andere Quellen ab, als
+angezeigt waren. Der Fall trat erst zutage, nachdem das Entfernen der Schriftpakete den
+Seitenaufbau beschleunigt hatte; vorher verdeckte die Ladezeit der Schriften das Zeitfenster.
+
+**Verworfen:** Antworten über eine Folgenummer verwerfen (löst den Fall zwischen zwei
+Umschaltungen, nicht den zwischen Laden und Umschalten). Kästchen während der Anfrage sperren
+(macht schnelles Ab- und Anwählen unbenutzbar, siehe D-010).
+
+---
+
+## D-015 · 2026-09-18 · Designs sind Token-Sätze, umschaltbar in den Einstellungen
+
+**Entscheidung:** Ein Design ist ausschließlich ein Satz von Token-Werten, gesetzt über
+`data-design` am Wurzelelement. Drei Designs (`eigen`, `uni-freiburg`, `huskynarr`), je
+hell und dunkel, wählbar in den Einstellungen; die Wahl liegt im `localStorage` und wird
+vor dem ersten Zeichnen angewendet. Die Paletten stehen als Daten in
+`tools/build-theme.py`, `theme.css` wird erzeugt.
+
+**Grund:** Der Auftraggeber will die Designs nebeneinander ansehen — das ist der Zweck eines
+Frontend-Tests. Ein Design pro Branch (D-012 wurde zunächst so umgesetzt) erlaubt das nicht.
+Die Trennung „Komponenten kennen nur Rollen, Designs liefern nur Werte" war bereits angelegt;
+die Umschaltung ist ihre Konsequenz.
+
+**Verworfen:** Ein Design pro Branch (nicht vergleichbar). Bedingte Klassen in den
+Komponenten (`design === 'uni' ? … : …`) — jede Komponente wüsste dann von jedem Design, und
+ein viertes Design hieße, jede Komponente anzufassen. Von Hand geschriebene `theme.css` —
+sechs Blöcke mit je vierzig Werten sind eine sichere Quelle für vergessene Tokens.
+
+**Der Branch `design/uni-freiburg` bleibt** als Schnappschuss des Stands „CD allein, ohne
+Umschalter" liegen und wird nicht weiterentwickelt.
+
+---
+
+## D-016 · 2026-09-18 · Vorschau ohne Backend statt statisches Frontend
+
+**Entscheidung:** Für GitHub Pages wird das Frontend mit `VITE_PREVIEW=true` gebaut. Es
+läuft dann gegen einen `PreviewClient` im Browser, der dieselbe Schnittstelle erfüllt wie der
+API-Client, die Beispieltexte mit demselben `chunkText` zerlegt und zu einer Frage die
+passenden Abschnitte findet. Ein dauerhaftes Banner, der Hinweis am Login und
+`simulated: true` in jeder Antwort kennzeichnen den Zustand.
+
+**Grund:** Pages liefert nur statische Dateien. Das nackte Frontend bliebe am Login hängen;
+ein Besucher sähe genau einen Bildschirm. Für einen Frontend-Test ist die begehbare
+Oberfläche der Zweck. Die Vorschau erfindet nichts: sie formuliert keine Antwort (kein
+Modell, kein Schlüssel im Frontend — Regel 4), und die Belege zeigen auf echte
+Zeichenpositionen in den Beispieltexten.
+
+**Verworfen:** Nur das nackte Frontend (zeigt nichts). Eine Dokumentationsseite statt der
+Anwendung (zeigt das Design nicht in Bewegung). Eine „Demo" mit vorformulierten Antworten
+(eine unmarkierte Simulation im Sinne von Regel 5 — genau das, was das Produkt vermeiden
+soll).
+
+**Preis, ausdrücklich:** Die Vorschau ist ein zweiter Abrufpfad mit einer einfacheren
+Bewertung als BM25. Sie darf nie als Beleg dafür gelten, wie der Server abruft.

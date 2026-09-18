@@ -1,138 +1,153 @@
 # Design-System
 
-Verbindliche Spezifikation. Das Tailwind-Theme in `apps/web/src/styles/theme.css` (Tailwind 4
-setzt Tokens per `@theme` in CSS, nicht mehr in einer Konfigurationsdatei) ist die technische
-Umsetzung dieses Dokuments; weicht es ab, ist das Theme falsch, nicht das Dokument.
+Verbindliche Spezifikation. Drei Designs, in den Einstellungen umschaltbar, je hell und
+dunkel. Die **Paletten liegen als Daten in `tools/build-theme.py`**; daraus wird
+`apps/web/src/styles/theme.css` erzeugt (`pnpm theme`). Weicht das Theme von diesem
+Dokument ab, ist das Theme falsch, nicht das Dokument — und weicht `theme.css` vom Generator
+ab, ist jemand von Hand hineingeraten (die CI prüft das).
 
-Keine Komponente verwendet rohe Werte. In JSX steht `bg-surface-raised`, nie `bg-[#faf8f4]`.
+Keine Komponente verwendet rohe Werte oder kennt ein Design. In JSX steht
+`bg-surface-raised`, nie `bg-[#faf8f1]` und nie eine `dark:`-Variante. Ein Design ist
+ausschließlich ein Satz von Token-Werten.
+
+| Design | `data-design` | Herkunft | Verbindlichkeit |
+|---|---|---|---|
+| Papier und Tinte | `eigen` (Vorgabe) | eigener Entwurf | vollständig eigene Festlegung |
+| Universität Freiburg | `uni-freiburg` | <https://cd.uni-freiburg.de> | CD-Werte; Abweichungen in Abschnitt 10 |
+| huskynarr | `huskynarr` | <https://huskynarr.de> | **Näherung** — siehe Abschnitt 11 |
 
 ---
 
 ## 0. Gestaltungshaltung
 
-Drei Festlegungen, aus denen sich alles Weitere ergibt:
+Drei Festlegungen, die für alle Designs gelten:
 
-1. **Papier und Tinte, nicht Chrom.** Warme, leicht entsättigte Flächen und sehr dunkler
-   Text. Der Arbeitsbereich soll wie ein Schreibtisch mit Dokumenten wirken, nicht wie ein
-   Dashboard. Lange Lesestrecken sind der Normalfall.
+1. **Ein Design gibt Farben, nicht Bedeutung.** Welche Rolle eine Farbe in der Anwendung
+   spielt, legt dieses Dokument fest und hält es über alle Designs durch. Deshalb kann das
+   Design gewechselt werden, ohne dass sich die Bedienung ändert.
 2. **Die Akzentfarbe gehört dem Beleg.** `accent` markiert ausschließlich Belegmechanik:
    Zitatmarker, hervorgehobene Quellenstellen, die Verbindung zwischen Aussage und Original.
-   Ein Speichern-Button ist nicht wichtiger als ein Beleg und bekommt daher keine
-   Akzentfarbe. Diese Reservierung ist der Grund, warum ein Zitat im Layout sofort
-   auffällt — sie darf nicht aufgeweicht werden.
-3. **Dichte ohne Enge.** Drei Spalten mit viel Information. Die Ordnung entsteht durch
-   Flächenwechsel und Abstand, nicht durch Rahmen und Linien. Trennlinien nur dort, wo zwei
-   Flächen gleicher Höhe aneinanderstoßen.
+   Kein Button, keine Bestätigung, keine Plakette trägt sie. In jedem Design ist ein Zitat
+   deshalb die einzige Stelle in dieser Farbe — und diese Reservierung ist nicht verhandelbar.
+3. **Dichte ohne Enge.** Drei Spalten mit viel Information. Ordnung entsteht durch
+   Flächenwechsel und Abstand, nicht durch Rahmen und Linien.
 
 ---
 
 ## 1. Farbe
 
-Semantische Namen, keine Farbnamen. Jeder Token existiert in beiden Themes; Komponenten
-kennen nur den semantischen Namen. Umschaltung über `data-theme` bzw.
-`prefers-color-scheme`.
+Semantische Namen, keine Farbnamen. Die **Werte** stehen je Design und Erscheinungsbild in
+`tools/build-theme.py` — hier stehen die **Rollen**, die in jedem Design gleich sind.
 
 ### Flächen
 
-| Token | Bedeutung | Light | Dark |
-|---|---|---|---|
-| `surface-sunken` | Hintergrund der Anwendung, unterste Ebene | `#f2efe9` | `#15171a` |
-| `surface` | Standardfläche für Panels und Spalten | `#faf8f4` | `#1c1f23` |
-| `surface-raised` | Karten, Eingabefelder, Chat-Blasen | `#ffffff` | `#24282d` |
-| `surface-overlay` | Dialoge, Popover, Menüs | `#ffffff` | `#2b3036` |
-| `surface-inset` | Codeblöcke, Quellentext-Vorschau | `#efece5` | `#141619` |
+| Token | Bedeutung |
+|---|---|
+| `surface-sunken` | Anwendungshintergrund, unterste Ebene |
+| `surface` | Panels und Spalten |
+| `surface-raised` | Karten, Eingaben, Chat-Blasen |
+| `surface-overlay` | Dialoge, Popover, Menüs |
+| `surface-inset` | Vertiefungen, neutrale Plaketten, Codeblöcke |
 
 ### Text
 
-| Token | Verwendung | Light | Dark | Kontrast auf `surface` |
-|---|---|---|---|---|
-| `content-strong` | Überschriften, Antworttext | `#14171a` | `#f4f2ee` | 15,8:1 / 14,1:1 |
-| `content` | Fließtext | `#2c3238` | `#d6d3cd` | 10,6:1 / 9,8:1 |
-| `content-muted` | Metadaten, Zeitangaben, Hilfetext | `#5b6470` | `#9aa1a9` | 5,4:1 / 5,1:1 |
-| `content-subtle` | Platzhalter, deaktivierte Beschriftung | `#7d8794` | `#6f767e` | 3,4:1 — **nur für Nichttext-Text**, nie für Inhalt |
-| `content-inverted` | Text auf gefüllten dunklen Flächen | `#faf8f4` | `#14171a` | — |
-
-Am 2026-09-17 an der gebauten Oberfläche gemessen (berechnete Werte aus den tatsächlich
-angewendeten Stilen, Chromium, beide Themes):
-
-| Element | Hell | Dunkel |
-|---|---|---|
-| Überschrift auf Anwendungshintergrund | 15,68:1 | 16,06:1 |
-| Metatext | 11,29:1 | 12,02:1 |
-| Statusplakette (Text auf Statusfläche) | 5,24:1 | 7,47:1 |
-| Zitatmarker (`accent` auf `accent-surface`) | 6,50:1 | 5,75:1 |
-
-Alle gemessenen Werte liegen über der AA-Schwelle von 4,5:1. **Nicht gemessen** wurden
-`content-subtle` (per Definition nur für nicht-inhaltlichen Text) sowie Ränder und
-Fokusringe gegen ihre Umgebung — diese stehen weiter auf der Prüfliste in Abschnitt 9.
+| Token | Verwendung |
+|---|---|
+| `content-strong` | Überschriften, Antworttext |
+| `content` | Fließtext |
+| `content-muted` | Metadaten, Hilfetext |
+| `content-subtle` | Platzhalter, Deaktiviertes — nie für Inhalt |
+| `content-inverted` | Text auf dunklen Füllungen |
 
 ### Ränder
 
-| Token | Verwendung | Light | Dark |
-|---|---|---|---|
-| `border-subtle` | Flächentrennung, kaum sichtbar | `#e4e0d8` | `#2f343a` |
-| `border` | Eingabefelder, Karten in Ruhe | `#d3cec4` | `#3b4148` |
-| `border-strong` | Hover auf interaktiven Rändern | `#b0a99c` | `#545c65` |
+`border-subtle` (Flächentrennung) · `border` (Eingaben, Karten in Ruhe) · `border-strong`
+(Zeigerkontakt).
 
-### Akzent — reserviert für Belege
+### Beleg — reserviert
 
-| Token | Verwendung | Light | Dark |
-|---|---|---|---|
-| `accent` | Zitatmarker, Beleglinien, Fokus auf Belegelementen | `#7a4a12` | `#e0a95f` |
-| `accent-hover` | Zeigerkontakt auf Belegelementen | `#5e380b` | `#f0bd78` |
-| `accent-surface` | Fläche hinter hervorgehobener Quellenstelle | `#fbeed7` | `#453318` |
-| `accent-border` | Rand eines aktiven Belegs | `#d9a55c` | `#8a6526` |
+**`accent` ist eine Flächenfarbe, keine Textfarbe.** Text auf `accent` ist immer
+`accent-contrast`. Das folgt aus dem Freiburger CD-Grün, das als Schrift auf hellem Grund
+nur rund 3,3:1 hält — und gilt für alle Designs, damit die Komponenten gleich bleiben.
+
+| Token | Verwendung |
+|---|---|
+| `accent` | aktiver Marker, Beleglinie neben einer belegten Antwort |
+| `accent-hover` | Zeigerkontakt auf aktiven Elementen |
+| `accent-surface` | Marker in Ruhe, hervorgehobene Fundstelle |
+| `accent-surface-strong` | Zeigerkontakt, Trefferplakette |
+| `accent-border` | Unterlinie der Fundstelle |
+| `accent-contrast` | Text auf `accent` |
 
 ### Aktion — alles Übrige
 
-| Token | Verwendung | Light | Dark |
-|---|---|---|---|
-| `action` | Primäre Schaltflächen | `#25405e` | `#b9cde6` |
-| `action-hover` | Zeigerkontakt | `#1a2f47` | `#cfdff2` |
-| `action-surface` | Ausgewählter Tab, aktive Auswahl | `#e6ecf3` | `#2a3a4c` |
+`action` (primäre Schaltflächen, Fokus) · `action-hover` · `action-surface` (ausgewählter
+Tab) · `action-contrast` (Text auf `action`).
 
 ### Status
 
-| Token | Bedeutung | Light | Dark |
-|---|---|---|---|
-| `success` / `success-surface` | Abgeschlossen, Quelle indiziert | `#1f6b3f` / `#e2f1e7` | `#7cc79a` / `#1b3326` |
-| `warning` / `warning-surface` | Teilweise belegt, Simulation aktiv | `#8a5a00` / `#fbf0d8` | `#e8bc63` / `#3a2e14` |
-| `danger` / `danger-surface` | Fehler, Löschen | `#9b2226` / `#fae6e6` | `#f08d8f` / `#3a1d1e` |
-| `info` / `info-surface` | Hinweis, Ladezustand | `#1f5a73` / `#e2eff4` | `#7fc0da` / `#16303b` |
+Vier Töne. **Keine Erfolgsfarbe** — eine Bestätigung ist `info`, damit die Akzentfarbe dem
+Beleg vorbehalten bleibt. Statustext ist **immer** `content-strong`, nie die Statusfarbe;
+die Farbe liegt auf Fläche (`*-surface`), Balken (`warning-mark`) und Symbol — und nie
+allein: jede Statusanzeige trägt zusätzlich ein Symbol und Text.
 
-Statusfarbe steht nie allein: jede Statusanzeige trägt zusätzlich ein Symbol und Text.
+`info` · `warning` · `danger`, je mit `-surface`; `warning-mark` für Balken und Symbol.
 
 ### Fokus
 
-| Token | Wert |
-|---|---|
-| `focus-ring` | `action` (Light) / `#9fc2ea` (Dark); auf Belegelementen stattdessen `accent` |
-| Darstellung | 2 px Ring, 2 px Abstand zum Element, immer sichtbar — nie `outline: none` ohne Ersatz |
+`focus-ring`, 2 px Ring mit 2 px Abstand, immer sichtbar — nie `outline: none` ohne
+Ersatz. Auf Belegelementen `accent`.
+
+### Gemessene Kontraste
+
+Am 2026-09-18 an der gebauten Oberfläche gemessen (berechnete Werte aus den tatsächlich
+angewendeten Stilen, Chromium), alle drei Designs, hell und dunkel:
+
+| Element | eigen hell | eigen dunkel | Uni hell | Uni dunkel | huskynarr hell | huskynarr dunkel |
+|---|---|---|---|---|---|---|
+| Überschrift | 15,68 | 14,79 | 19,76 | 19,11 | 18,92 | 16,74 |
+| Metatext | 12,96 | 9,93 | 21,00 | 13,21 | 17,49 | 12,08 |
+| Zitatmarker in Ruhe | 15,69 | 10,80 | 17,25 | 12,61 | 17,53 | 11,69 |
+| Zitatmarker aktiv | 7,46 | 8,58 | 6,35 | 7,93 | **5,47** | 10,61 |
+| Fundstelle | 15,69 | 10,80 | 17,25 | 12,61 | 17,53 | 11,69 |
+| Primäre Schaltfläche | 10,64 | 11,08 | 8,10 | 9,19 | 14,52 | 18,11 |
+
+Niedrigster Wert über alle Kombinationen: **5,47:1**, über der AA-Schwelle von 4,5:1.
+**Nicht gemessen:** `content-subtle` (per Definition nur für nicht-inhaltlichen Text),
+Ränder und Fokusringe gegen ihre Umgebung — offen in Abschnitt 9.
 
 ---
 
 ## 2. Typografie
 
-| Rolle | Familie | Begründung |
-|---|---|---|
-| `font-ui` | `Inter`, System-Sans | Oberfläche, Beschriftungen |
-| `font-reading` | `Source Serif 4`, Serif-Fallback | Quellentext und KI-Antworten — Serife trennt gelesenen Inhalt optisch von Bedienoberfläche |
-| `font-mono` | `JetBrains Mono`, Monospace | Offsets, IDs, Codeblöcke |
+Die Familien sind Teil des Designs und liegen als Tokens `font-ui`, `font-display`,
+`font-reading`, `font-mono` im Generator:
 
-Schriften werden lokal ausgeliefert, nicht von einem CDN geladen.
+| Design | Oberfläche | Lesetext | Bemerkung |
+|---|---|---|---|
+| eigen | Inter | Source Serif 4 | Serife trennt gelesenen Inhalt von Bedienoberfläche; mitgeliefert (@fontsource) |
+| uni-freiburg | Social → Arial | Social → Arial | Social ist lizenzpflichtig und liegt nicht im Repo; Rückfall auf Arial ist die vom CD vorgesehene Zweitschrift. Ablageort: `apps/web/public/fonts/README.md` |
+| huskynarr | Inter | Inter | Die Schrift der Vorlage ist nicht belegt (Abschnitt 11) |
 
-| Token | Größe / Zeilenhöhe | Gewicht | Laufweite | Verwendung |
-|---|---|---|---|---|
-| `text-display` | 30 / 36 px | 600 | −0,02 em | Notebook-Titel |
-| `text-title` | 22 / 30 px | 600 | −0,01 em | Panel-Überschriften |
-| `text-heading` | 17 / 24 px | 600 | 0 | Quellenname, Abschnitt |
-| `text-body` | 15 / 24 px | 400 | 0 | Oberflächentext |
-| `text-reading` | 16 / 28 px | 400 | 0 | Antworten, Quellentext (`font-reading`) |
-| `text-label` | 13 / 18 px | 500 | 0,01 em | Feldbeschriftung, Tab |
-| `text-meta` | 12 / 16 px | 400 | 0,01 em | Zeit, Trefferzahl, Offsets |
-| `text-micro` | 11 / 14 px | 600 | 0,04 em, Großbuchstaben | Statuskürzel, Spaltenkopf |
+Dicktengleich (`font-mono`) nur für Zeichenpositionen und IDs: JetBrains Mono, im Design
+`uni-freiburg` ein Systemstack, weil das CD keine kennt.
 
-Zeilenlänge: Lesetext maximal 72 Zeichen. Silbentrennung für Deutsch aktiviert
+| Token | Größe / Zeilenhöhe | Gewicht | Verwendung |
+|---|---|---|---|
+| `text-display` | 30 / 36 px | 500 | Notebook-Titel |
+| `text-title` | 22 / 30 px | 500 | Panel-Überschriften |
+| `text-heading` | 17 / 24 px | 700 | Quellenname, Abschnitt |
+| `text-body` | 15 / 24 px | 400 | Oberflächentext |
+| `text-reading` | 16 / 28 px | 400 | Antworten, Quellentext |
+| `text-label` | 13 / 18 px | 700 | Feldbeschriftung, Tab |
+| `text-meta` | 12 / 16 px | 400 | Zeit, Trefferzahl, Offsets |
+| `text-micro` | 11 / 14 px | 700, Großbuchstaben | Statuskürzel |
+
+**Ausschließlich linksbündiger Flattersatz** — eine Regel des Freiburger CD, für alle
+Designs übernommen. Kein Blocksatz, keine zentrierte oder rechtsbündige Textausrichtung.
+Umgesetzt als Grundregel für `body, p, h1–h4, li, td, th, label`.
+
+Zeilenlänge: Lesetext maximal 68 Zeichen. Silbentrennung für Deutsch aktiviert
 (`hyphens-auto`, `lang="de"`) — deutsche Komposita erzeugen sonst Löcher im Flattersatz.
 
 ---
@@ -143,8 +158,6 @@ Basis 4 px. Nur diese Stufen sind zulässig:
 
 `space-0` 0 · `space-1` 4 · `space-2` 8 · `space-3` 12 · `space-4` 16 · `space-5` 24 ·
 `space-6` 32 · `space-7` 48 · `space-8` 64
-
-Anwendung:
 
 | Fall | Stufe |
 |---|---|
@@ -160,27 +173,29 @@ Anwendung:
 
 ## 4. Radien
 
-| Token | Wert | Verwendung |
-|---|---|---|
-| `radius-xs` | 3 px | Zitatmarker, Statuskürzel |
-| `radius-sm` | 5 px | Buttons, Eingaben, Tabs |
-| `radius-md` | 8 px | Karten, Chat-Blasen |
-| `radius-lg` | 12 px | Dialoge, Popover |
-| `radius-full` | 9999 px | Rundsymbole, Zähler |
+Teil des Designs (Tokens `radius-xs` … `radius-lg`):
+
+| Design | xs · Marker | sm · Buttons, Eingaben | md · Karten | lg · Dialoge |
+|---|---|---|---|---|
+| eigen | 3 px | 5 px | 8 px | 12 px |
+| uni-freiburg | 2 px | 3 px | 4 px | 6 px — das CD arbeitet mit klaren, eckigen Flächen |
+| huskynarr | 4 px | 6 px | 10 px | 14 px |
+
+`radius-full` (9999 px) für Rundsymbole und Zähler in allen Designs.
 
 ---
 
 ## 5. Schatten
 
 Sparsam. Erhebung entsteht zuerst durch Flächenwechsel, Schatten nur bei echtem Schweben.
-Im dunklen Theme zusätzlich ein heller Innenrand, weil Schatten dort kaum trägt.
+Designübergreifend neutral:
 
-| Token | Wert (Light) | Verwendung |
+| Token | Wert | Verwendung |
 |---|---|---|
 | `shadow-none` | keiner | Karten in Ruhe |
-| `shadow-sm` | `0 1px 2px rgb(20 23 26 / .06)` | Karte bei Zeigerkontakt |
-| `shadow-md` | `0 4px 12px rgb(20 23 26 / .10)` | Popover, Menü |
-| `shadow-lg` | `0 16px 40px rgb(20 23 26 / .18)` | Dialog |
+| `shadow-sm` | `0 1px 2px rgb(0 0 0 / .07)` | Karte bei Zeigerkontakt |
+| `shadow-md` | `0 4px 12px rgb(0 0 0 / .12)` | Popover, Menü |
+| `shadow-lg` | `0 16px 40px rgb(0 0 0 / .2)` | Dialog |
 
 ---
 
@@ -190,19 +205,20 @@ Im dunklen Theme zusätzlich ein heller Innenrand, weil Schatten dort kaum träg
 |---|---|---|
 | `layout-sources` | 300 px, veränderbar 240–420 px | linke Spalte: Quellen |
 | `layout-chat` | flexibel, min. 420 px | mittlere Spalte: Dialog |
-| `layout-notes` | 340 px, veränderbar 280–480 px | rechte Spalte: Notizen und Quellenansicht |
-| `layout-reading` | 68 ch | maximale Breite von Lesetext innerhalb der Spalte |
-| `layout-topbar` | 52 px | Kopfleiste |
-| `layout-composer` | min. 76 px | Eingabebereich unten in der Chat-Spalte |
+| `layout-notes` | 340 px, veränderbar 280–480 px | rechte Spalte: Notizen und Quelle |
+| `layout-reading` | 68 ch | maximale Breite von Lesetext |
+| `layout-topbar` | 52 px (umbricht unter 1280 px) | Kopfleiste |
+| `layout-composer` | min. 76 px | Eingabebereich unten |
 
 Umbruchpunkte:
 
 - **≥ 1280 px:** drei Spalten nebeneinander.
-- **880–1279 px:** rechte Spalte wird zur Schublade über dem Inhalt.
-- **< 880 px:** eine Spalte, Wechsel über Tabs `Quellen · Chat · Notizen`. Ein Klick auf
-  einen Zitatmarker wechselt dabei automatisch auf die Quellenansicht.
+- **< 1280 px:** eine Spalte, Wechsel über Tabs `Quellen · Chat · Notizen`; die Kopfleiste
+  bricht um. Ein Klick auf einen Zitatmarker wechselt dabei automatisch auf die
+  Quellenansicht.
 
-Scrollen: jede Spalte scrollt eigenständig; die Seite selbst scrollt nie.
+Scrollen: jede Spalte scrollt eigenständig; die Seite selbst scrollt nie, auch nicht
+waagerecht (E2E-Test bei 390 px).
 
 ---
 
@@ -216,7 +232,7 @@ Scrollen: jede Spalte scrollt eigenständig; die Seite selbst scrollt nie.
 | `motion-slow` | 420 ms | `cubic-bezier(.4,0,.2,1)` | Belegmarkierung nach dem Sprung |
 
 `motion-slow` hat genau eine Aufgabe: nach dem Sprung zur Quellenstelle blitzt die
-Hervorhebung einmal auf, damit das Auge sie findet. Sonst nichts.
+Hervorhebung einmal in `accent` auf, damit das Auge sie findet. Sonst nichts.
 
 Bei `prefers-reduced-motion: reduce` entfallen alle Bewegungen; Zustandswechsel bleiben,
 Dauer 0. Die Belegmarkierung erscheint dann ohne Aufblitzen, aber sichtbar.
@@ -233,25 +249,25 @@ Deaktiviert heißt immer: `content-subtle`, keine Schatten, `cursor-not-allowed`
 
 ### 8.1 Button
 
-Varianten: `primary`, `secondary`, `ghost`, `danger`.
-Größen: `sm` (28 px), `md` (36 px, Standard), `lg` (44 px).
+Varianten: `primary`, `secondary`, `ghost`, `danger`. Größen: `sm` (28 px), `md` (36 px,
+Standard), `lg` (44 px).
 
 | Zustand | primary | secondary | ghost | danger |
 |---|---|---|---|---|
-| Ruhe | Fläche `action`, Text `content-inverted` | `surface-raised`, Rand `border`, Text `content` | transparent, Text `content-muted` | Fläche `danger`, Text `content-inverted` |
-| Zeigerkontakt | `action-hover` | Rand `border-strong` | Fläche `surface-sunken`, Text `content` | Farbe 8 % dunkler |
+| Ruhe | `action`, Text `action-contrast` | `surface-raised`, Rand `border`, Text `content` | transparent, Text `content-muted` | `danger`, Text `content-inverted` |
+| Zeigerkontakt | `action-hover` | Rand `border-strong` | Fläche `surface-sunken` | 10 % heller |
 | Fokus | Ring `focus-ring` | Ring `focus-ring` | Ring `focus-ring` | Ring `danger` |
-| Gedrückt | 96 % Skalierung, keine Bewegung bei reduzierter Bewegung | ebenso | ebenso | ebenso |
+| Gedrückt | 96 % Skalierung, entfällt bei reduzierter Bewegung | ebenso | ebenso | ebenso |
 | Deaktiviert | `surface-inset`, Text `content-subtle` | ebenso | ebenso | ebenso |
-| Ladezustand | Spinner ersetzt das Symbol, **Beschriftung bleibt stehen** (keine Breitenänderung), `aria-busy` | ebenso | ebenso | ebenso |
+| Ladezustand | Spinner ersetzt das Symbol, **Beschriftung bleibt stehen**, `aria-busy` | ebenso | ebenso | ebenso |
 
-Regeln: höchstens ein `primary` pro sichtbarem Bereich. Ein Button, der etwas löscht,
-ist `danger` und fragt nach. Kein Button trägt `accent` — die gehört dem Beleg.
+Regeln: höchstens ein `primary` pro sichtbarem Bereich. Ein Button, der etwas löscht, ist
+`danger` und fragt nach. **Kein Button trägt `accent`** — Grün gehört dem Beleg.
 
-### 8.2 Eingabe (Textfeld, Textbereich, Suchfeld)
+### 8.2 Eingabe
 
 Aufbau: Beschriftung (`text-label`, `content`) · Feld · Hilfetext oder Fehlertext
-(`text-meta`). Beschriftung ist immer vorhanden; ist sie visuell unnötig, bleibt sie für
+(`text-meta`). Die Beschriftung ist immer vorhanden; ist sie visuell unnötig, bleibt sie für
 Hilfstechnik erhalten.
 
 | Zustand | Darstellung |
@@ -260,104 +276,102 @@ Hilfstechnik erhalten.
 | Platzhalter | `content-subtle` — nie als Ersatz für die Beschriftung |
 | Zeigerkontakt | Rand `border-strong` |
 | Fokus | Rand `action`, Ring `focus-ring` |
-| Ausgefüllt | wie Ruhe |
 | Fehler | Rand `danger`, Fehlertext `danger` mit Symbol, `aria-invalid`, `aria-describedby` |
 | Deaktiviert | `surface-inset`, Text `content-subtle` |
 | Schreibgeschützt | `surface-inset`, Text `content`, kein Rand-Hover |
 
-Der Frageeingabebereich wächst mit dem Inhalt bis 8 Zeilen, danach scrollt er.
-`Enter` sendet, `Umschalt+Enter` erzeugt einen Zeilenumbruch; dieser Hinweis steht als
-`text-meta` unter dem Feld.
+Der Frageeingabebereich wächst bis 8 Zeilen, danach scrollt er. `Enter` sendet,
+`Umschalt+Enter` erzeugt einen Zeilenumbruch; der Hinweis steht als `text-meta` darunter.
 
 ### 8.3 Dialog
 
 Fläche `surface-overlay`, `radius-lg`, `shadow-lg`, Breite 480 px (Standard) bzw. 720 px
 (breit), maximale Höhe 85 vh mit scrollendem Rumpf. Hintergrund abgedunkelt
-(`rgb(20 23 26 / .45)`, Light) bzw. (`rgb(0 0 0 / .6)`, Dark).
+(`rgb(0 0 74 / .5)` hell, `rgb(0 0 0 / .65)` dunkel).
 
 Aufbau: Titel (`text-title`) · optionaler Beschreibungstext (`content-muted`) · Rumpf ·
 Fußzeile mit Aktionen rechtsbündig, abbrechende Aktion links davon.
 
 Verhalten: Fokus wird beim Öffnen auf das erste Bedienelement gesetzt und im Dialog
 gefangen; beim Schließen kehrt er zum auslösenden Element zurück. `Esc` schließt, außer es
-gibt ungespeicherte Eingaben — dann erscheint eine Rückfrage. Klick auf den Hintergrund
-schließt nur Dialoge ohne Eingabe. Öffnen: 200 ms, Fläche von 98 % auf 100 % und
-Deckkraft 0 auf 1. `role="dialog"`, `aria-modal`, `aria-labelledby`.
+gibt ungespeicherte Eingaben. Klick auf den Hintergrund schließt nur Dialoge ohne Eingabe.
+`role="dialog"`, `aria-modal`, `aria-labelledby`.
 
 Löschdialoge: der bestätigende Button ist `danger` und benennt die Handlung
 ("Notebook löschen"), nicht "OK".
 
 ### 8.4 Quellenkarte
 
-Die Karte in der linken Spalte. Sie trägt zwei unabhängige Zustände, die nicht verwechselt
-werden dürfen: **ausgewählt** (zählt für die nächste Frage) und **geöffnet** (wird rechts
-angezeigt).
+Zwei unabhängige Zustände, die nicht verwechselt werden dürfen: **ausgewählt** (zählt für
+die nächste Frage) und **geöffnet** (wird rechts angezeigt).
 
-Aufbau: Auswahlkästchen · Typsymbol · Name (`text-heading`, zwei Zeilen, dann gekürzt) ·
-Metazeile (`text-meta`: Typ · Wortzahl · Anzahl Abschnitte) · Statusanzeige · Menü.
+Aufbau: Auswahlkästchen · Name (`text-heading`, zwei Zeilen, dann gekürzt) · Metazeile
+(`text-meta`: Typ · Wortzahl · Anzahl Abschnitte) · Statusanzeige · Menü.
 
 | Zustand | Darstellung |
 |---|---|
 | Ruhe | `surface-raised`, Rand `border-subtle`, `radius-md`, Innenabstand `space-4` |
 | Zeigerkontakt | Rand `border`, `shadow-sm`, Menü wird sichtbar |
 | Fokus | Ring `focus-ring` um die gesamte Karte |
-| Ausgewählt | Kästchen gesetzt, Rand `border-strong`, Fläche unverändert |
-| Abgewählt | Deckkraft 0,6, Name `content-muted` — sichtbar, dass sie nicht zählt |
+| Ausgewählt | Kästchen gesetzt — **keine Plakette**: das ist der Normalfall |
+| Abgewählt | Deckkraft 0,6, Name `content-muted`, Plakette „Abgewählt" (neutral) |
 | Geöffnet | 3 px Balken links in `accent`, Fläche `accent-surface` mit 40 % Deckkraft |
-| Wird verarbeitet | Fortschrittsbalken unter der Metazeile, Aktionen gesperrt |
-| Fehler | Rand `danger`, Fehlergrund im Klartext, Schaltfläche "Erneut versuchen" |
-| Trefferanzeige | wurde die Karte für die letzte Antwort herangezogen: Plakette `accent-surface` mit Trefferzahl |
+| Wird geladen | Kästchen und Aktionen sind nicht vorhanden, bis der Abruf steht |
+| Fehler | Rand `danger`, Grund im Klartext, „Erneut versuchen" |
+| Trefferanzeige | wurde die Karte für die letzte Antwort herangezogen: Plakette `accent-surface-strong` mit Trefferzahl |
 
 ### 8.5 Chatnachricht
 
-Zwei Rollen, deutlich unterschieden — Nutzerfrage und Antwort dürfen nie verwechselbar sein.
+Zwei Rollen, deutlich unterschieden.
 
-**Frage:** rechtsbündig, maximale Breite 80 %, `surface-raised`, Rand `border-subtle`,
-`radius-md`, `font-ui`, `text-body`. Darunter `text-meta` mit der Zahl der berücksichtigten
-Quellen.
+**Frage:** rechts positionierter Block, maximale Breite 80 %, `surface-raised`, Rand
+`border-subtle`, `radius-md`, `text-body`. Der **Text darin ist linksbündig** (CD-Regel);
+rechts steht der Block, nicht der Satz.
 
-**Antwort:** volle Spaltenbreite bis `layout-reading`, keine Blase, kein Rand, `font-reading`,
-`text-reading`, `content-strong`. Links ein 2 px breiter Balken in `border-subtle`, der auf
-`accent` wechselt, sobald die Antwort mindestens einen gültigen Beleg trägt.
+**Antwort:** volle Spaltenbreite bis `layout-reading`, keine Blase, kein Rand,
+`font-reading`, `text-reading`, `content-strong`. Links ein 2 px breiter Balken in
+`border-subtle`, der auf `accent` wechselt, sobald die Antwort mindestens einen gültigen
+Beleg trägt.
 
 | Zustand | Darstellung |
 |---|---|
-| Abruf läuft | Zeile `text-meta`: "Durchsuche 7 Quellen" mit Pulsieren |
-| Antwort strömt ein | Text erscheint fortlaufend, Cursorbalken am Ende; Zitatmarker werden erst gesetzt, **nachdem** der Server sie validiert hat |
-| Fertig, belegt | Fußzeile mit Belegliste und den Aktionen "Als Notiz speichern", "Kopieren" |
-| Fertig, unbelegt | Hinweisfläche `warning-surface`: "Die ausgewählten Quellen decken diese Frage nicht ab." Keine erfundene Antwort |
+| Abruf läuft | Zeile `text-meta`: „Durchsuche 7 Quellen" mit Pulsieren |
+| Fertig, belegt | Fußzeile mit Belegliste und den Aktionen „Als Notiz speichern", „Kopieren" |
+| Fertig, unbelegt | Hinweisfläche `warning`: „Die ausgewählten Quellen decken diese Frage nicht ab." Keine erfundene Antwort |
 | Teilweise belegt | Sätze ohne Beleg tragen eine gepunktete Unterlinie in `warning`, Fußzeile nennt die Zahl |
-| Simulation aktiv | Plakette `warning` mit Text "Simulierte Antwort — kein Modell verbunden", dauerhaft sichtbar, nicht schließbar |
-| Fehler | `danger-surface`, Klartextgrund, "Erneut versuchen" |
+| Simulation aktiv | Hinweisfläche `warning`: „Simulierte Antwort — kein Modell verbunden", dauerhaft, nicht schließbar |
+| Fehler | Hinweisfläche `danger`, Klartextgrund, „Erneut versuchen" |
 
 ### 8.6 Quellenverweis
 
 Die wichtigste Komponente. Drei Erscheinungsformen.
 
-**Marker im Fließtext.** Hochgestellte Zahl in eckigen Klammern, `font-mono`,
-`text-micro`, Farbe `accent`, Fläche `accent-surface`, `radius-xs`, 2 px Innenabstand
-seitlich. Ein echtes `<button>` — anklickbar, mit Tabulator erreichbar,
+**Marker im Fließtext.** Hochgestellte Zahl in eckigen Klammern, `font-mono`, `text-micro`,
+`radius-xs`. Ein echtes `<button>` — anklickbar, mit Tabulator erreichbar,
 `aria-label="Beleg 3: pruefungsordnung.md, Abschnitt 3.2"`.
 
 | Zustand | Darstellung |
 |---|---|
-| Ruhe | `accent` auf `accent-surface` |
-| Zeigerkontakt | `accent-hover`, Unterstreichung; nach 400 ms erscheint das Vorschau-Popover |
+| Ruhe | Fläche `accent-surface`, Text `content-strong` |
+| Zeigerkontakt | Fläche `accent-surface-strong`, Unterstreichung; nach 400 ms erscheint das Vorschau-Popover |
 | Fokus | Ring in `accent` |
-| Aktiv | Farben getauscht: Fläche `accent`, Text `content-inverted` — solange die zugehörige Stelle rechts hervorgehoben ist |
+| Aktiv | Fläche `accent`, Text `accent-contrast` — solange die Stelle rechts hervorgehoben ist |
 | Mehrfachbeleg | `[2,5]` in einem Marker, öffnet eine Liste statt direkt zu springen |
 
+Die Textfarbe steht **ausschließlich** in den beiden Zweigen, nie zusätzlich im gemeinsamen
+Teil: zwei gleichrangige Utilities konkurrieren, und welche gewinnt, entscheidet die
+Reihenfolge im erzeugten CSS. Genau so fiel der Marker im dunklen Thema einmal auf 2,65:1.
+
 **Vorschau-Popover.** `surface-overlay`, `radius-lg`, `shadow-md`, Breite 380 px. Enthält
-Quellenname, Abschnittspfad, den Textausschnitt in `font-reading` mit der belegenden Stelle
-in `accent-surface`, und die Offsets in `font-mono text-meta` (`Zeichen 1204–1268`).
-Erscheint nach 400 ms Verweilen, verschwindet nach 150 ms — sofort bei `Esc`. Bei
-Tastaturbedienung erscheint es beim Fokus ohne Verzögerung.
+Quellenname, Abschnittspfad, den Ausschnitt in `font-reading` mit der belegenden Stelle in
+`accent-surface`, und die Offsets in `font-mono text-meta` (`Zeichen 1204–1268`). Erscheint
+nach 400 ms Verweilen, verschwindet nach 150 ms — sofort bei `Esc`. Bei Tastaturbedienung
+erscheint es beim Fokus ohne Verzögerung.
 
 **Hervorhebung in der Quellenansicht.** Der Klick öffnet die Quelle rechts, scrollt die
 Stelle in das mittlere Drittel und legt `accent-surface` mit 2 px Unterlinie in
-`accent-border` darüber. Die Hervorhebung blitzt einmal auf (`motion-slow`) und bleibt
-dann bestehen, bis ein anderer Beleg gewählt wird. Über der Quelle steht eine Leiste
-"Beleg 3 von 5" mit Pfeilen zum Durchblättern.
+`accent-border` darüber. Die Hervorhebung blitzt einmal auf (`motion-slow`) und bleibt, bis
+ein anderer Beleg gewählt wird. Darüber eine Leiste „Beleg 3 von 5" mit Pfeilen.
 
 Nicht verhandelbar: Ein Marker wird nur dargestellt, wenn der Server ihn gegen einen real
 abgerufenen Abschnitt auflösen konnte. Ein Marker, der ins Leere zeigt, ist ein Fehler,
@@ -365,11 +379,10 @@ kein Gestaltungsfall.
 
 ### 8.7 Tabs
 
-Verwendung: Wechsel der rechten Spalte (`Notizen · Quelle`) und die mobile Hauptnavigation.
+Verwendung: rechte Spalte (`Notizen · Quelle`) und die schmale Hauptnavigation.
 
-Darstellung: waagerechte Leiste, Beschriftung `text-label`, Innenabstand `space-3`
-waagerecht und `space-2` senkrecht, `radius-sm` oben. Unter der Leiste eine 1-px-Linie in
-`border-subtle`.
+Beschriftung `text-label`, Innenabstand `space-3` waagerecht, `space-2` senkrecht,
+`radius-sm` oben, darunter eine 1-px-Linie in `border-subtle`.
 
 | Zustand | Darstellung |
 |---|---|
@@ -378,48 +391,92 @@ waagerecht und `space-2` senkrecht, `radius-sm` oben. Unter der Leiste eine 1-px
 | Fokus | Ring `focus-ring` innerhalb des Tabs |
 | Ausgewählt | Text `content-strong`, 2 px Unterstreichung in `action`, Fläche `action-surface` |
 | Deaktiviert | `content-subtle`, nicht fokussierbar |
-| Mit Zähler | Zahl als Plakette `radius-full`, `surface-inset`, `text-meta`; im ausgewählten Tab `action-surface` |
+| Mit Zähler | Zahl als Plakette, `surface-inset`; im ausgewählten Tab `surface-raised` |
 
 Tastatur: Pfeiltasten wechseln, `Pos1`/`Ende` springen an den Rand, `Tab` verlässt die
-Leiste. `role="tablist"`, Inhalt mit `role="tabpanel"` und `aria-labelledby`.
-Die Unterstreichung wandert in `motion-fast`; bei reduzierter Bewegung springt sie.
+Leiste. `role="tablist"`, Inhalt mit `role="tabpanel"` und `aria-labelledby`. Die
+Unterstreichung wandert in `motion-fast`; bei reduzierter Bewegung springt sie.
 
 ### 8.8 Statusanzeigen
 
-Vier Formen, klar getrennt nach Reichweite:
+Vier Formen, getrennt nach Reichweite. Alle tragen Fläche + Symbol + Text; die Statusfarbe
+liegt nie auf der Schrift.
 
-**Plakette** — Zustand eines Objekts. Höhe 20 px, `radius-full`, `text-micro`,
-Statusfläche und Statustext, Symbol links. Werte: `Bereit` (success), `Wird verarbeitet`
-(info, mit Spinner), `Fehler` (danger), `Abgewählt` (neutral, `surface-inset`).
+**Plakette** — Zustand eines Objekts. Höhe 20 px, `radius-xs`, `text-micro`, Statusfläche,
+Text `content-strong`, Symbol links. Werte: `Abgewählt` (neutral), `Wird verarbeitet`
+(info, mit Spinner), `Fehler` (danger). „Bereit" gibt es nicht — der Normalfall braucht
+keine Plakette.
 
 **Inline-Hinweis** — Zustand eines Bereichs. Volle Breite, `radius-md`, Innenabstand
 `space-3`, Statusfläche, 3 px Balken links in der Statusfarbe, Symbol, Text, optional eine
-Aktion rechts. Verwendung: "Simulierte Antwort", "Keine Quelle ausgewählt".
+Aktion rechts.
 
-**Kurzmeldung** — Ergebnis einer Handlung. Unten rechts, `surface-overlay`, `shadow-md`,
-`radius-md`, verschwindet nach 5 s (Fehler bleiben, bis geschlossen), höchstens drei
-gleichzeitig, `aria-live="polite"` (Fehler `assertive`). Sie melden nur, was geschehen ist
-— sie ersetzen nie eine Fehlermeldung am Ort des Fehlers.
+**Kurzmeldung** — Ergebnis einer Handlung. Unten rechts, Statusfläche, `shadow-md`,
+`radius-md`, verschwindet nach 5 s (Fehler bleiben), höchstens drei gleichzeitig,
+`aria-live="polite"` (Fehler `assertive`). Sie ersetzt nie eine Fehlermeldung am Ort des
+Fehlers.
 
 **Fortschritt** — laufende Arbeit mit bekanntem Ende: 3 px Balken in `action` auf
-`surface-inset`, `radius-full`. Ohne bekanntes Ende: Balken mit wanderndem Verlauf. Dauert
-etwas über 400 ms, wird zusätzlich ein Text eingeblendet, der sagt, worauf gewartet wird.
+`surface-inset`. Ohne bekanntes Ende: wandernder Verlauf. Über 400 ms zusätzlich ein Text,
+der sagt, worauf gewartet wird.
 
 **Leere Zustände** gelten als Statusanzeige: sie nennen immer den nächsten Schritt.
-"Noch keine Quelle. Text einfügen oder Datei wählen." — nie nur "Keine Daten".
+„Noch keine Quelle. Text einfügen oder Datei wählen." — nie nur „Keine Daten".
 
 ---
 
 ## 9. Zugänglichkeit
 
-Prüfliste vor jeder Abnahme. Bis sie abgehakt ist, gilt keine Zusage als bestätigt:
+Prüfliste vor jeder Abnahme:
 
-- [ ] Jede Funktion ohne Zeigergerät bedienbar, Reihenfolge entspricht dem Layout
-- [ ] Fokus überall sichtbar, auch auf `accent`-Flächen
-- [x] Kontrast Text gemessen (siehe Abschnitt 1); **offen:** Ränder und Fokusringe (3:1)
-- [ ] Zitatmarker als `button` mit aussagekräftigem `aria-label`
-- [ ] Einströmende Antworten in einer `aria-live="polite"`-Region
-- [ ] Ein Sprung zur Quellenstelle wird für Hilfstechnik angesagt
-- [ ] `prefers-reduced-motion` respektiert
-- [x] Kein waagerechtes Scrollen bei 390 px Breite (E2E-Test); **offen:** 200 % Zoom
-- [ ] Keine Information allein durch Farbe
+- [x] Kontrast Text in allen sechs Kombinationen gemessen (Abschnitt 1), niedrigster Wert 5,47:1
+- [ ] Kontrast Ränder und Fokusringe gegen ihre Umgebung (3:1) — **offen**
+- [x] Kein waagerechtes Scrollen bei 390 px (E2E-Test)
+- [ ] Bedienbar bei 200 % Zoom — **offen**
+- [ ] Jede Funktion ohne Zeigergerät bedienbar, Reihenfolge entspricht dem Layout — **offen**
+- [x] Zitatmarker als `button` mit aussagekräftigem `aria-label`
+- [x] Einströmende Antworten in einer `aria-live="polite"`-Region
+- [ ] Ein Sprung zur Quellenstelle wird für Hilfstechnik angesagt — **offen**
+- [x] `prefers-reduced-motion` respektiert
+- [x] Keine Information allein durch Farbe
+
+---
+
+## 10. Design `uni-freiburg`: Abweichungen vom Corporate Design
+
+Vollständige Liste. Jede dieser Stellen ist bewusst gewählt und sollte bei einer förmlichen
+Abnahme mit **cd@zv.uni-freiburg.de** abgestimmt werden.
+
+| # | Abweichung | Begründung |
+|---|---|---|
+| A1 | **Zusatzfarbe Grün als tragendes Element.** Das CD nennt die Zusatzfarben „für den primären Einsatz in der externen Kommunikation" (Plakate, Magazine). | Der Produktkern ist die Prüfbarkeit einer Aussage. Ohne eine eigene, ausschließlich dafür reservierte Farbe verschwindet der Beleg im dichten Layout. Ein internes Werkzeug ist keine externe Kommunikation — die Zuordnung ist eine Auslegung, keine Deckung. |
+| A2 | **Dunkles Thema.** Das CD kennt keines. | Aus CD-Farben abgeleitet (Dunkelblau als Grundfläche, aufgehellte Blau- und Grüntöne). Die Anwendung wird abends und in langen Sitzungen benutzt. |
+| A10 | **Das CD ist eines von drei wählbaren Designs.** | Das CD ist für den Auftritt der Universität verbindlich, nicht für ein internes Werkzeug im Test. Wer die Anwendung an der Universität betreibt, sollte `uni-freiburg` als Vorgabe setzen (`VORGABE` in `lib/appearance.ts`). |
+| A3 | **Rot für Fehler** (`#a4232b`, `#f7e6e7`). Keine CD-Farbe. | Das CD stellt keine Fehlerfarbe bereit. Blau oder Braun für einen Fehlerzustand wäre irreführend. |
+| A4 | **Grautöne für Metatext** (`#5c5c5c`, `#6e6e6e`). | Das CD kennt für Text nur Schwarz. Metadaten in reinem Schwarz konkurrieren mit dem Inhalt. Die Töne sind neutral gehalten und gemessen. |
+| A5 | **Dunkle Flächenwerte** (`#000033`, `#131a5c`, `#1a2270`, `#0a3a33`, `#0f5449`). | Zwischenstufen für das dunkle Thema, abgeleitet aus Dunkelblau und Grün. Folgt aus A2. |
+| A6 | **Kein Universitätslogo.** | Das Logo unterliegt einer eigenen Policy (Schutzzone, zulässige Varianten). Es gehört in dieses Repository nur, wenn die Verwendung für ein internes Werkzeug ausdrücklich freigegeben ist. Bis dahin trägt die Anwendung nur den Wortlaut „Notebook". |
+| A7 | **Rechts positionierter Frageblock.** Das CD verbietet rechtsbündigen Satz. | Der Text im Block ist linksbündig; rechts steht der Block, nicht der Satz. Die Unterscheidung Frage/Antwort geht sonst verloren. |
+| A8 | **Zentrierte Beschriftung auf Schaltflächen.** | Die CD-Regel zum Flattersatz zielt auf Fließtext. Linksbündige Button-Beschriftungen wären in keiner Oberfläche üblich. |
+| A9 | **Dicktengleiche Schrift** (Systemstack) für Zeichenpositionen und IDs. | Das CD kennt keine. Offsets wie `Zeichen 1204–1268` sind in einer Proportionalschrift schwer zu vergleichen. |
+
+
+---
+
+## 11. Design `huskynarr`: eine Näherung, keine Nachbildung
+
+**Belegt ist genau ein Wert:** die Theme-Farbe `#0c0a09` aus dem `<meta name="theme-color">`
+von <https://huskynarr.de>, abgerufen am 2026-09-18. Die Stylesheets der Seite ließen sich
+mit den verfügbaren Werkzeugen nicht auslesen; Schriften, Akzentfarben und Abstände der
+Vorlage sind **nicht bekannt**.
+
+Alles Übrige ist Ableitung: `#0c0a09` entspricht exakt `stone-950` aus Tailwind, deshalb
+baut das Design auf der Stone-Skala auf (warme Neutraltöne) und wählt für Belege Teal
+(`#2dd4bf` dunkel, `#0f766e` hell) — als Kontrast zu den Neutraltönen, nicht weil die
+Vorlage das so hätte. Das helle Erscheinungsbild ist eine Ableitung der Ableitung; die
+Vorlage ist dunkel.
+
+Der Hinweis in den Einstellungen sagt das („Angenähert an huskynarr.de — belegt ist nur die
+Grundfarbe #0c0a09"). Wer die tatsächlichen Werte kennt, trägt sie in
+`tools/build-theme.py` ein und erzeugt das Theme neu; dieser Abschnitt ist dann zu
+aktualisieren.
