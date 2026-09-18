@@ -16,3 +16,7 @@ test-results/
 # Vom Claude-Desktop angelegt, wenn Dateien in den Chat geliefert werden.
 Claude outputs/
 apps/api/.e2e/
+
+# Lizenzpflichtige Hausschrift - nie committen (siehe apps/web/public/fonts/README.md)
+apps/web/public/fonts/*.woff
+apps/web/public/fonts/*.woff2

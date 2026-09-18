@@ -1,16 +1,19 @@
 @import 'tailwindcss';
 
-@import '@fontsource-variable/inter';
-@import '@fontsource/source-serif-4/400.css';
-@import '@fontsource/source-serif-4/600.css';
-@import '@fontsource-variable/jetbrains-mono';
-
-/* Umsetzung von docs/design-system.md. Weicht etwas hier ab, ist diese Datei
-   falsch, nicht das Dokument.
+/* Umsetzung des Corporate Design der Universitaet Freiburg (cd.uni-freiburg.de),
+   siehe docs/design-system.md. Weicht etwas hier ab, ist diese Datei falsch,
+   nicht das Dokument. Jede Abweichung vom CD ist dort benannt.
 
    Die Tokens liegen als CSS-Variablen vor und werden fuer das dunkle Thema neu
    belegt. Dadurch braucht keine Komponente eine dark:-Variante - sie nennt nur
    den semantischen Namen. */
+
+/* Die Hausschrift "Social" ist lizenzpflichtig und liegt nicht im Repo. Ihre
+   @font-face-Regeln stehen in public/fonts/social.css und werden in index.html
+   eingebunden - dort verarbeitet Vite sie nicht, sodass fehlende Schriftdateien
+   weder den Build brechen noch ihn mit Warnungen fluten. Ohne die Dateien faellt
+   der Browser auf Arial zurueck, die vom CD vorgesehene Zweitschrift.
+   Siehe public/fonts/README.md. */
 
 @theme {
   --color-surface-sunken: var(--t-surface-sunken);
@@ -29,41 +32,52 @@
   --color-border: var(--t-border);
   --color-border-strong: var(--t-border-strong);
 
+  /* Belegfarbe - ausschliesslich fuer Zitatmarker und Fundstellen.
+     accent ist eine FLAECHENfarbe: CD-Gruen haelt als Textfarbe auf hellem
+     Grund nur rund 3,3:1 und waere als Schrift nicht barrierearm. Text auf
+     accent ist immer accent-contrast. */
   --color-accent: var(--t-accent);
   --color-accent-hover: var(--t-accent-hover);
   --color-accent-surface: var(--t-accent-surface);
+  --color-accent-surface-strong: var(--t-accent-surface-strong);
   --color-accent-border: var(--t-accent-border);
+  --color-accent-contrast: var(--t-accent-contrast);
 
   --color-action: var(--t-action);
   --color-action-hover: var(--t-action-hover);
   --color-action-surface: var(--t-action-surface);
+  --color-action-contrast: var(--t-action-contrast);
 
-  --color-success: var(--t-success);
-  --color-success-surface: var(--t-success-surface);
-  --color-warning: var(--t-warning);
-  --color-warning-surface: var(--t-warning-surface);
-  --color-danger: var(--t-danger);
-  --color-danger-surface: var(--t-danger-surface);
   --color-info: var(--t-info);
   --color-info-surface: var(--t-info-surface);
+  --color-warning: var(--t-warning);
+  --color-warning-surface: var(--t-warning-surface);
+  --color-warning-mark: var(--t-warning-mark);
+  --color-danger: var(--t-danger);
+  --color-danger-surface: var(--t-danger-surface);
 
   --color-focus-ring: var(--t-focus-ring);
 
-  --font-ui: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-reading: 'Source Serif 4', ui-serif, Georgia, serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  /* Schriftsystem des CD: Hausschrift Social, Zweitschrift Arial.
+     Fuer Lesetext dieselbe Familie in anderer Groesse und Zeilenhoehe -
+     das CD kennt keine Serifenschrift. */
+  --font-ui: 'Social', Arial, Helvetica, sans-serif;
+  --font-display: 'Social Extended', 'Social', Arial, Helvetica, sans-serif;
+  --font-reading: 'Social', Arial, Helvetica, sans-serif;
+  /* Das CD kennt keine dicktengleiche Schrift. Systemstack statt einer
+     weiteren Abhaengigkeit - gebraucht wird sie nur fuer Zeichenpositionen. */
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
   --text-display: 1.875rem;
   --text-display--line-height: 2.25rem;
-  --text-display--letter-spacing: -0.02em;
-  --text-display--font-weight: 600;
+  --text-display--letter-spacing: -0.01em;
+  --text-display--font-weight: 500;
   --text-title: 1.375rem;
   --text-title--line-height: 1.875rem;
-  --text-title--letter-spacing: -0.01em;
-  --text-title--font-weight: 600;
+  --text-title--font-weight: 500;
   --text-heading: 1.0625rem;
   --text-heading--line-height: 1.5rem;
-  --text-heading--font-weight: 600;
+  --text-heading--font-weight: 700;
   --text-body: 0.9375rem;
   --text-body--line-height: 1.5rem;
   --text-reading: 1rem;
@@ -71,25 +85,24 @@
   --text-label: 0.8125rem;
   --text-label--line-height: 1.125rem;
   --text-label--letter-spacing: 0.01em;
-  --text-label--font-weight: 500;
+  --text-label--font-weight: 700;
   --text-meta: 0.75rem;
   --text-meta--line-height: 1rem;
-  --text-meta--letter-spacing: 0.01em;
   --text-micro: 0.6875rem;
   --text-micro--line-height: 0.875rem;
   --text-micro--letter-spacing: 0.04em;
-  --text-micro--font-weight: 600;
+  --text-micro--font-weight: 700;
 
   --spacing: 0.25rem;
 
-  --radius-xs: 3px;
-  --radius-sm: 5px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
 
-  --shadow-sm: 0 1px 2px rgb(20 23 26 / 0.06);
-  --shadow-md: 0 4px 12px rgb(20 23 26 / 0.1);
-  --shadow-lg: 0 16px 40px rgb(20 23 26 / 0.18);
+  --shadow-sm: 0 1px 2px rgb(0 0 74 / 0.08);
+  --shadow-md: 0 4px 12px rgb(0 0 74 / 0.14);
+  --shadow-lg: 0 16px 40px rgb(0 0 74 / 0.22);
 
   --container-reading: 68ch;
 
@@ -98,117 +111,125 @@
   --ease-slow: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* --- Helles Thema: CD-Werte unveraendert ------------------------------- */
 :root {
-  --t-surface-sunken: #f2efe9;
-  --t-surface: #faf8f4;
-  --t-surface-raised: #ffffff;
+  --t-surface-sunken: #f6f1e3; /* Sand 100 % */
+  --t-surface: #faf8f1; /* Sand 50 % */
+  --t-surface-raised: #ffffff; /* Weiss */
   --t-surface-overlay: #ffffff;
-  --t-surface-inset: #efece5;
+  --t-surface-inset: #f6f1e3;
 
-  --t-content-strong: #14171a;
-  --t-content: #2c3238;
-  --t-content-muted: #5b6470;
-  --t-content-subtle: #7d8794;
-  --t-content-inverted: #faf8f4;
+  --t-content-strong: #000000; /* Schwarz */
+  --t-content: #000000;
+  --t-content-muted: #5c5c5c; /* abgeleitet, siehe Design-System */
+  --t-content-subtle: #6e6e6e; /* abgeleitet */
+  --t-content-inverted: #ffffff;
 
-  --t-border-subtle: #e4e0d8;
-  --t-border: #d3cec4;
-  --t-border-strong: #b0a99c;
+  --t-border-subtle: #d7d8ec; /* Blau 20 % */
+  --t-border: #afb1d8; /* Blau 40 % */
+  --t-border-strong: #868dc2; /* Blau 60 % */
 
-  --t-accent: #7a4a12;
-  --t-accent-hover: #5e380b;
-  --t-accent-surface: #fbeed7;
-  --t-accent-border: #d9a55c;
+  --t-accent: #00a082; /* Gruen 100 % */
+  --t-accent-hover: #27b29b; /* Gruen 80 % */
+  --t-accent-surface: #daede7; /* Gruen 20 % */
+  --t-accent-surface-strong: #afdace; /* Gruen 40 % */
+  --t-accent-border: #00a082;
+  --t-accent-contrast: #000000;
 
-  --t-action: #25405e;
-  --t-action-hover: #1a2f47;
-  --t-action-surface: #e6ecf3;
+  --t-action: #344a9a; /* Blau 100 % */
+  --t-action-hover: #00004a; /* Dunkelblau */
+  --t-action-surface: #d7d8ec; /* Blau 20 % */
+  --t-action-contrast: #ffffff;
 
-  --t-success: #1f6b3f;
-  --t-success-surface: #e2f1e7;
-  --t-warning: #8a5a00;
-  --t-warning-surface: #fbf0d8;
-  --t-danger: #9b2226;
-  --t-danger-surface: #fae6e6;
-  --t-info: #1f5a73;
-  --t-info-surface: #e2eff4;
+  --t-info: #344a9a;
+  --t-info-surface: #d7d8ec;
+  --t-warning: #8f6b30; /* Braun 100 % */
+  --t-warning-surface: #fffae0; /* Gelb 20 % */
+  --t-warning-mark: #ffe863; /* Gelb 100 % */
+  --t-danger: #a4232b; /* keine CD-Farbe, siehe Design-System */
+  --t-danger-surface: #f7e6e7;
 
-  --t-focus-ring: #25405e;
-  --t-scrim: rgb(20 23 26 / 0.45);
+  --t-focus-ring: #344a9a;
+  --t-scrim: rgb(0 0 74 / 0.5);
 }
 
+/* --- Dunkles Thema: aus CD-Farben abgeleitet, vom CD nicht gedeckt ------ */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --t-surface-sunken: #15171a;
-    --t-surface: #1c1f23;
-    --t-surface-raised: #24282d;
-    --t-surface-overlay: #2b3036;
-    --t-surface-inset: #141619;
+    --t-surface-sunken: #000033;
+    --t-surface: #00004a; /* Dunkelblau */
+    --t-surface-raised: #131a5c;
+    --t-surface-overlay: #1a2270;
+    --t-surface-inset: #000033;
 
-    --t-content-strong: #f4f2ee;
-    --t-content: #d6d3cd;
-    --t-content-muted: #9aa1a9;
-    --t-content-subtle: #6f767e;
-    --t-content-inverted: #14171a;
+    --t-content-strong: #ffffff;
+    --t-content: #e9eaf6;
+    --t-content-muted: #b6b9dd;
+    --t-content-subtle: #8b8fc4;
+    --t-content-inverted: #000000;
 
-    --t-border-subtle: #2f343a;
-    --t-border: #3b4148;
-    --t-border-strong: #545c65;
+    --t-border-subtle: #1c2470;
+    --t-border: #2e3792;
+    --t-border-strong: #5d6bad; /* Blau 80 % */
 
-    --t-accent: #e0a95f;
-    --t-accent-hover: #f0bd78;
-    --t-accent-surface: #453318;
-    --t-accent-border: #8a6526;
+    --t-accent: #27b29b; /* Gruen 80 % */
+    --t-accent-hover: #7bc6b4; /* Gruen 60 % */
+    --t-accent-surface: #0a3a33;
+    --t-accent-surface-strong: #0f5449;
+    --t-accent-border: #27b29b;
+    --t-accent-contrast: #000000;
 
-    --t-action: #b9cde6;
-    --t-action-hover: #cfdff2;
-    --t-action-surface: #2a3a4c;
+    --t-action: #afb1d8; /* Blau 40 % */
+    --t-action-hover: #d7d8ec; /* Blau 20 % */
+    --t-action-surface: #2e3792;
+    --t-action-contrast: #00004a;
 
-    --t-success: #7cc79a;
-    --t-success-surface: #1b3326;
-    --t-warning: #e8bc63;
-    --t-warning-surface: #3a2e14;
+    --t-info: #afb1d8;
+    --t-info-surface: #1c2470;
+    --t-warning: #ffe863; /* Gelb 100 % */
+    --t-warning-surface: #3a3410;
+    --t-warning-mark: #ffe863;
     --t-danger: #f08d8f;
     --t-danger-surface: #3a1d1e;
-    --t-info: #7fc0da;
-    --t-info-surface: #16303b;
 
-    --t-focus-ring: #9fc2ea;
-    --t-scrim: rgb(0 0 0 / 0.6);
+    --t-focus-ring: #d7d8ec;
+    --t-scrim: rgb(0 0 0 / 0.65);
   }
 }
 
 :root[data-theme='dark'] {
-  --t-surface-sunken: #15171a;
-  --t-surface: #1c1f23;
-  --t-surface-raised: #24282d;
-  --t-surface-overlay: #2b3036;
-  --t-surface-inset: #141619;
-  --t-content-strong: #f4f2ee;
-  --t-content: #d6d3cd;
-  --t-content-muted: #9aa1a9;
-  --t-content-subtle: #6f767e;
-  --t-content-inverted: #14171a;
-  --t-border-subtle: #2f343a;
-  --t-border: #3b4148;
-  --t-border-strong: #545c65;
-  --t-accent: #e0a95f;
-  --t-accent-hover: #f0bd78;
-  --t-accent-surface: #453318;
-  --t-accent-border: #8a6526;
-  --t-action: #b9cde6;
-  --t-action-hover: #cfdff2;
-  --t-action-surface: #2a3a4c;
-  --t-success: #7cc79a;
-  --t-success-surface: #1b3326;
-  --t-warning: #e8bc63;
-  --t-warning-surface: #3a2e14;
+  --t-surface-sunken: #000033;
+  --t-surface: #00004a;
+  --t-surface-raised: #131a5c;
+  --t-surface-overlay: #1a2270;
+  --t-surface-inset: #000033;
+  --t-content-strong: #ffffff;
+  --t-content: #e9eaf6;
+  --t-content-muted: #b6b9dd;
+  --t-content-subtle: #8b8fc4;
+  --t-content-inverted: #000000;
+  --t-border-subtle: #1c2470;
+  --t-border: #2e3792;
+  --t-border-strong: #5d6bad;
+  --t-accent: #27b29b;
+  --t-accent-hover: #7bc6b4;
+  --t-accent-surface: #0a3a33;
+  --t-accent-surface-strong: #0f5449;
+  --t-accent-border: #27b29b;
+  --t-accent-contrast: #000000;
+  --t-action: #afb1d8;
+  --t-action-hover: #d7d8ec;
+  --t-action-surface: #2e3792;
+  --t-action-contrast: #00004a;
+  --t-info: #afb1d8;
+  --t-info-surface: #1c2470;
+  --t-warning: #ffe863;
+  --t-warning-surface: #3a3410;
+  --t-warning-mark: #ffe863;
   --t-danger: #f08d8f;
   --t-danger-surface: #3a1d1e;
-  --t-info: #7fc0da;
-  --t-info-surface: #16303b;
-  --t-focus-ring: #9fc2ea;
-  --t-scrim: rgb(0 0 0 / 0.6);
+  --t-focus-ring: #d7d8ec;
+  --t-scrim: rgb(0 0 0 / 0.65);
 }
 
 @layer base {
@@ -221,6 +242,19 @@
     font-family: var(--font-ui);
     -webkit-font-smoothing: antialiased;
   }
+  /* CD-Layoutregel: ausschliesslich linksbuendiger Flattersatz. */
+  body,
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  li,
+  td,
+  th,
+  label {
+    text-align: left;
+  }
   /* Deutsche Komposita erzeugen im Flattersatz sonst Loecher. */
   .prose-reading {
     hyphens: auto;
@@ -230,14 +264,14 @@
     outline-offset: 2px;
   }
   ::selection {
-    background-color: var(--t-accent-surface);
+    background-color: var(--t-accent-surface-strong);
   }
 }
 
 /* Aufblitzen der Belegstelle nach dem Sprung (motion-slow, 420 ms). */
 @keyframes citation-flash {
   0% {
-    background-color: var(--t-accent-border);
+    background-color: var(--t-accent);
   }
   100% {
     background-color: var(--t-accent-surface);

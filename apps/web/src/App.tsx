@@ -169,7 +169,7 @@ export function App(): ReactElement {
     if (activeId === null) return;
     const created = await api.createSource(activeId, input);
     setSources((current) => [...current, created]);
-    toast('success', `„${created.title}" hinzugefügt (${created.chunkCount} Abschnitte).`);
+    toast('info', `„${created.title}" hinzugefügt (${created.chunkCount} Abschnitte).`);
   };
 
   const toggleSource = (source: Source, isSelected: boolean): void => {
@@ -211,7 +211,7 @@ export function App(): ReactElement {
       .then((note) => {
         setNotes((current) => [note, ...current]);
         setRightTab('notes');
-        toast('success', 'Als Notiz gespeichert — mit allen Belegen.');
+        toast('info', 'Als Notiz gespeichert — mit allen Belegen.');
       })
       .catch((cause: unknown) => {
         report(cause, 'Die Notiz konnte nicht gespeichert werden.');
@@ -294,7 +294,7 @@ export function App(): ReactElement {
           .then(() => {
             setSources((current) => current.filter((s) => s.id !== source.id));
             if (openSource?.id === source.id) setOpenSource(null);
-            toast('success', `„${source.title}" gelöscht.`);
+            toast('info', `„${source.title}" gelöscht.`);
           })
           .catch((cause: unknown) => {
             report(cause, 'Die Quelle konnte nicht gelöscht werden.');
@@ -354,7 +354,7 @@ export function App(): ReactElement {
 
         <div className="ml-auto flex shrink-0 items-center gap-2 xl:gap-3">
           {health !== null && (
-            <Badge tone={health.llm.configured ? 'success' : 'warning'}>
+            <Badge tone={health.llm.configured ? 'info' : 'warning'}>
               {health.llm.configured ? health.llm.model : 'kein Modell verbunden'}
             </Badge>
           )}

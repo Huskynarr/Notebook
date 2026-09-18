@@ -105,13 +105,11 @@ export function SourcesPanel({
                       </span>
                     </button>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      {source.selected ? (
-                        <Badge tone="success">Bereit</Badge>
-                      ) : (
-                        <Badge tone="neutral">Abgewählt</Badge>
-                      )}
+                      {/* Ausgewaehlt ist der Normalfall und braucht keine
+                          Plakette. Nur die Abweichung wird ausgezeichnet. */}
+                      {!source.selected && <Badge tone="neutral">Abgewählt</Badge>}
                       {hits > 0 && (
-                        <span className="bg-accent-surface text-micro text-accent rounded-full px-2 uppercase">
+                        <span className="bg-accent-surface-strong text-micro text-accent-contrast rounded-xs px-2 uppercase">
                           {hits} Treffer
                         </span>
                       )}
