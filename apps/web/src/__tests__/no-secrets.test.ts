@@ -33,7 +33,7 @@ function walk(dir: string, match: (name: string) => boolean): string[] {
 }
 
 describe('Keine Geheimnisse im Frontend', () => {
-  it('verwendet im Quelltext ausschliesslich die erlaubte Umgebungsvariable', () => {
+  it('verwendet im Quelltext ausschließlich die erlaubte Umgebungsvariable', () => {
     const found = new Set<string>();
     for (const file of walk(SRC, (n) => /\.(ts|tsx)$/.test(n))) {
       for (const match of readFileSync(file, 'utf8').matchAll(/VITE_[A-Z0-9_]+/g)) {
@@ -45,7 +45,7 @@ describe('Keine Geheimnisse im Frontend', () => {
     expect([...found]).toEqual([]);
   });
 
-  it('nennt im Quelltext kein Passwort und keinen Schluessel als Wert', () => {
+  it('nennt im Quelltext kein Passwort und keinen Schlüssel als Wert', () => {
     const forbidden = [
       /\b(?:api[_-]?key|apikey|secret|private[_-]?key)\s*[:=]\s*['"][^'"]{8,}['"]/i,
       /\bsk-[A-Za-z0-9]{16,}\b/,
@@ -62,7 +62,7 @@ describe('Keine Geheimnisse im Frontend', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('enthaelt im gebauten Bundle kein Geheimnismuster', () => {
+  it('enthält im gebauten Bundle kein Geheimnismuster', () => {
     if (!existsSync(DIST)) {
       // Ehrlich statt gruen: der Build liegt nicht vor, also wurde nichts
       // geprueft. In der CI laeuft der Build vor den Tests.

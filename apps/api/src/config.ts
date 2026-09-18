@@ -50,7 +50,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     const details = parsed.error.issues
       .map((i) => `  ${i.path.join('.')}: ${i.message}`)
       .join('\n');
-    throw new Error(`Konfiguration ungueltig:\n${details}`);
+    throw new Error(`Konfiguration ungültig:\n${details}`);
   }
   return parsed.data;
 }

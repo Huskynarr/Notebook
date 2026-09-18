@@ -88,7 +88,7 @@ describe('Zugangssicherung', () => {
     expect(response.statusCode).toBe(401);
   });
 
-  it('laesst die Zustandsabfrage ohne Anmeldung zu und gibt kein Geheimnis preis', async () => {
+  it('lässt die Zustandsabfrage ohne Anmeldung zu und gibt kein Geheimnis preis', async () => {
     const response = await app.inject({ method: 'GET', url: '/v1/health' });
     expect(response.statusCode).toBe(200);
     const body = response.body;
@@ -245,7 +245,7 @@ describe('Notebooks, Quellen und Notizen', () => {
     expect(response.headers['content-type']).toContain('text/markdown');
     expect(response.body).toContain('# Exporttest');
     expect(response.body).toContain('Widerspruchsfrist');
-    expect(response.body).toContain('Widerspruchsfrist betraegt vierzehn Tage');
+    expect(response.body).toContain('Widerspruchsfrist beträgt vierzehn Tage');
   });
 });
 
@@ -266,7 +266,7 @@ describe('Quellenbasierte Antwort', () => {
         method: 'POST',
         url: '/v1/notebooks',
         headers: auth,
-        payload: { title: 'Pruefungsrecht' },
+        payload: { title: 'Prüfungsrecht' },
       }),
     );
     notebookId = notebook.id;
@@ -310,8 +310,8 @@ describe('Quellenbasierte Antwort', () => {
     await setup(
       new ScriptedProvider({
         grounded: true,
-        answer: `Die Widerspruchsfrist betraegt vierzehn Tage ab Bekanntgabe [${marker}].`,
-        quotes: { [marker]: 'betraegt vierzehn Tage ab Bekanntgabe der Bewertung' },
+        answer: `Die Widerspruchsfrist beträgt vierzehn Tage ab Bekanntgabe [${marker}].`,
+        quotes: { [marker]: 'beträgt vierzehn Tage ab Bekanntgabe der Bewertung' },
       }),
     );
     const result = await askQuestion('Wie lange ist die Widerspruchsfrist?');
@@ -336,7 +336,7 @@ describe('Quellenbasierte Antwort', () => {
     await setup(
       new ScriptedProvider({
         grounded: true,
-        answer: 'Die Frist betraegt vierzehn Tage [1]. Zusaetzlich verfaellt der Anspruch [99].',
+        answer: 'Die Frist beträgt vierzehn Tage [1]. Zusaetzlich verfaellt der Anspruch [99].',
         quotes: { '1': 'vierzehn Tage' },
       }),
     );
@@ -353,7 +353,7 @@ describe('Quellenbasierte Antwort', () => {
     const provider = new ScriptedProvider({ grounded: true, answer: 'Antwort [1].', quotes: {} });
     await setup(provider);
     const onlyFirst = sourceIds.slice(0, 1);
-    const result = await askQuestion('Was steht zur Einsicht in die Pruefungsakte?', onlyFirst);
+    const result = await askQuestion('Was steht zur Einsicht in die Prüfungsakte?', onlyFirst);
     for (const chunk of result.retrieved) {
       expect(onlyFirst).toContain(chunk.sourceId);
     }
@@ -370,7 +370,7 @@ describe('Quellenbasierte Antwort', () => {
 
     expect(result.grounded).toBe(false);
     expect(result.citations).toHaveLength(0);
-    expect(result.answer).toContain('keine Quelle ausgewaehlt');
+    expect(result.answer).toContain('keine Quelle ausgewählt');
     // Entscheidend: das Modell wurde gar nicht erst gefragt.
     expect(provider.lastRequest).toBeNull();
   });

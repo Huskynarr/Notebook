@@ -15,7 +15,7 @@ describe('splitInline', () => {
     expect(parts[1]).toEqual({ kind: 'marker', markers: [2, 5] });
   });
 
-  it('laesst markerfreien Text unveraendert', () => {
+  it('lässt markerfreien Text unverändert', () => {
     expect(splitInline('Nur Text')).toEqual([{ kind: 'text', text: 'Nur Text' }]);
   });
 });
@@ -23,7 +23,7 @@ describe('splitInline', () => {
 describe('segmentAnswer', () => {
   it('kennzeichnet einen Aussagesatz ohne Marker als unbelegt', () => {
     const [paragraph] = segmentAnswer(
-      'Die Widerspruchsfrist betraegt vierzehn Tage [1]. Danach ist der Bescheid endgueltig bestandskraeftig.',
+      'Die Widerspruchsfrist beträgt vierzehn Tage [1]. Danach ist der Bescheid endgueltig bestandskraeftig.',
     );
     const sentences = paragraph?.sentences ?? [];
     expect(sentences).toHaveLength(2);

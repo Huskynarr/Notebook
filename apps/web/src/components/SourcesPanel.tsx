@@ -231,7 +231,7 @@ function AddSourceDialog({
         <TextField
           label="Titel"
           value={title}
-          placeholder="z. B. pruefungsordnung.md"
+          placeholder="z. B. prüfungsordnung.md"
           onChange={(event) => {
             setTitle(event.target.value);
           }}

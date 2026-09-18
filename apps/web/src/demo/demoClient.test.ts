@@ -38,14 +38,14 @@ describe('DemoClient', () => {
     expect(notebook?.sourceCount).toBe(2);
   });
 
-  it('behaelt Quellen, Auswahl und Notizen ueber einen Neustart hinweg', async () => {
+  it('behaelt Quellen, Auswahl und Notizen über einen Neustart hinweg', async () => {
     const gemeinsam = speicher();
     const erster = new DemoClient(gemeinsam);
     const [notebook] = await erster.listNotebooks();
     const quelle = await erster.createSource(notebook!.id, {
       title: 'eigene.md',
       kind: 'markdown',
-      content: '# Eigenes\n\nDie Rueckmeldefrist endet am 15. Februar.',
+      content: '# Eigenes\n\nDie Rückmeldefrist endet am 15. Februar.',
     });
     await erster.updateSource(quelle.id, { selected: false });
     await erster.createNote(notebook!.id, {

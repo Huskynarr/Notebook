@@ -34,8 +34,8 @@ async function selectAllSources(page: Page): Promise<void> {
 test('Beispiel-Notebook ist nach dem Start sofort nutzbar', async ({ page }) => {
   await login(page);
   await selectAllSources(page);
-  await expect(page.getByText('pruefungsordnung-beispiel.md')).toBeVisible();
-  await expect(page.getByText('merkblatt-pruefungsamt.md')).toBeVisible();
+  await expect(page.getByText('Prüfungsordnung (Beispiel).md')).toBeVisible();
+  await expect(page.getByText('Merkblatt Prüfungsamt.md')).toBeVisible();
   await expect(page.getByText('2 von 2 ausgewählt')).toBeVisible();
 });
 
@@ -73,29 +73,29 @@ test('ein Beleg fuehrt zur hervorgehobenen Stelle im Original', async ({ page })
 test('abgewaehlte Quellen werden nicht beruecksichtigt', async ({ page }) => {
   await login(page);
   await selectAllSources(page);
-  await page.getByLabel('merkblatt-pruefungsamt.md für Fragen berücksichtigen').uncheck();
+  await page.getByLabel('Merkblatt Prüfungsamt.md für Fragen berücksichtigen').uncheck();
   await expect(page.getByText('1 von 2 ausgewählt')).toBeVisible();
 
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
-    .fill('Was steht zur Einsicht in die Pruefungsakte?');
+    .fill('Was steht zur Einsicht in die Prüfungsakte?');
   await page.getByRole('button', { name: 'Fragen' }).click();
   await expect(page.getByText('1 Quellen berücksichtigt')).toBeVisible();
-  await expect(page.getByText('merkblatt-pruefungsamt.md · Merkblatt')).toHaveCount(0);
+  await expect(page.getByText('Merkblatt Prüfungsamt.md · Merkblatt')).toHaveCount(0);
 });
 
 test('ohne ausgewaehlte Quelle wird nicht geantwortet', async ({ page }) => {
   await login(page);
   await selectAllSources(page);
-  await page.getByLabel('pruefungsordnung-beispiel.md für Fragen berücksichtigen').uncheck();
-  await page.getByLabel('merkblatt-pruefungsamt.md für Fragen berücksichtigen').uncheck();
+  await page.getByLabel('Prüfungsordnung (Beispiel).md für Fragen berücksichtigen').uncheck();
+  await page.getByLabel('Merkblatt Prüfungsamt.md für Fragen berücksichtigen').uncheck();
   await expect(page.getByText('Keine Quelle ausgewählt')).toBeVisible();
 
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
     .fill('Wie lange ist die Widerspruchsfrist?');
   await page.getByRole('button', { name: 'Fragen' }).click();
-  await expect(page.getByText('Es ist keine Quelle ausgewaehlt')).toBeVisible();
+  await expect(page.getByText('Es ist keine Quelle ausgewählt')).toBeVisible();
 });
 
 test('eigene Quelle hinzufuegen und Antwort als Notiz speichern', async ({ page }) => {
@@ -106,15 +106,13 @@ test('eigene Quelle hinzufuegen und Antwort als Notiz speichern', async ({ page 
   await page.getByLabel('Titel').fill('eigene-notiz.md');
   await page
     .getByLabel('Text')
-    .fill('# Eigene Quelle\n\nDie Rueckmeldefrist endet am 15. Februar jedes Jahres.');
+    .fill('# Eigene Quelle\n\nDie Rückmeldefrist endet am 15. Februar jedes Jahres.');
   await page.getByRole('button', { name: 'Quelle anlegen' }).click();
   // Auf die Quellenkarte pruefen, nicht auf den Text: die Kurzmeldung nennt
   // denselben Namen und macht den Treffer sonst mehrdeutig.
   await expect(page.getByLabel('eigene-notiz.md für Fragen berücksichtigen')).toBeChecked();
 
-  await page
-    .getByLabel('Frage an die ausgewählten Quellen')
-    .fill('Wann endet die Rueckmeldefrist?');
+  await page.getByLabel('Frage an die ausgewählten Quellen').fill('Wann endet die Rückmeldefrist?');
   await page.getByRole('button', { name: 'Fragen' }).click();
   await page.getByRole('button', { name: 'Als Notiz speichern' }).first().click();
 
@@ -122,9 +120,7 @@ test('eigene Quelle hinzufuegen und Antwort als Notiz speichern', async ({ page 
     .getByRole('tab', { name: /Notizen/ })
     .first()
     .click();
-  await expect(
-    page.getByRole('heading', { name: 'Wann endet die Rueckmeldefrist?' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Wann endet die Rückmeldefrist?' })).toBeVisible();
 });
 
 test('die Seite scrollt auf einem schmalen Bildschirm nicht waagerecht', async ({ page }) => {

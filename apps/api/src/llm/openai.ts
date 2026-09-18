@@ -64,7 +64,7 @@ export class OpenAiCompatibleProvider implements LlmProvider {
         // Der Antwortkoerper koennte die Anfrage samt Schluessel spiegeln und
         // wird deshalb nicht uebernommen.
         throw new LlmUnavailableError(
-          `Das Modell antwortete mit HTTP ${response.status}. Basis-URL und Modellname pruefen.`,
+          `Das Modell antwortete mit HTTP ${response.status}. Basis-URL und Modellname prüfen.`,
         );
       }
 

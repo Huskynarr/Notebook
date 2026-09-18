@@ -25,7 +25,7 @@ describe('Erscheinungsbild', () => {
     }
   });
 
-  it('jedes Design traegt einen Hinweis, was es ist', () => {
+  it('jedes Design trägt einen Hinweis, was es ist', () => {
     for (const design of DESIGNS) {
       expect(design.label.length).toBeGreaterThan(2);
       expect(design.hinweis.length).toBeGreaterThan(20);

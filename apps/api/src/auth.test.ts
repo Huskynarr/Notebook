@@ -11,7 +11,7 @@ const ENV = {
 const config = loadConfig(ENV);
 
 describe('Auth', () => {
-  it('gibt fuer die richtigen Zugangsdaten ein gueltiges Token aus', () => {
+  it('gibt für die richtigen Zugangsdaten ein gueltiges Token aus', () => {
     const auth = new Auth(config);
     const session = auth.login('admin', 'admin');
     expect(session).not.toBeNull();

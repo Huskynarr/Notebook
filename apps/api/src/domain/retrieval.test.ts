@@ -17,7 +17,7 @@ describe('buildMatchQuery', () => {
     expect(buildMatchQuery('Wie hoch ist der Rahmen?')).toBe('"hoch" OR "rahmen"*');
   });
 
-  it('gibt fuer eine Frage ohne brauchbare Begriffe nichts zurueck', () => {
+  it('gibt für eine Frage ohne brauchbare Begriffe nichts zurück', () => {
     expect(buildMatchQuery('Wie ist das?')).toBeNull();
     expect(buildMatchQuery('???')).toBeNull();
   });
@@ -55,16 +55,16 @@ describe('retrieve', () => {
     expect(hits).toEqual([]);
   });
 
-  it('beruecksichtigt ausschliesslich die uebergebenen Quellen', () => {
+  it('beruecksichtigt ausschließlich die uebergebenen Quellen', () => {
     const [first] = sourceIds;
-    const hits = retrieve(ctx.db, 'Einsicht in die Pruefungsakte', {
+    const hits = retrieve(ctx.db, 'Einsicht in die Prüfungsakte', {
       sourceIds: [first ?? ''],
       topK: 10,
     });
     for (const hit of hits) expect(hit.sourceId).toBe(first);
   });
 
-  it('gibt ohne ausgewaehlte Quelle nichts zurueck', () => {
+  it('gibt ohne ausgewaehlte Quelle nichts zurück', () => {
     expect(retrieve(ctx.db, 'Widerspruchsfrist', { sourceIds: [], topK: 5 })).toEqual([]);
   });
 
@@ -78,7 +78,7 @@ describe('retrieve', () => {
   });
 
   it('sortiert nach Relevanz absteigend', () => {
-    const hits = retrieve(ctx.db, 'Widerspruch Begruendung Pruefungsamt', {
+    const hits = retrieve(ctx.db, 'Widerspruch Begründung Prüfungsamt', {
       sourceIds,
       topK: 10,
     });

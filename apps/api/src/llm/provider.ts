@@ -43,7 +43,7 @@ export function extractJson(raw: string): unknown {
   const start = candidate.indexOf('{');
   const end = candidate.lastIndexOf('}');
   if (start < 0 || end <= start) {
-    throw new LlmUnavailableError('Die Modellantwort enthaelt kein JSON-Objekt.');
+    throw new LlmUnavailableError('Die Modellantwort enthält kein JSON-Objekt.');
   }
   try {
     return JSON.parse(candidate.slice(start, end + 1)) as unknown;

@@ -1,21 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { chunkText, countWords } from './chunking.js';
 
-const MARKDOWN = `# Pruefungsordnung
+const MARKDOWN = `# Prüfungsordnung
 
 ## 3 Fristen
 
-Die Widerspruchsfrist betraegt vierzehn Tage ab Bekanntgabe des Bescheids.
+Die Widerspruchsfrist beträgt vierzehn Tage ab Bekanntgabe des Bescheids.
 
-Der Widerspruch ist schriftlich beim Pruefungsamt einzureichen.
+Der Widerspruch ist schriftlich beim Prüfungsamt einzureichen.
 
 ## 4 Wiederholung
 
-Eine Pruefung kann zweimal wiederholt werden.
+Eine Prüfung kann zweimal wiederholt werden.
 `;
 
 describe('chunkText', () => {
-  it('haelt die Offset-Zusage ein: slice(start,end) ist exakt der Abschnittstext', () => {
+  it('hält die Offset-Zusage ein: slice(start,end) ist exakt der Abschnittstext', () => {
     const chunks = chunkText(MARKDOWN, { targetChars: 200, maxChars: 400 });
     expect(chunks.length).toBeGreaterThan(0);
     for (const chunk of chunks) {
@@ -36,12 +36,12 @@ describe('chunkText', () => {
   it('fuehrt den Ueberschriftenpfad mit', () => {
     const chunks = chunkText(MARKDOWN, { targetChars: 200, maxChars: 400 });
     const fristen = chunks.find((c) => c.text.includes('Widerspruchsfrist'));
-    expect(fristen?.headingPath).toBe('Pruefungsordnung > 3 Fristen');
+    expect(fristen?.headingPath).toBe('Prüfungsordnung > 3 Fristen');
     const wiederholung = chunks.find((c) => c.text.includes('zweimal wiederholt'));
-    expect(wiederholung?.headingPath).toBe('Pruefungsordnung > 4 Wiederholung');
+    expect(wiederholung?.headingPath).toBe('Prüfungsordnung > 4 Wiederholung');
   });
 
-  it('fasst nicht ueber eine Abschnittsgrenze hinweg zusammen', () => {
+  it('fasst nicht über eine Abschnittsgrenze hinweg zusammen', () => {
     const chunks = chunkText(MARKDOWN, { targetChars: 10_000, maxChars: 20_000 });
     const paths = new Set(chunks.map((c) => c.headingPath));
     expect(paths.size).toBe(2);
@@ -72,14 +72,14 @@ describe('chunkText', () => {
     expect(chunks[1]!.headingPath).toBe('');
   });
 
-  it('gibt fuer leeren Text keine Abschnitte zurueck', () => {
+  it('gibt für leeren Text keine Abschnitte zurück', () => {
     expect(chunkText('')).toEqual([]);
     expect(chunkText('   \n\n  ')).toEqual([]);
   });
 });
 
 describe('countWords', () => {
-  it('zaehlt durch Leerraum getrennte Folgen', () => {
+  it('zählt durch Leerraum getrennte Folgen', () => {
     expect(countWords('eins zwei  drei\nvier')).toBe(4);
     expect(countWords('   ')).toBe(0);
   });

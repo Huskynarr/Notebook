@@ -62,7 +62,7 @@ const STOPWORDS = new Set([
   'einem',
   'einen',
   'einer',
-  'fuer',
+  'für',
   'für',
   'hat',
   'ich',
@@ -264,7 +264,7 @@ export class DemoClient implements NotebookApi {
     const source = this.anlegen(input.title, input.kind, input.content);
     if (source.chunkCount === 0) {
       this.eintraege.pop();
-      return Promise.reject(new Error('Aus dieser Quelle liess sich kein Abschnitt bilden.'));
+      return Promise.reject(new Error('Aus dieser Quelle ließ sich kein Abschnitt bilden.'));
     }
     return Promise.resolve(source);
   }
@@ -311,7 +311,7 @@ export class DemoClient implements NotebookApi {
     if (sourceIds.length === 0) {
       return Promise.resolve(
         leer(
-          'Es ist keine Quelle ausgewaehlt. Waehle links mindestens eine Quelle aus, damit die Frage aus den Quellen beantwortet werden kann.',
+          'Es ist keine Quelle ausgewählt. Wähle links mindestens eine Quelle aus, damit die Frage aus den Quellen beantwortet werden kann.',
         ),
       );
     }
@@ -334,7 +334,7 @@ export class DemoClient implements NotebookApi {
     if (abgerufen.length === 0) {
       return Promise.resolve(
         leer(
-          'In den ausgewaehlten Quellen findet sich zu dieser Frage keine Textstelle. Moeglich ist, dass die Quellen das Thema nicht behandeln oder die Frage andere Begriffe verwendet als die Texte.',
+          'In den ausgewählten Quellen findet sich zu dieser Frage keine Textstelle. Möglich ist, dass die Quellen das Thema nicht behandeln oder die Frage andere Begriffe verwendet als die Texte.',
         ),
       );
     }

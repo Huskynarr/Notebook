@@ -79,7 +79,7 @@ export function registerNotebookRoutes(app: FastifyInstance, ctx: AppContext): v
       lines.push(
         `### ${source.title}`,
         '',
-        `_${source.kind} · ${source.wordCount} Woerter · ${source.chunkCount} Abschnitte_`,
+        `_${source.kind} · ${source.wordCount} Wörter · ${source.chunkCount} Abschnitte_`,
         '',
         content?.content ?? '',
         '',

@@ -21,7 +21,7 @@ export class StubProvider implements LlmProvider {
 
     const answer =
       markers.length === 0
-        ? 'Es ist kein Sprachmodell verbunden, und zu dieser Frage wurde in den ausgewaehlten Quellen keine Textstelle gefunden.'
+        ? 'Es ist kein Sprachmodell verbunden, und zu dieser Frage wurde in den ausgewählten Quellen keine Textstelle gefunden.'
         : `Es ist kein Sprachmodell verbunden. Diese Antwort ist daher nicht formuliert, sondern zeigt nur, welche Textstellen zu der Frage gefunden wurden:\n\n${listed}\n\nUm echte Antworten zu erhalten, setze LLM_PROVIDER=openai und trage LLM_BASE_URL sowie LLM_MODEL ein (siehe apps/api/.env.example).`;
 
     return Promise.resolve({

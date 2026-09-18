@@ -21,7 +21,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext): voi
     if (body === null) return reply;
 
     if (body.content.trim() === '') {
-      return fail(reply, 400, 'validation_failed', 'Die Quelle enthaelt keinen Text.');
+      return fail(reply, 400, 'validation_failed', 'Die Quelle enthält keinen Text.');
     }
     const source = ctx.sources.create({ notebookId, ...body });
     if (source.chunkCount === 0) {
@@ -32,7 +32,7 @@ export function registerSourceRoutes(app: FastifyInstance, ctx: AppContext): voi
         reply,
         400,
         'validation_failed',
-        'Aus dieser Quelle liess sich kein durchsuchbarer Abschnitt bilden.',
+        'Aus dieser Quelle ließ sich kein durchsuchbarer Abschnitt bilden.',
       );
     }
     ctx.notebooks.touch(notebookId);

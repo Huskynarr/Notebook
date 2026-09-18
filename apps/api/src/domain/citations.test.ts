@@ -8,7 +8,7 @@ import {
 } from './citations.ts';
 
 const SOURCE_TEXT =
-  'Vorbemerkung.\n\nDie Widerspruchsfrist betraegt vierzehn Tage ab Bekanntgabe des Bescheids. ' +
+  'Vorbemerkung.\n\nDie Widerspruchsfrist beträgt vierzehn Tage ab Bekanntgabe des Bescheids. ' +
   'Der Widerspruch ist schriftlich einzureichen.';
 
 function chunk(overrides: Partial<RetrievedChunk> = {}): RetrievedChunk {
@@ -17,7 +17,7 @@ function chunk(overrides: Partial<RetrievedChunk> = {}): RetrievedChunk {
   return {
     id: 'chunk-1',
     sourceId: 'source-1',
-    sourceTitle: 'pruefungsordnung.md',
+    sourceTitle: 'prüfungsordnung.md',
     ordinal: 1,
     text,
     startOffset: start,
@@ -38,25 +38,21 @@ describe('parseMarkers', () => {
 });
 
 describe('locateQuote', () => {
-  it('findet ein woertliches Zitat zeichengenau im Originaltext', () => {
+  it('findet ein wörtliches Zitat zeichengenau im Originaltext', () => {
     const c = chunk();
-    const located = locateQuote(c, 'betraegt vierzehn Tage');
+    const located = locateQuote(c, 'beträgt vierzehn Tage');
     expect(located.precision).toBe('exact');
-    expect(SOURCE_TEXT.slice(located.startOffset, located.endOffset)).toBe(
-      'betraegt vierzehn Tage',
-    );
+    expect(SOURCE_TEXT.slice(located.startOffset, located.endOffset)).toBe('beträgt vierzehn Tage');
   });
 
   it('findet ein Zitat auch bei abweichendem Leerraum', () => {
     const c = chunk();
-    const located = locateQuote(c, 'betraegt   vierzehn\n  Tage');
+    const located = locateQuote(c, 'beträgt   vierzehn\n  Tage');
     expect(located.precision).toBe('exact');
-    expect(SOURCE_TEXT.slice(located.startOffset, located.endOffset)).toBe(
-      'betraegt vierzehn Tage',
-    );
+    expect(SOURCE_TEXT.slice(located.startOffset, located.endOffset)).toBe('beträgt vierzehn Tage');
   });
 
-  it('faellt auf den ganzen Abschnitt zurueck und weist das aus', () => {
+  it('faellt auf den ganzen Abschnitt zurück und weist das aus', () => {
     const c = chunk();
     const located = locateQuote(c, 'Ein Satz, der so nirgends steht.');
     expect(located.precision).toBe('chunk');
@@ -73,8 +69,8 @@ describe('validateCitations', () => {
   const retrieved = [chunk()];
 
   it('loest einen gueltigen Marker zu einem Beleg mit Offsets auf', () => {
-    const result = validateCitations('Die Frist betraegt vierzehn Tage [1].', retrieved, {
-      '1': 'betraegt vierzehn Tage',
+    const result = validateCitations('Die Frist beträgt vierzehn Tage [1].', retrieved, {
+      '1': 'beträgt vierzehn Tage',
     });
     expect(result.citations).toHaveLength(1);
     expect(result.droppedMarkers).toEqual([]);
@@ -112,12 +108,12 @@ describe('validateCitations', () => {
 });
 
 describe('countUnsupportedSentences', () => {
-  it('zaehlt belegfreie Aussagesaetze', () => {
+  it('zählt belegfreie Aussagesaetze', () => {
     const text =
-      'Die Frist betraegt vierzehn Tage [1]. Danach ist der Bescheid unanfechtbar geworden.';
+      'Die Frist beträgt vierzehn Tage [1]. Danach ist der Bescheid unanfechtbar geworden.';
     expect(countUnsupportedSentences(text)).toBe(1);
   });
-  it('zaehlt Ueberschriften und kurze Fragmente nicht mit', () => {
+  it('zählt Ueberschriften und kurze Fragmente nicht mit', () => {
     expect(countUnsupportedSentences('## Fristen\n\nJa.\n\nAlles belegt [1].')).toBe(0);
   });
 });

@@ -62,7 +62,7 @@ export function ToastProvider({ children }: { children: ReactNode }): ReactEleme
             <span className={cx('flex-1', TONE[item.tone])}>{item.message}</span>
             <button
               type="button"
-              aria-label="Meldung schliessen"
+              aria-label="Meldung schließen"
               onClick={() => {
                 setItems((current) => current.filter((i) => i.id !== item.id));
               }}
