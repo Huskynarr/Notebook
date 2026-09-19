@@ -11,6 +11,8 @@
  * prueft `__tests__/appearance.test.ts`.
  */
 
+import { einstellungLesen, einstellungSchreiben } from './consent.ts';
+
 export const DESIGN_SCHLUESSEL = 'notebook.design';
 export const MODUS_SCHLUESSEL = 'notebook.mode';
 
@@ -57,27 +59,20 @@ function istModus(wert: unknown): wert is ModusId {
   return MODI.some((m) => m.id === wert);
 }
 
+// Gespeichert wird nach Einwilligung (lib/consent.ts): dauerhaft nur mit
+// Zustimmung, sonst fuer die Sitzung.
 export function lesen(): Erscheinungsbild {
-  try {
-    const design = window.localStorage.getItem(DESIGN_SCHLUESSEL);
-    const modus = window.localStorage.getItem(MODUS_SCHLUESSEL);
-    return {
-      design: istDesign(design) ? design : VORGABE.design,
-      modus: istModus(modus) ? modus : VORGABE.modus,
-    };
-  } catch {
-    // Privater Modus oder gesperrter Speicher: die Vorgabe tut es auch.
-    return VORGABE;
-  }
+  const design = einstellungLesen(DESIGN_SCHLUESSEL);
+  const modus = einstellungLesen(MODUS_SCHLUESSEL);
+  return {
+    design: istDesign(design) ? design : VORGABE.design,
+    modus: istModus(modus) ? modus : VORGABE.modus,
+  };
 }
 
 export function schreiben(wert: Erscheinungsbild): void {
-  try {
-    window.localStorage.setItem(DESIGN_SCHLUESSEL, wert.design);
-    window.localStorage.setItem(MODUS_SCHLUESSEL, wert.modus);
-  } catch {
-    // Ohne Speicher gilt die Auswahl nur bis zum Neuladen.
-  }
+  einstellungSchreiben(DESIGN_SCHLUESSEL, wert.design);
+  einstellungSchreiben(MODUS_SCHLUESSEL, wert.modus);
 }
 
 export function anwenden(wert: Erscheinungsbild): void {

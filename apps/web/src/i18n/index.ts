@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import { einstellungLesen, einstellungSchreiben } from '../lib/consent.ts';
 import { de, type TextKey } from './de.ts';
 import { en } from './en.ts';
 
@@ -30,23 +31,15 @@ export function uebersetzen(
 }
 
 export function spracheLesen(): Sprache {
-  try {
-    const gespeichert = window.localStorage.getItem(SPRACHE_SCHLUESSEL);
-    if (gespeichert === 'de' || gespeichert === 'en') return gespeichert;
-  } catch {
-    // ohne Speicher: Browsersprache
-  }
+  const gespeichert = einstellungLesen(SPRACHE_SCHLUESSEL);
+  if (gespeichert === 'de' || gespeichert === 'en') return gespeichert;
   return typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de')
     ? 'de'
     : 'en';
 }
 
 export function spracheSchreiben(sprache: Sprache): void {
-  try {
-    window.localStorage.setItem(SPRACHE_SCHLUESSEL, sprache);
-  } catch {
-    // dann gilt die Wahl bis zum Neuladen
-  }
+  einstellungSchreiben(SPRACHE_SCHLUESSEL, sprache);
   if (typeof document !== 'undefined') document.documentElement.lang = sprache;
 }
 

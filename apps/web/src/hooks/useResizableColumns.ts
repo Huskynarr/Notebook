@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { einstellungLesen, einstellungSchreiben } from '../lib/consent.ts';
 
 /**
  * Breiten der linken und rechten Spalte, per Trenner ziehbar, mit Tastatur
- * verstellbar, im localStorage gemerkt. Grenzen aus docs/design-system.md 6.
+ * verstellbar, nach Einwilligung gemerkt (lib/consent.ts). Grenzen aus docs/design-system.md 6.
  */
 
 export interface Spalten {
@@ -20,7 +21,7 @@ function begrenzen(wert: number, [min, max]: readonly [number, number]): number 
 
 function lesen(): Spalten {
   try {
-    const roh = window.localStorage.getItem(SCHLUESSEL);
+    const roh = einstellungLesen(SCHLUESSEL);
     if (roh === null) return VORGABE;
     const p = JSON.parse(roh) as Partial<Spalten>;
     return {
@@ -42,11 +43,7 @@ export function useResizableColumns(): {
   const aktiv = useRef<{ seite: keyof Spalten; startX: number; startBreite: number } | null>(null);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(SCHLUESSEL, JSON.stringify(spalten));
-    } catch {
-      // ohne Speicher gilt die Breite bis zum Neuladen
-    }
+    einstellungSchreiben(SCHLUESSEL, JSON.stringify(spalten));
   }, [spalten]);
 
   useEffect(() => {

@@ -25,11 +25,16 @@
         try {
           var designs = ['eigen', 'uni-freiburg', 'huskynarr'];
           var modi = ['light', 'dark'];
-          var design = localStorage.getItem('notebook.design');
-          var modus = localStorage.getItem('notebook.mode');
+          /* Einstellungen liegen je nach Einwilligung (src/lib/consent.ts)
+             im localStorage oder nur im sessionStorage. */
+          var lesen = function (schluessel) {
+            return localStorage.getItem(schluessel) || sessionStorage.getItem(schluessel);
+          };
+          var design = lesen('notebook.design');
+          var modus = lesen('notebook.mode');
           wurzel.dataset.design = designs.indexOf(design) >= 0 ? design : 'eigen';
           if (modi.indexOf(modus) >= 0) wurzel.dataset.theme = modus;
-          var sprache = localStorage.getItem('notebook.lang');
+          var sprache = lesen('notebook.lang');
           if (sprache === 'de' || sprache === 'en') wurzel.lang = sprache;
         } catch (e) {
           wurzel.dataset.design = 'eigen';

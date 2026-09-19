@@ -17,6 +17,11 @@ describe('Erscheinungsbild', () => {
     expect(INDEX_HTML).toContain(MODUS_SCHLUESSEL);
   });
 
+  it('index.html liest wie das Modul beide Speicher (Einwilligung, lib/consent.ts)', () => {
+    expect(INDEX_HTML).toContain('localStorage.getItem');
+    expect(INDEX_HTML).toContain('sessionStorage.getItem');
+  });
+
   it('index.html kennt jedes Design und jeden Modus', () => {
     for (const design of DESIGNS) expect(INDEX_HTML).toContain(design.id);
     for (const modus of MODI) {

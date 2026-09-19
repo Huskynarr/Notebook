@@ -1,4 +1,5 @@
 import { useState, type ReactElement } from 'react';
+import { einstellungLesen, einstellungSchreiben } from '../lib/consent.ts';
 import { DESIGNS, MODI, type Erscheinungsbild } from '../lib/appearance.ts';
 import { SPRACHEN, useT, type Sprache } from '../i18n/index.ts';
 import { Button } from './ui/Button.tsx';
@@ -35,11 +36,7 @@ export function Tour({
   const gesamt = 3;
 
   const beenden = (): void => {
-    try {
-      window.localStorage.setItem(TOUR_SCHLUESSEL, 'gesehen');
-    } catch {
-      // dann erscheint die Begrüßung beim nächsten Mal erneut
-    }
+    einstellungSchreiben(TOUR_SCHLUESSEL, 'gesehen');
     setSchritt(0);
     onClose();
   };
@@ -183,9 +180,5 @@ export function Tour({
 }
 
 export function tourGesehen(): boolean {
-  try {
-    return window.localStorage.getItem(TOUR_SCHLUESSEL) === 'gesehen';
-  } catch {
-    return true;
-  }
+  return einstellungLesen(TOUR_SCHLUESSEL) === 'gesehen';
 }
