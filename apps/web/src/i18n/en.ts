@@ -169,6 +169,28 @@ export const en: Texte = {
   'settings.backend': 'Backend',
   'settings.backendHint': 'Set at build time via {variable}.',
   'settings.showTour': 'Show introduction again',
+  'settings.privacy': 'Privacy',
+  'settings.rememberSettings': 'Remember settings on this device',
+  'settings.privacyHint':
+    'No cookies, no tracking. Unchecked, language, design and column widths last only until the tab is closed.',
+  'settings.privacyDecided': 'Decided on {date}.',
+  'settings.privacyUndecided': 'Not decided yet.',
+
+  'consent.title': 'Storage on this device',
+  'consent.body':
+    'This application sets no cookies and does no tracking. It stores data only in your browser. You decide what stays beyond this session.',
+  'consent.necessary.title': 'Necessary',
+  'consent.necessary.body':
+    'Sign-in session; in the demo also notebooks, sources and notes. The application does not work without them.',
+  'consent.settings.title': 'Remember settings',
+  'consent.settings.body':
+    'Language, design, appearance, column widths and whether you have seen the introduction. Without consent they last only until the tab is closed.',
+  'consent.always': 'always on',
+  'consent.acceptAll': 'Accept all',
+  'consent.necessaryOnly': 'Necessary only',
+  'consent.save': 'Save selection',
+  'consent.customize': 'Customise selection',
+  'consent.less': 'Show less',
 
   'design.eigen.label': 'Paper and ink',
   'design.eigen.hint': 'Own design: warm surfaces, serif for reading text, brown for citations.',

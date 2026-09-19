@@ -27,6 +27,8 @@ import {
 } from './i18n/index.ts';
 import type * as ExportModul from './lib/export.ts';
 import { DemoClient } from './demo/demoClient.ts';
+import { zustimmungLesen, zustimmungSchreiben, type Zustimmung } from './lib/consent.ts';
+import { ConsentBanner } from './components/ConsentBanner.tsx';
 import { useResizableColumns } from './hooks/useResizableColumns.ts';
 import { ChatPanel, type Exchange } from './components/ChatPanel.tsx';
 import { LoginScreen } from './components/LoginScreen.tsx';
@@ -114,7 +116,15 @@ function Arbeitsbereich({
   const [deleting, setDeleting] = useState(false);
   const [titelEntwurf, setTitelEntwurf] = useState('');
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [tourOpen, setTourOpen] = useState(() => !tourGesehen());
+  // Erst die Einwilligung, dann die Einfuehrung: zwei Dialoge auf einmal
+  // waeren zu viel, und die Einfuehrung speichert bereits Einstellungen.
+  const [zustimmung, setZustimmung] = useState<Zustimmung | null>(() => zustimmungLesen());
+  const [tourOpen, setTourOpen] = useState(() => zustimmungLesen() !== null && !tourGesehen());
+  const entscheiden = (einstellungen: boolean): void => {
+    const war = zustimmung;
+    setZustimmung(zustimmungSchreiben(einstellungen));
+    if (war === null && !tourGesehen()) setTourOpen(true);
+  };
   const [erscheinungsbild, setErscheinungsbild] = useState<Erscheinungsbild>(() =>
     erscheinungsbildLesen(),
   );
@@ -403,6 +413,8 @@ function Arbeitsbereich({
         setSettingsOpen(false);
         setTourOpen(true);
       }}
+      zustimmung={zustimmung}
+      onZustimmung={entscheiden}
       onClose={() => {
         setSettingsOpen(false);
       }}
@@ -423,9 +435,12 @@ function Arbeitsbereich({
     />
   );
 
+  const banner = zustimmung === null ? <ConsentBanner onDecide={entscheiden} /> : null;
+
   if (token === null) {
     return (
       <>
+        {banner}
         <LoginScreen
           apiBaseUrl={API_BASE_URL}
           demo={DEMO_MODE}
@@ -713,6 +728,7 @@ function Arbeitsbereich({
 
       {einstellungen}
       {tour}
+      {banner}
 
       <Dialog
         open={creating || renaming}

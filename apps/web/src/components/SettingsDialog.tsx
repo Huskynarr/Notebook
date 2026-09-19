@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { DESIGNS, MODI, type Erscheinungsbild } from '../lib/appearance.ts';
 import { SPRACHEN, useT, type Sprache } from '../i18n/index.ts';
+import type { Zustimmung } from '../lib/consent.ts';
 import { Button } from './ui/Button.tsx';
 import { Dialog } from './ui/Dialog.tsx';
 import { cx } from './ui/cx.ts';
@@ -19,6 +20,8 @@ export function SettingsDialog({
   onChange,
   onSprache,
   onShowTour,
+  zustimmung,
+  onZustimmung,
   onClose,
 }: {
   open: boolean;
@@ -29,9 +32,17 @@ export function SettingsDialog({
   onChange: (wert: Erscheinungsbild) => void;
   onSprache: (s: Sprache) => void;
   onShowTour: () => void;
+  zustimmung: Zustimmung | null;
+  onZustimmung: (einstellungen: boolean) => void;
   onClose: () => void;
 }): ReactElement {
   const t = useT();
+  const entschieden =
+    zustimmung === null
+      ? t('settings.privacyUndecided')
+      : t('settings.privacyDecided', {
+          date: new Date(zustimmung.entschiedenAm).toLocaleDateString(sprache),
+        });
   return (
     <Dialog
       open={open}
@@ -118,6 +129,26 @@ export function SettingsDialog({
               </Button>
             ))}
           </div>
+        </fieldset>
+
+        <fieldset>
+          <legend className="text-label text-content mb-2">{t('settings.privacy')}</legend>
+          <label className="flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              checked={zustimmung?.einstellungen === true}
+              onChange={(e) => {
+                onZustimmung(e.target.checked);
+              }}
+              className="mt-1 size-4 accent-[var(--t-action)]"
+            />
+            <span>
+              <span className="text-body text-content block">{t('settings.rememberSettings')}</span>
+              <span className="text-meta text-content-muted block">
+                {t('settings.privacyHint')} {entschieden}
+              </span>
+            </span>
+          </label>
         </fieldset>
 
         <div>

@@ -173,6 +173,28 @@ export const de = {
   'settings.backend': 'Backend',
   'settings.backendHint': 'Wird beim Bauen über {variable} gesetzt.',
   'settings.showTour': 'Einführung erneut anzeigen',
+  'settings.privacy': 'Datenschutz',
+  'settings.rememberSettings': 'Einstellungen auf diesem Gerät merken',
+  'settings.privacyHint':
+    'Keine Cookies, kein Tracking. Ohne Häkchen gelten Sprache, Design und Spaltenbreiten nur bis zum Schließen des Tabs.',
+  'settings.privacyDecided': 'Entschieden am {date}.',
+  'settings.privacyUndecided': 'Noch nicht entschieden.',
+
+  'consent.title': 'Speicherung auf diesem Gerät',
+  'consent.body':
+    'Diese Anwendung setzt keine Cookies und kein Tracking. Sie speichert Daten ausschließlich in deinem Browser. Du entscheidest, was über die Sitzung hinaus bleibt.',
+  'consent.necessary.title': 'Notwendig',
+  'consent.necessary.body':
+    'Anmeldesitzung; in der Demo außerdem Notebooks, Quellen und Notizen. Ohne sie funktioniert die Anwendung nicht.',
+  'consent.settings.title': 'Einstellungen merken',
+  'consent.settings.body':
+    'Sprache, Design, Erscheinungsbild, Spaltenbreiten und ob du die Einführung gesehen hast. Ohne Zustimmung gelten sie nur bis zum Schließen des Tabs.',
+  'consent.always': 'immer aktiv',
+  'consent.acceptAll': 'Alle akzeptieren',
+  'consent.necessaryOnly': 'Nur notwendige',
+  'consent.save': 'Auswahl speichern',
+  'consent.customize': 'Auswahl anpassen',
+  'consent.less': 'Weniger anzeigen',
 
   'design.eigen.label': 'Papier und Tinte',
   'design.eigen.hint': 'Eigenes Design: warme Flächen, Serife für Lesetext, Braun für Belege.',
