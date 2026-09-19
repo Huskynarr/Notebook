@@ -37,6 +37,10 @@ Darüber hinaus, nicht im Pflichtumfang:
 - **Teilen** für Notebook und einzelne Antwort als Markdown, Word, PDF (Druck) und PNG
   (D-020). Alle Downloads im Browser ausgelöst und geöffnet: `.md` mit Belegliste, `.docx`
   mit Überschriften und Absätzen, PNG 1568×1220 px mit Frage und Antwort ohne Knöpfe.
+- **Einwilligungsbanner** (D-021) mit den zwei Klassen, die es gibt; Ablehnen wirkt
+  nachweislich: E2E-Test prüft, dass danach nur `notebook.consent.v1` im `localStorage`
+  liegt, die Sprachwahl im `sessionStorage`, und dass kein Cookie gesetzt ist. Umschaltbar
+  in den Einstellungen.
 - **Verschiebbare Spalten** über Trenner (Maus, Pfeiltasten); Breiten überleben das
   Neuladen. Kopfbereich zeigt den vollen Notebook-Titel mit Menü statt eines schmalen
   Auswahlfelds.
@@ -44,9 +48,9 @@ Darüber hinaus, nicht im Pflichtumfang:
 Zuletzt tatsächlich ausgeführt (2026-09-18):
 
 ```
-pnpm verify           typecheck, lint, format:check, 86 Tests in 11 Dateien, Build
+pnpm verify           typecheck, lint, format:check, 92 Tests in 12 Dateien, Build
 pnpm --filter @notebook/web build   JS 400 kB (gzip 120 kB) + Export-Chunk 367 kB (gzip 105 kB), lädt erst beim Teilen
-pnpm exec playwright test           8 Tests bestanden (locale de-DE)
+pnpm exec playwright test           9 Tests bestanden (locale de-DE)
 ```
 
 Gemessen, nicht geschätzt:

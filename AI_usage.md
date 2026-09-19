@@ -65,6 +65,8 @@ Gehört hierher, weil es den Wert des Protokolls ausmacht:
 | 13 | Adressen als Quelle (Server ruft ab, SSRF-Schutz, Textextraktion), Antwortsprache | `fetchSource.ts`, `extract.ts`, Schema `kind: 'url'`, D-019 | `extract.test.ts` (HTML mit `<head>`, JSON, Titel aus Adresse), `server.test.ts` gegen einen lokalen Testserver; private Ziele mit `istPrivateAdresse` geprüft. Nicht geprüft: Verhalten an echten großen Seiten. |
 | 14 | Oberfläche zweisprachig, Einführung, Teilen-Menü mit vier Exporten, verschiebbare Spalten, neuer Kopfbereich | `i18n/`, `Tour.tsx`, `ShareMenu.tsx`, `export.ts`, `Menu.tsx`, `useResizableColumns`, `App.tsx`, D-018/D-020 | 86 Unit-Tests, 8 E2E-Tests (Einführung neu), Demo-Build unter `/Notebook/` im Browser durchgeklickt und Bildschirmfotos angesehen; alle fünf Downloads tatsächlich ausgelöst und geöffnet (MD gelesen, DOCX-XML gelesen, PNG betrachtet). Sechs Fehler dabei gefunden (Nr. 10–15 in `docs/progress.md`), keiner durch Lesen des Codes. |
 
+| 15 | Einwilligungsbanner (CMP) mit wirksamer Ablehnung | `lib/consent.ts`, `ConsentBanner.tsx`, Datenschutz-Abschnitt in den Einstellungen, D-021 | 5 Unit-Tests am Speichermodell (Umtragung in beide Richtungen, beschädigte Werte, ohne Speicher), E2E-Test prüft Speicherinhalt und Cookie-Freiheit nach Ablehnung; Banner in drei Designs und bei 390 px als Bildschirmfoto angesehen. Auf die Rückfrage, ob eine unangebundene Kategorie „Statistik" gezeigt werden soll, wurde bewusst verzichtet. |
+
 **Fehler im eigenen Vorgehen, heute:**
 
 - Eine Shell-Eingabe war zu groß (`E2BIG`) und wurde nicht ausgeführt; ich habe das erst

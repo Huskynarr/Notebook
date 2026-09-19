@@ -13,7 +13,9 @@ Verbindliche Arbeitsregeln: [`AGENTS.md`](AGENTS.md).
 Oberfläche auf **Deutsch und Englisch**; die Einführung beim ersten Start fragt Sprache und
 Design ab. Quellen kommen als Text, Datei oder **Adresse** (Webseite, Text-/JSON-Endpunkt)
 hinein; **Teilen** exportiert das Notebook oder eine einzelne Antwort als Markdown, Word,
-PDF oder PNG. Die Spalten lassen sich am Trenner ziehen.
+PDF oder PNG. Die Spalten lassen sich am Trenner ziehen. Ein **Einwilligungsbanner** fragt
+beim ersten Start, ob Einstellungen auf dem Gerät bleiben dürfen — Cookies oder Tracking
+gibt es nicht, und eine Ablehnung wirkt.
 
 Drei Designs, in den **Einstellungen** umschaltbar, je hell und dunkel. Die Komponenten
 kennen kein Design — ein Design ist nur ein Satz von Farb-, Schrift- und Radius-Werten

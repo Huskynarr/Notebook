@@ -390,3 +390,28 @@ Beleg.
 **Verworfen:** `jsPDF`/`pdfmake` (eigene Schriftbehandlung, zweite Typografie).
 `react-to-print` (ein Stylesheet genügt). Ein „Teilen-Link" in der Demo — Daten liegen im
 Browser des Betrachters; der Knopf kopiert die Adresse und sagt, dass Inhalte nicht mitgehen.
+
+---
+
+## D-021 · 2026-09-19 · Einwilligungsbanner ohne Cookies: zwei Klassen, Ablehnen wirkt
+
+**Ausgangslage:** Die Anwendung setzt keine Cookies und kein Tracking; sie speichert nur im
+Browser (Sitzung im `sessionStorage`, Demo-Daten und Einstellungen im `localStorage`).
+Rechtlich verlangt das kein Banner. Der Auftraggeber wollte ein CMP; ein Banner, das
+Kategorien zeigt, die es nicht gibt, wäre eine unmarkierte Simulation (Regel 5).
+
+**Entscheidung:** Zwei Klassen, die es tatsächlich gibt. „Notwendig" (Sitzung; in der Demo
+Notebooks, Quellen, Notizen) ist immer aktiv. „Einstellungen merken" (Sprache, Design,
+Erscheinungsbild, Spaltenbreiten, Einführung gesehen) ist wählbar — und die Wahl wirkt:
+ohne Zustimmung landen diese Schlüssel nur im `sessionStorage` und verschwinden mit dem
+Tab; eine Ablehnung räumt vorhandene Schlüssel aus dem `localStorage`. Die Entscheidung
+selbst liegt im `localStorage` (Klasse „Notwendig"), sonst fragte das Banner bei jedem
+Start. Änderbar jederzeit in den Einstellungen. Das Banner ist nicht modal, „Alle
+akzeptieren" und „Nur notwendige" sind gleich groß und gleich erreichbar.
+
+**Reihenfolge beim ersten Start:** erst Einwilligung, dann Einführung — die Einführung
+speichert bereits Einstellungen, und zwei Dialoge zugleich überfordern.
+
+**Verworfen:** Eine Kategorie „Statistik" ohne Anbindung (zeigt CMP-Form, täuscht aber
+Tracking vor). Eine Bibliothek (Klaro, CookieConsent): bringt Cookie-Logik und Skript-
+Blockierung mit, die es hier nicht zu blockieren gibt (Regel 6).

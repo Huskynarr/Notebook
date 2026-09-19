@@ -468,6 +468,21 @@ zusätzlich Bild (PNG). Das Druck-Stylesheet zeigt nur das markierte Element
 (`data-print-target`) auf weißem Grund mit den Schriften der Anwendung; Bedienelemente
 tragen `no-print` und fehlen in Druck und PNG.
 
+### 8.13 Einwilligungsbanner
+
+Am unteren Rand, volle Breite, Inhalt auf 56 rem begrenzt; Fläche `surface-overlay`, oben
+1 px `border-subtle`, `shadow-md`. `role="dialog"` mit `aria-modal="false"`,
+`aria-labelledby`/`aria-describedby`; nicht modal — die Anwendung bleibt bedienbar, das
+Banner bleibt bis zur Entscheidung. Titel `text-heading`, Text `text-body`.
+
+Knöpfe in einer Zeile, umbrechend: „Alle akzeptieren" (primär), „Nur notwendige"
+(sekundär), nach „Auswahl anpassen" zusätzlich „Auswahl speichern" (sekundär); der
+Umschalter selbst ist ein Ghost-Button mit `aria-expanded`. Beide Hauptknöpfe haben
+dieselbe Größe — Zustimmung wird nicht durch Gestaltung bevorzugt.
+
+Die Klassen erscheinen als Liste mit Kästchen: „Notwendig" angehakt und deaktiviert, mit
+Zusatz „immer aktiv" in `text-meta`; „Einstellungen merken" wählbar, Vorgabe an.
+
 ---
 
 ## 9. Zugänglichkeit
