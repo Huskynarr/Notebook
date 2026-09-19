@@ -1,0 +1,52 @@
+name: Fehler melden
+description: Etwas verhaelt sich anders als beschrieben.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke. Je genauer die Schritte, desto schneller die Korrektur.
+  - type: textarea
+    id: schritte
+    attributes:
+      label: Schritte zum Nachstellen
+      placeholder: |
+        1. Notebook oeffnen
+        2. Quelle "..." hinzufuegen
+        3. Frage "..." stellen
+    validations:
+      required: true
+  - type: textarea
+    id: erwartet
+    attributes:
+      label: Erwartet
+    validations:
+      required: true
+  - type: textarea
+    id: tatsaechlich
+    attributes:
+      label: Tatsaechlich
+      description: Fehlermeldung, Bildschirmfoto oder Konsolenausgabe, wenn vorhanden.
+    validations:
+      required: true
+  - type: dropdown
+    id: umgebung
+    attributes:
+      label: Wo
+      options:
+        - Live-Demo (huskynarr.is-a.dev/Notebook)
+        - Lokal mit Backend (pnpm dev)
+        - Lokal, Demo-Build (VITE_DEMO=true)
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser und Version
+      placeholder: z. B. Firefox 143, Chrome 141
+  - type: checkboxes
+    id: beleg
+    attributes:
+      label: Betrifft die Belegmechanik?
+      options:
+        - label: Ein Beleg zeigt auf eine falsche Stelle oder fehlt, obwohl die Aussage aus der Quelle stammt.

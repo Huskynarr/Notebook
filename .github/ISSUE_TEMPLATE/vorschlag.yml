@@ -1,0 +1,22 @@
+name: Vorschlag
+description: Eine Erweiterung oder Aenderung anregen.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem loest das?
+      description: Das Problem, nicht die Loesung. Wer hat es, in welcher Situation?
+    validations:
+      required: true
+  - type: textarea
+    id: vorschlag
+    attributes:
+      label: Vorschlag
+    validations:
+      required: true
+  - type: textarea
+    id: nichtziele
+    attributes:
+      label: Verhaeltnis zu den Nicht-Zielen
+      description: docs/product.md schliesst einiges bewusst aus (Konten, Zusammenarbeit, Crawling, Vektor-Infrastruktur). Beruehrt der Vorschlag davon etwas?

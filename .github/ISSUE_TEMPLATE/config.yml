@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Sicherheitsluecke melden
+    url: https://github.com/Huskynarr/Notebook/security/advisories/new
+    about: Bitte nicht als oeffentliches Issue - private Meldung ueber GitHub Security.
+  - name: Live-Demo
+    url: https://huskynarr.is-a.dev/Notebook/
+    about: Die Anwendung ohne Server im Browser ausprobieren (Zugang admin / admin).
