@@ -1,0 +1,66 @@
+name: Vorschau
+
+# Baut fuer jeden Pull Request die Demo (ohne Server) und haengt sie als
+# Artefakt an. GitHub Pages kennt nur eine Seite je Repository, deshalb gibt
+# es keine eigene Adresse je PR - das Artefakt laesst sich herunterladen und
+# lokal oeffnen (Anleitung im Kommentar am PR).
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: vorschau-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Demo bauen (Basis-Pfad /)
+        env:
+          VITE_DEMO: 'true'
+        run: pnpm --filter @notebook/web build
+
+      - uses: actions/upload-artifact@v4
+        id: artefakt
+        with:
+          name: demo-pr-${{ github.event.pull_request.number }}
+          path: apps/web/dist
+          retention-days: 14
+
+      - name: Kommentar am Pull Request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- vorschau-artefakt -->';
+            const url = '${{ steps.artefakt.outputs.artifact-url }}';
+            const body = [
+              marker,
+              '**Demo dieses PRs** (ohne Server, Zugang `admin` / `admin`):',
+              '',
+              `1. [Artefakt herunterladen](${url}) und entpacken`,
+              '2. `npx serve -s <ordner>` (oder ein beliebiger statischer Server)',
+              '3. `http://localhost:3000` oeffnen',
+              '',
+              `Build aus ${context.payload.pull_request.head.sha.slice(0, 7)}.`,
+            ].join('\n');
+            const { data: kommentare } = await github.rest.issues.listComments({
+              ...context.repo, issue_number: context.issue.number, per_page: 100,
+            });
+            const vorhanden = kommentare.find((k) => k.body?.startsWith(marker));
+            if (vorhanden) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: vorhanden.id, body });
+            } else {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });
+            }
