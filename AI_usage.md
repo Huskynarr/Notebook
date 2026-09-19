@@ -67,6 +67,8 @@ Gehört hierher, weil es den Wert des Protokolls ausmacht:
 
 | 15 | Einwilligungsbanner (CMP) mit wirksamer Ablehnung | `lib/consent.ts`, `ConsentBanner.tsx`, Datenschutz-Abschnitt in den Einstellungen, D-021 | 5 Unit-Tests am Speichermodell (Umtragung in beide Richtungen, beschädigte Werte, ohne Speicher), E2E-Test prüft Speicherinhalt und Cookie-Freiheit nach Ablehnung; Banner in drei Designs und bei 390 px als Bildschirmfoto angesehen. Auf die Rückfrage, ob eine unangebundene Kategorie „Statistik" gezeigt werden soll, wurde bewusst verzichtet. |
 
+| 16 | Repository-Hygiene: Lizenz, Community-Dateien, CI/CD-Ausbau | `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CODEOWNERS`, Issue-Vorlagen, `codeql.yml`, `dependabot.yml`, `preview.yml`, `release.yml` (release-please), `tools/bundle-size.mjs`, D-022 | Alle YAML- und JSON-Dateien geparst; Bundle-Skript gegen den echten Build ausgeführt und die Tabelle angesehen; `pnpm verify` grün. **Nicht geprüft:** die Workflows selbst laufen erst mit dem nächsten Push; ob release-please einen PR öffnen darf, hängt an einer Repository-Einstellung. Der gewünschte Vorschau-Link je PR ist mit GitHub Pages nicht möglich — statt ihn vorzutäuschen gibt es das Demo-Artefakt mit Anleitung. |
+
 **Fehler im eigenen Vorgehen, heute:**
 
 - Eine Shell-Eingabe war zu groß (`E2BIG`) und wurde nicht ausgeführt; ich habe das erst

@@ -415,3 +415,28 @@ speichert bereits Einstellungen, und zwei Dialoge zugleich überfordern.
 **Verworfen:** Eine Kategorie „Statistik" ohne Anbindung (zeigt CMP-Form, täuscht aber
 Tracking vor). Eine Bibliothek (Klaro, CookieConsent): bringt Cookie-Logik und Skript-
 Blockierung mit, die es hier nicht zu blockieren gibt (Regel 6).
+
+---
+
+## D-022 · 2026-09-19 · Repository-Hygiene: MIT, Community-Dateien, Releases aus Commits
+
+**Entscheidung:** Lizenz MIT (Rechteinhaber Sebastian Selinger). `CONTRIBUTING.md` fasst
+`AGENTS.md` für Menschen zusammen, `CODE_OF_CONDUCT.md` folgt dem Contributor Covenant 2.1,
+`SECURITY.md` nennt den privaten Meldeweg und das Angriffsbild (SSRF-Schutz beim Abruf von
+Adressen), `CODEOWNERS` und Issue-Vorlagen (Fehler, Vorschlag) kommen dazu.
+
+**Pipeline:** CodeQL bei Push, PR und wöchentlich; Dependabot wöchentlich, gebündelt nach
+minor/patch; Playwright-Bericht wird immer hochgeladen, nicht nur bei Fehlern; die
+Bundle-Größe (roh und gzip, `tools/bundle-size.mjs`) steht in jeder Lauf-Zusammenfassung
+und als fortgeschriebener Kommentar am PR; jeder PR bekommt die Demo als Artefakt.
+
+**Releases:** `release-please` ersetzt den handgestarteten Release-Workflow. Es liest die
+Commit-Präfixe, hält einen Release-PR mit `CHANGELOG.md` und Versionssprung offen und
+erzeugt beim Merge Tag und GitHub-Release; die drei Paket-Versionen werden über
+`extra-files` mitgezogen. Grund: Der alte Workflow verlangte die Wahl patch/minor/major von
+Hand — genau die Information, die Conventional Commits schon tragen (Regel 2). Er braucht in
+den Repository-Einstellungen „Allow GitHub Actions to create and approve pull requests".
+
+**Nicht gemacht — Vorschau-Adresse je PR:** GitHub Pages kennt eine Seite je Repository;
+eine eigene Adresse je PR bräuchte einen anderen Host (Netlify, Cloudflare Pages) und damit
+Infrastruktur ohne Auftrag (Regel 6). Das Artefakt je PR ist der ehrliche Ersatz.

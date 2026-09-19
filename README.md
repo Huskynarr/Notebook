@@ -1,5 +1,11 @@
 # Notebook
 
+[![CI](https://github.com/Huskynarr/Notebook/actions/workflows/ci.yml/badge.svg)](https://github.com/Huskynarr/Notebook/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/Huskynarr/Notebook/actions/workflows/codeql.yml/badge.svg)](https://github.com/Huskynarr/Notebook/actions/workflows/codeql.yml)
+[![Pages](https://github.com/Huskynarr/Notebook/actions/workflows/pages.yml/badge.svg)](https://huskynarr.is-a.dev/Notebook/)
+[![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](LICENSE)
+[![Conventional Commits](https://img.shields.io/badge/Commits-Conventional-fe5196.svg)](https://www.conventionalcommits.org/de/)
+
 Ein quellenbasierter Arbeitsbereich für die Universität Freiburg. Fragen werden
 ausschließlich aus selbst hinzugefügten Texten beantwortet, und **jede Aussage lässt sich in
 einem Klick auf die Textstelle zurückführen, aus der sie stammt** — nicht auf das Dokument,
@@ -146,6 +152,24 @@ docs            Produkt, Entscheidungen, Fortschritt, Design-System
 | `pnpm test:e2e` | Hauptablauf im Browser (Playwright); baut Frontend und geteiltes Paket vorher |
 | `pnpm format` | Formatierung schreiben |
 | `pnpm theme` | `theme.css` aus den Paletten neu erzeugen |
+
+## Mitwirken
+
+Regeln, Einrichtung und Ablauf: [`CONTRIBUTING.md`](CONTRIBUTING.md). Verhaltenskodex:
+[`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md). Sicherheitslücken bitte privat melden:
+[`SECURITY.md`](SECURITY.md).
+
+Die Pipeline prüft jeden Push und Pull Request (Typen, Stil, Formatierung, Tests, Build,
+E2E im Browser, CodeQL), hängt an Pull Requests die Bundle-Größe und einen Demo-Build als
+Artefakt, aktualisiert Abhängigkeiten wöchentlich (Dependabot) und erzeugt Releases aus den
+Commit-Präfixen (release-please). `main` wird nach jedem Push als Demo auf GitHub Pages
+veröffentlicht.
+
+## Lizenz
+
+[MIT](LICENSE) © 2026 Sebastian Selinger. Die Beispieltexte im Notebook sind erfunden und
+keine Rechtsauskunft; die Hausschrift des Designs `uni-freiburg` ist nicht enthalten
+(`apps/web/public/fonts/README.md`).
 
 ## Stand
 

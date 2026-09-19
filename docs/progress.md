@@ -63,6 +63,12 @@ Gemessen, nicht geschätzt:
 - Bei 390 px Breite kein waagerechtes Scrollen (E2E-Test).
 - Keine Fehler in der Browserkonsole beim Hauptablauf.
 
+Repository (2026-09-19, D-022): MIT-Lizenz, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`,
+`SECURITY.md`, `CODEOWNERS`, Issue-Vorlagen; CodeQL, Dependabot, Bundle-Größe und
+Demo-Artefakt je PR, Releases über `release-please`. Ob `release-please` einen PR öffnen
+darf, hängt an der Einstellung „Allow GitHub Actions to create and approve pull requests" —
+erst der nächste Push zeigt es.
+
 ## Nicht geprüft
 
 Diese Punkte sind offen, nicht „vermutlich in Ordnung":
