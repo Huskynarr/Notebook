@@ -12,6 +12,8 @@ export default tseslint.config(
       '**/*.config.js',
       '**/*.config.ts',
       'apps/web/postcss.config.js',
+      // Reines Node-Skript ohne Typen; gehoert zu keinem tsconfig-Projekt.
+      'tools/*.mjs',
     ],
   },
   js.configs.recommended,

@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+  pull-requests: write
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -54,6 +58,36 @@ jobs:
           fi
           echo "Kein Geheimnismuster im Bundle."
 
+      # Groesse des Bundles sichtbar machen: in der Zusammenfassung des Laufs
+      # und - bei Pull Requests - als fortgeschriebener Kommentar, damit ein
+      # Sprung auffaellt, bevor er gemerged ist.
+      - name: Bundle-Groesse
+        id: bundle
+        run: |
+          {
+            echo '## Bundle-Groesse'
+            echo
+            node tools/bundle-size.mjs apps/web/dist
+          } | tee -a "$GITHUB_STEP_SUMMARY" > bundle-size.md
+
+      - name: Bundle-Groesse am Pull Request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const marker = '<!-- bundle-groesse -->';
+            const body = `${marker}\n${fs.readFileSync('bundle-size.md', 'utf8')}\n\nBuild aus ${context.payload.pull_request.head.sha.slice(0, 7)}.`;
+            const { data: kommentare } = await github.rest.issues.listComments({
+              ...context.repo, issue_number: context.issue.number, per_page: 100,
+            });
+            const vorhanden = kommentare.find((k) => k.body?.startsWith(marker));
+            if (vorhanden) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: vorhanden.id, body });
+            } else {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });
+            }
+
   ende-zu-ende:
     name: End-to-End
     runs-on: ubuntu-latest
@@ -71,9 +105,11 @@ jobs:
       - name: Hauptablauf pruefen
         run: pnpm test:e2e
 
+      # Immer hochladen, nicht nur bei Fehlern: der Bericht zeigt auch bei
+      # gruenem Lauf, was geprueft wurde.
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: playwright-report
           path: playwright-report/
-          retention-days: 7
+          retention-days: 14
