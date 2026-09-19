@@ -65,9 +65,11 @@ Gemessen, nicht geschätzt:
 
 Repository (2026-09-19, D-022): MIT-Lizenz, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`,
 `SECURITY.md`, `CODEOWNERS`, Issue-Vorlagen; CodeQL, Dependabot, Bundle-Größe und
-Demo-Artefakt je PR, Releases über `release-please`. Ob `release-please` einen PR öffnen
-darf, hängt an der Einstellung „Allow GitHub Actions to create and approve pull requests" —
-erst der nächste Push zeigt es.
+Demo-Artefakt je PR, Releases über `release-please`. Nach dem Push von `16ef1d0` gesehen:
+CI, CodeQL und Pages grün; Dependabot öffnete sofort sechs PRs, an jedem hängen der
+Bundle-Kommentar und das Demo-Artefakt; **der Release-Lauf scheiterte** — `release-please`
+darf keinen PR öffnen, solange in den Einstellungen „Allow GitHub Actions to create and
+approve pull requests" aus ist.
 
 ## Nicht geprüft
 

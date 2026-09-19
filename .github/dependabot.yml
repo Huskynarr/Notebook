@@ -15,6 +15,10 @@ updates:
     groups:
       minor-und-patch:
         update-types: [minor, patch]
+    ignore:
+      # Die Typen muessen zur laufenden Node-Version (22, .nvmrc) passen.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     schedule:
