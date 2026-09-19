@@ -1,0 +1,29 @@
+name: CodeQL
+
+# Statische Sicherheitsanalyse fuer JavaScript/TypeScript - bei jedem Push,
+# jedem Pull Request und einmal pro Woche, damit neue Regeln auch ohne
+# Aenderung am Code greifen.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '30 5 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-and-quality
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript
