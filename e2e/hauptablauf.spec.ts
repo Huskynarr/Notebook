@@ -13,8 +13,9 @@ import { expect, test, type Page } from '@playwright/test';
 
 async function login(page: Page): Promise<void> {
   await page.goto('/');
-  // Die Einfuehrung erscheint nur beim ersten Start eines Browsers - hier
-  // also in jedem Test, weil jeder mit leerem Speicher beginnt.
+  // Einwilligung und Einfuehrung erscheinen nur beim ersten Start eines
+  // Browsers - hier also in jedem Test, weil jeder mit leerem Speicher beginnt.
+  await page.getByRole('button', { name: 'Alle akzeptieren' }).click();
   await page.getByRole('button', { name: 'Überspringen' }).click();
   await page.getByLabel('Passwort').fill('admin');
   await page.getByRole('button', { name: 'Anmelden' }).click();
@@ -37,10 +38,42 @@ async function selectAllSources(page: Page): Promise<void> {
   await expect(page.locator('input[type="checkbox"]:not(:checked)')).toHaveCount(0);
 }
 
+test('Einwilligung kommt vor allem anderen; ohne Zustimmung bleiben Einstellungen in der Sitzung', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const banner = page.getByTestId('consent-banner');
+  await expect(banner.getByRole('heading', { name: 'Speicherung auf diesem Gerät' })).toBeVisible();
+  // Solange nicht entschieden ist, gibt es keine Einfuehrung und kein Cookie.
+  await expect(page.getByText('Schritt 1 von 3')).toHaveCount(0);
+  expect(await page.context().cookies()).toEqual([]);
+
+  await banner.getByRole('button', { name: 'Auswahl anpassen' }).click();
+  await expect(banner.getByRole('checkbox', { name: 'Notwendig' })).toBeDisabled();
+  await banner.getByRole('checkbox', { name: 'Einstellungen merken' }).uncheck();
+  await banner.getByRole('button', { name: 'Auswahl speichern' }).click();
+  await expect(banner).toHaveCount(0);
+
+  // Danach die Einfuehrung: die Sprachwahl darf nicht dauerhaft landen.
+  await page.getByRole('dialog').getByRole('button', { name: 'English' }).click();
+  await page.getByRole('button', { name: 'Skip' }).click();
+  const gespeichert = await page.evaluate(() => ({
+    lokal: Object.keys(localStorage),
+    sitzung: Object.keys(sessionStorage),
+  }));
+  expect(gespeichert.lokal).toEqual(['notebook.consent.v1']);
+  expect(gespeichert.sitzung).toContain('notebook.lang');
+
+  await page.reload();
+  await expect(page.getByTestId('consent-banner')).toHaveCount(0);
+  expect(await page.context().cookies()).toEqual([]);
+});
+
 test('Einführung fragt beim ersten Start nach Sprache und Design und erscheint danach nicht mehr', async ({
   page,
 }) => {
   await page.goto('/');
+  await page.getByRole('button', { name: 'Alle akzeptieren' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByText('Schritt 1 von 3')).toBeVisible();
   await dialog.getByRole('button', { name: 'English' }).click();
