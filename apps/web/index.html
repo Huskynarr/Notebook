@@ -14,33 +14,7 @@
     <!-- Hausschrift des Designs uni-freiburg, falls lizenziert vorhanden;
          sonst wirkungslos. Siehe public/fonts/README.md. -->
     <link rel="stylesheet" href="/fonts/social.css" />
-    <script>
-      /* Setzt Design und Erscheinungsbild vor dem ersten Zeichnen - sonst
-         blitzt beim Laden kurz das Vorgabedesign auf. Laeuft vor dem Bundle
-         und kann dessen Konstanten daher nicht importieren; dass Schluessel
-         und Werte hier mit src/lib/appearance.ts uebereinstimmen, prueft
-         src/__tests__/appearance.test.ts. */
-      (function () {
-        var wurzel = document.documentElement;
-        try {
-          var designs = ['eigen', 'uni-freiburg', 'huskynarr'];
-          var modi = ['light', 'dark'];
-          /* Einstellungen liegen je nach Einwilligung (src/lib/consent.ts)
-             im localStorage oder nur im sessionStorage. */
-          var lesen = function (schluessel) {
-            return localStorage.getItem(schluessel) || sessionStorage.getItem(schluessel);
-          };
-          var design = lesen('notebook.design');
-          var modus = lesen('notebook.mode');
-          wurzel.dataset.design = designs.indexOf(design) >= 0 ? design : 'eigen';
-          if (modi.indexOf(modus) >= 0) wurzel.dataset.theme = modus;
-          var sprache = lesen('notebook.lang');
-          if (sprache === 'de' || sprache === 'en') wurzel.lang = sprache;
-        } catch (e) {
-          wurzel.dataset.design = 'eigen';
-        }
-      })();
-    </script>
+    <script src="%BASE_URL%appearance.js"></script>
   </head>
   <body>
     <div id="root"></div>

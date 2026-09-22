@@ -26,6 +26,11 @@ export const en: Texte = {
   'common.characters': 'characters',
   'common.closeMessage': 'Dismiss message',
 
+  'notes.editableHint':
+    'Notes can be edited. Citations point to original text; they do not independently verify the note’s claims or AI origin.',
+  'notes.sourceMissing': 'Original source deleted. Saved evidence excerpt:',
+  'demo.singleNotebook':
+    'The browser demo contains one example notebook. Full notebook management requires a backend connection.',
   'login.username': 'Username',
   'login.password': 'Password',
   'login.submit': 'Sign in',
@@ -192,6 +197,22 @@ export const en: Texte = {
   'consent.customize': 'Customise selection',
   'consent.less': 'Show less',
 
+  'login.wait': 'Sign-in available again in {seconds} seconds.',
+  'login.cooldownHint': 'After three failed sign-ins, an increasing cooldown applies.',
+  'login.demoOpen': 'Open demo',
+  'login.demoWarning':
+    'Unprotected browser demo. No real authentication or AI connection. Use sample data only.',
+  'login.back': 'Back to home',
+  'login.protected': 'Protected workspace',
+  'login.security': 'The server verifies access and limits failed sign-in attempts.',
+  'addSource.tooLarge': 'Maximum 10 MiB (10,485,760 bytes) per source in this test environment.',
+  'addSource.invalidFile': 'Only UTF-8 text files in .txt or .md format are supported.',
+  'addSource.unsupportedUrl':
+    'Website import is not available in this release. Import text or Markdown.',
+  'addSource.fileHint': '.txt or .md · UTF-8 · maximum 10 MiB per source',
+  'design.everlast.label': 'Everlast · Research',
+  'design.everlast.hint':
+    'Independent interpretation with black, lemon yellow and clear typography.',
   'design.eigen.label': 'Paper and ink',
   'design.eigen.hint': 'Own design: warm surfaces, serif for reading text, brown for citations.',
   'design.uni-freiburg.label': 'University of Freiburg',
