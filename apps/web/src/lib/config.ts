@@ -7,16 +7,15 @@
  */
 const configured: unknown = import.meta.env['VITE_API_BASE_URL'];
 
-export const API_BASE_URL: string =
-  typeof configured === 'string' && configured.trim() !== ''
-    ? configured.trim()
-    : 'http://localhost:8787';
+/** Explicitly empty means same-origin (/v1), as used behind Plesk nginx. */
+export function apiBaseUrl(value: unknown): string {
+  return typeof value === 'string' ? value.trim().replace(/\/$/, '') : 'http://localhost:8787';
+}
+
+export const API_BASE_URL = apiBaseUrl(configured);
 
 const demo: unknown = import.meta.env['VITE_DEMO'];
 
-/** true = Demo ohne Backend (GitHub Pages). Die Anwendung laeuft dann
- *  vollstaendig im Browser: Anmeldung, Notebooks, Quellen, Notizen und die
- *  Belegmechanik sind echt und bleiben im localStorage; nur ein Sprachmodell
- *  ist nicht angebunden - das ist an der Antwort gekennzeichnet, wie beim
- *  Server mit LLM_PROVIDER=stub. */
+/** Explicit optional browser demo build. No access protection, one example
+ * notebook, localStorage persistence and visibly simulated model responses. */
 export const DEMO_MODE: boolean = demo === 'true' || demo === true;

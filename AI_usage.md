@@ -171,3 +171,10 @@ Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
 feat(web): ergänze die öffentliche Produktlandingpage. Codex bearbeitete die zugehörigen Dateien.
 Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
 Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 10
+
+fix(web): übernehme serverseitige Wartezeiten und Backendkonfiguration. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.

@@ -29,12 +29,14 @@ import type { Uebersetzer } from '../i18n/index.ts';
 export class ApiRequestError extends Error {
   readonly code: string;
   readonly status: number;
+  readonly retryAfterSeconds: number;
 
-  constructor(message: string, code: string, status: number) {
+  constructor(message: string, code: string, status: number, retryAfterSeconds = 0) {
     super(message);
     this.name = 'ApiRequestError';
     this.code = code;
     this.status = status;
+    this.retryAfterSeconds = retryAfterSeconds;
   }
 }
 
@@ -113,6 +115,11 @@ export class ApiClient implements NotebookApi {
           : this.t('error.status', { status: response.status }),
         parsed.success ? parsed.data.error.code : 'internal',
         response.status,
+        Math.max(
+          0,
+          Number(response.headers.get('retry-after')) || 0,
+          parsed.success ? (parsed.data.error.retryAfterSeconds ?? 0) : 0,
+        ),
       );
     }
 
