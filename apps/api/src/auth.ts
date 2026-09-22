@@ -2,8 +2,8 @@ import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypt
 import type { Config } from './config.ts';
 
 /**
- * Einfachster tragfaehiger Zugang (D-003): ein festes Paar aus Benutzername und
- * Passwort, danach ein signiertes Token. Keine Nutzertabelle, keine Rollen.
+ * Feste Zugangspaare aus der Backend-Konfiguration, danach ein signiertes Token.
+ * Gemeinsamer Arbeitsbereich, keine Nutzertabelle und keine Rollen.
  *
  * Bewusst ohne Bibliothek: ein HMAC ueber Nutzdaten und Ablaufzeit ist genau
  * das, was hier gebraucht wird - eine JWT-Bibliothek waere Infrastruktur ohne
@@ -26,15 +26,29 @@ export class Auth {
     return this.config.AUTH_SECRET === undefined;
   }
 
+  hasUsername(username: string): boolean {
+    return this.accounts.some((account) => account.username === username);
+  }
+
+  private get accounts(): { username: string; password: string }[] {
+    return [
+      { username: this.config.AUTH_USERNAME, password: this.config.AUTH_PASSWORD },
+      ...this.config.AUTH_ADDITIONAL_USERS,
+    ];
+  }
+
   login(username: string, password: string): { token: string; expiresAt: string } | null {
-    const userOk = safeEquals(username, this.config.AUTH_USERNAME);
-    const passOk = safeEquals(password, this.config.AUTH_PASSWORD);
-    // Beide Vergleiche laufen immer, damit die Antwortzeit nicht verraet,
-    // welcher der beiden Werte falsch war.
-    if (!userOk || !passOk) return null;
+    let matchedUsername: string | undefined;
+    // Every configured pair is compared, even after a match.
+    for (const account of this.accounts) {
+      const userOk = safeEquals(username, account.username);
+      const passOk = safeEquals(password, account.password);
+      if (userOk && passOk) matchedUsername = account.username;
+    }
+    if (matchedUsername === undefined) return null;
 
     const expiresAtMs = Date.now() + this.ttlMs;
-    const payload = `${this.config.AUTH_USERNAME}.${expiresAtMs}`;
+    const payload = `${matchedUsername}.${expiresAtMs}`;
     const token = `${Buffer.from(payload).toString('base64url')}.${this.sign(payload)}`;
     return { token, expiresAt: new Date(expiresAtMs).toISOString() };
   }
@@ -55,7 +69,7 @@ export class Auth {
     if (!safeEquals(signature, this.sign(payload))) return false;
 
     const separator = payload.lastIndexOf('.');
-    if (payload.slice(0, separator) !== this.config.AUTH_USERNAME) return false;
+    if (!this.hasUsername(payload.slice(0, separator))) return false;
     const expiry = payload.slice(separator + 1);
     if (!/^\d+$/.test(expiry)) return false;
     const expiresAtMs = Number(expiry);

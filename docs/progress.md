@@ -23,8 +23,8 @@ Veröffentlichung auf Plesk und keine Live-Abnahme eines KI-Anbieters.
 
 | Prüfung | Ergebnis |
 |---|---|
-| `pnpm verify` unter Node 24.19.0, pnpm 9.15.9 | Typecheck, ESLint, Prettier, Theme-Vergleich, Build bestanden; 176 Unit-/Integrationstests in 23 Dateien und 10 Tooling-Tests bestanden |
-| `pnpm test:e2e` mit Chromium | 12 Tests bestanden: vollständiger Ablauf, Belegsprung, Quellenwahl, Notiz nach Neuladen, Dateiimport/10-MiB-Abweisung, mobile Breite, Login-Sperre |
+| `pnpm verify` unter Node 24.19.0, pnpm 9.15.9 | Typecheck, ESLint, Prettier, Theme-Vergleich, Build bestanden; 190 Unit-/Integrationstests in 25 Dateien und 10 Tooling-Tests bestanden |
+| `pnpm test:e2e` mit Chromium | 13 Tests bestanden: zusätzlicher Nutzerzugang, vollständiger Ablauf, Belegsprung, Quellenwahl, Notiz nach Neuladen, Dateiimport/10-MiB-Abweisung, mobile Breite, Login-Sperre |
 | Fail2ban 1.1.0, `bash tools/test-fail2ban.sh` | 5 exakte IP-Treffer, 7 Nichttreffer, 12 Zeitstempel; UTC auch unter Europe/Berlin korrekt |
 | Isoliertes Release-Paket, ausschließlich Produktionsabhängigkeiten | Installation erfolgreich; API startet, Health 200, geschützte Notebookroute ohne Token 401 |
 | Deploy-Skript mit lokalen Testdoppeln | Konfigurationsprüfung, erfolgreiche Umschaltung und Rückkehr bei Startfehlern bestanden; kein SSH-Deployment |
@@ -63,6 +63,20 @@ binäre/zu große Quellen, gelöschte Originalquellen und Exportgrenzen.
 ## Fachliche Grenzen
 
 Wörtlich vorhandene Belege beweisen keine semantische Richtigkeit. BM25 kann relevante
-Stellen übersehen. Der gemeinsame Admin bietet keine Trennung zwischen Personen und
-kann durch verteilte Fehlanmeldungen zeitweise blockiert werden. SQLite liegt lokal
+Stellen übersehen. Die festen Zugänge teilen denselben Datenbestand und
+können durch verteilte Fehlanmeldungen pro Konto zeitweise blockiert werden. SQLite liegt lokal
 beim Backend; Browserdemo und API-Betrieb haben unterschiedliche Schutz-/Funktionsgrenzen.
+
+
+## 2026-09-22 · Zugänge Huskynar und everlabs
+
+Der bisherige lokale Standardname lautet jetzt `Huskynar`, Passwort unverändert.
+`everlabs` wurde mit dem angeforderten Testpasswort in der ignorierten Backend-ENV
+eingerichtet; Zugangsdaten werden nicht im Git oder Frontend gespeichert. Ein frischer
+Checkout benötigt diese separate Backend-Konfiguration für den zusätzlichen Zugang.
+Beide Logins und authentifizierten Datenzugriffe tatsächlich mit HTTP200 geprüft,
+der alte Standardname `admin` mit HTTP401. Login-Drossel je Nutzer und IP, keine
+Trennung der Notebookdaten. `pnpm check:all`: 190 Unit-/Integrationstests, 10 Tooling-
+Tests und 13 Chromium-E2E-Tests bestanden. Konfiguration, ungültige/entfernte Nutzer,
+vertauschte Passwörter, isolierte Kontosperren und zweiter Browserlogin sind abgedeckt.
+Kein Deployment; die bisher oben verlinkte GitHub-Abnahme betrifft den vorigen Stand.

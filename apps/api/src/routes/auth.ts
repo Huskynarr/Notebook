@@ -9,21 +9,22 @@ export const APP_VERSION = '0.1.0';
 
 export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext): void {
   app.post('/v1/auth/login', { bodyLimit: 8 * 1024 }, (request, reply) => {
-    const cooldown = ctx.loginThrottle.check(request.ip);
+    const body = parseBody(LoginRequestSchema, request, reply);
+    if (body === null) return reply;
+    const account = ctx.auth.hasUsername(body.username) ? body.username : null;
+    const cooldown = ctx.loginThrottle.check(request.ip, account);
     if (cooldown !== null) {
       request.log.warn({ event: 'auth_rate_limited', ip: request.ip }, 'Login gedrosselt');
       return rateLimited(reply, cooldown);
     }
-    const body = parseBody(LoginRequestSchema, request, reply);
-    if (body === null) return reply;
     const session = ctx.auth.login(body.username, body.password);
     if (session === null) {
       request.log.warn({ event: 'auth_failed', ip: request.ip }, 'Login fehlgeschlagen');
-      const nextCooldown = ctx.loginThrottle.failure(request.ip);
+      const nextCooldown = ctx.loginThrottle.failure(request.ip, account);
       if (nextCooldown !== null) return rateLimited(reply, nextCooldown);
       return fail(reply, 401, 'unauthorized', 'Benutzername oder Passwort stimmt nicht.');
     }
-    ctx.loginThrottle.success(request.ip);
+    ctx.loginThrottle.success(request.ip, body.username);
     return session;
   });
 

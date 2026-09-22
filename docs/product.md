@@ -8,7 +8,7 @@ Studierende, wissenschaftliche Mitarbeitende und Lehrende arbeiten allein mit ei
 abgegrenzten Korpus aus Skripten, Seminarunterlagen, Protokollen oder eigenen Notizen.
 Typischer Arbeitsumfang als Annahme: 3–30 Textdokumente. Entwicklung auf localhost;
 später ein geschützter gemeinsamer Demo-Arbeitsraum unter notebook.sebastianselinger.de.
-Ein gemeinsamer Admin ist keine Mehrbenutzer- oder Mandantentrennung.
+Feste Zugänge teilen denselben Arbeitsbereich, ohne Mehrbenutzer- oder Mandantentrennung.
 
 ## Zentrales Problem und kurze Produktanalyse
 
@@ -21,7 +21,7 @@ Das ist die Produkthypothese, kein gemessenes Urteil über andere Produkte.
 |---|---|---|
 | Allgemeiner KI-Chat | Freie Fragen, breites Modellwissen | Antworten auf ausgewählte eigene Quellen begrenzen |
 | Volltextsuche | Direkte Originalstellen | Fundstellen und zitierte Modellformulierungen nebeneinander |
-| Vollständige Wissensplattform | Mehrbenutzerbetrieb, viele Medien | Enger Textworkflow mit SQLite und einem Admin |
+| Vollständige Wissensplattform | Mehrbenutzerbetrieb, viele Medien | Enger Textworkflow mit SQLite und festen Zugängen |
 
 Es wurde kein vollständiger Wettbewerbsbenchmark durchgeführt. Erfolg wird zunächst
 am Hauptablauf geprüft; Zeitersparnis und Modellqualität bleiben zu messen.
@@ -48,7 +48,7 @@ am Hauptablauf geprüft; Zeitersparnis und Modellqualität bleiben zu messen.
 | P7 | Notizen | Anlegen, bearbeiten, löschen; Referenzen serverseitig prüfen; fehlende Originale kennzeichnen |
 | P8 | Lokale Persistenz | SQLite-Datei auf dem API-Rechner, kein externer Datenbankdienst |
 | P9 | Sofort nutzbares Beispiel | Fiktives Notebook, Quellen und Beispielfragen; Fundstellen ohne API-Schlüssel erkundbar |
-| P10 | Einfacher Zugangsschutz | localhost admin:admin; serverseitige Anmeldung, Token und verzögerte Wiederholung |
+| P10 | Einfacher Zugangsschutz | localhost Huskynar:admin; weitere Zugänge per Backend-Konfiguration; serverseitige Anmeldung, Token und verzögerte Wiederholung |
 | P11 | Landingpage und Themes | Öffentliche Erklärung, Login oben rechts; Everlast, Huskynarr und bestehende Themes |
 | P12 | Reproduzierbare Qualität | Typecheck, Lint, Build, Unit-/Integrationstests, E2E, Git-Hooks und GitHub CI/CD |
 
@@ -71,7 +71,7 @@ am Hauptablauf geprüft; Zeitersparnis und Modellqualität bleiben zu messen.
 ## Grenzen und Nicht-Ziele
 
 Textbasierte PDFs sind eine optionale spätere Erweiterung; noch kein Import, keine OCR.
-Registrierung, Nutzerkonten, Rollen, Zusammenarbeit, Audio-/Videogenerierung,
+Registrierung, Kontoverwaltung, Rollen, Zusammenarbeit, Audio-/Videogenerierung,
 Website-Import/Crawling und große Vektorinfrastruktur bleiben außerhalb dieser Version.
 Die gesonderte GitHub-Pages-Browserdemo hat keinen Zugangsschutz und kein KI-Modell;
 ihr Funktionsumfang ist kleiner als der vollständige API-Betrieb.
@@ -89,7 +89,7 @@ brauchen zusätzlichen Platz. KI-Anfragen: zwei gleichzeitig, zehn pro Minute,
    NVIDIA-Testkontingente sind keine Zusage für kostenlosen Dauerbetrieb.
 3. Modellantworten halten das strenge JSON-/Belegformat zuverlässig ein. Die Testdoppel
    belegen den Softwarevertrag, nicht die Qualität eines laufenden Modells.
-4. Der gemeinsame Admin reicht für eine abgegrenzte Demo. Ein zentraler Dienst mit
+4. Die festen Zugänge zum gemeinsamen Arbeitsbereich reichen für eine abgegrenzte Demo. Ein zentraler Dienst mit
    persönlichen Daten benötigt später individuelle Konten und getrennte Arbeitsräume.
 5. Everlast-/Huskynarr-Themes sind eigenständige Ableitungen beobachteter Farben;
    eine offizielle Corporate-Design-Abnahme liegt nicht vor.

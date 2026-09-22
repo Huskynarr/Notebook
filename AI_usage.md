@@ -229,3 +229,15 @@ gegen den geprüften lokalen Git-Baum abgeglichen. Pull Request #9 wurde geöffn
 GitHub CI 35763920968 (Node 22, Chromium, Fail2ban) und CodeQL 35763920983 bestanden
 am Commit 16392b6. Kein Merge und kein Deployment wurden ausgelöst. Diese tatsächlichen
 Resultate wurden in der Fortschrittsdokumentation ergänzt.
+
+
+### 2026-09-22 · Feste Zugänge anpassen
+
+Codex änderte den Standardnamen auf `Huskynar`, ergänzte validierte weitere
+Backend-Zugänge und hinterlegte den angeforderten Zugang `everlabs` ausschließlich
+in der ignorierten lokalen Konfiguration. Ein Agent prüfte und implementierte die
+nutzerbezogene Anmeldedrossel samt Regressionstests. Das vorgegebene Testpasswort
+wurde weder ins Git noch in das Frontend übernommen. Prüfresultate stehen in
+`docs/progress.md`: 190 Unit-/Integrationstests, 10 Tooling-Tests und 13 Browsertests
+bestanden. Beide lokal konfigurierten Zugangspaare wurden zusätzlich gegen die API
+geprüft; der alte Standardname wird abgewiesen. Kein Server-Deployment.

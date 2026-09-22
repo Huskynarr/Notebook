@@ -139,7 +139,7 @@ Bei jeder inhaltlichen Änderung mitzuführen, knapp und ohne Prosa-Ballast:
 
 ## 11. Betrieb und Missbrauchsgrenzen
 
-- Kein öffentliches Deployment mit admin:admin; localhost bleibt die explizite Demo-Ausnahme.
+- Kein öffentliches Deployment mit dem Standardpasswort admin; localhost bleibt die explizite Demo-Ausnahme.
 - Jede Datenroute verlangt ein serverseitig geprüftes Token; Clientprüfungen ergänzen nur.
 - Uploadgröße in UTF-8-Bytes auf beiden Seiten prüfen; Begrenzungen nie nur im UI.
 - Forwarded-Header nur von konfigurierten vertrauenswürdigen Proxys akzeptieren.

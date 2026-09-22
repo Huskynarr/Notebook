@@ -564,3 +564,14 @@ Kein Schlüssel vorhanden, kein Live-Erfolg behauptet. Plesk nginx+systemd-Benut
 SQLite außerhalb Webroot, feste SSH-Hostprüfung, getestetes Releasepaket und Rücksprung.
 Passenger/Docker/Kubernetes verworfen. CI/Git-Hooks verwenden gemeinsame Prüfbefehle;
 Pages und Plesk werden bewusst manuell nach erfolgreichen Gates veröffentlicht.
+
+
+## D-028 · 2026-09-22 · Zwei feste Zugänge auf ausdrücklichen Auftrag
+
+Standardname `Huskynar`, unverändertes lokales Passwort. Weitere Zugänge werden als
+validierte Backend-ENV-Liste konfiguriert; das Testpasswort für `everlabs` bleibt
+ausschließlich in der ignorierten lokalen `.env`. Keine Veröffentlichung im Git und
+keine neue Registrierungs- oder Rollenverwaltung. Beide Zugänge teilen denselben
+Datenbestand. Login-Sperren gelten pro Nutzer und zusätzlich pro IP; unbekannte Namen
+teilen einen Sammelbereich. Alternative globaler Kontosperre verworfen, weil ein
+Nutzer sonst den zweiten von allen IPs ausschließen könnte.

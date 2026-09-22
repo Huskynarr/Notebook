@@ -69,7 +69,7 @@ async function start(ctx: AppContext): Promise<{ app: FastifyInstance; token: st
   const login = await app.inject({
     method: 'POST',
     url: '/v1/auth/login',
-    payload: { username: 'admin', password: 'admin' },
+    payload: { username: 'Huskynar', password: 'admin' },
   });
   return { app, token: body(LoginResponseSchema, login).token };
 }
@@ -123,7 +123,7 @@ describe('Zugangssicherung', () => {
     const response = await app.inject({
       method: 'POST',
       url: '/v1/auth/login',
-      payload: { username: 'admin', password: 'falsch' },
+      payload: { username: 'Huskynar', password: 'falsch' },
     });
     expect(response.statusCode).toBe(401);
   });

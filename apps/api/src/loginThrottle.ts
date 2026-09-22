@@ -9,9 +9,9 @@ export interface LoginCooldown {
   retryAt: string;
 }
 
-/** SQLite preserves the delay across restarts. One IP bucket and one bucket for
- * the single shared account prevent rotating usernames or client addresses.
- * Only hashes of addresses are stored; never credentials or submitted names. */
+/** SQLite preserves the delay across restarts. Per-account and IP buckets
+ * prevent rotating usernames or client addresses. Callers pass only a configured
+ * username, or null for all unknown names. Only hashes are stored. */
 export class LoginThrottle {
   private readonly db: Db;
 
@@ -25,10 +25,10 @@ export class LoginThrottle {
     )`);
   }
 
-  check(ip: string, now = Date.now()): LoginCooldown | null {
+  check(ip: string, username: string | null, now = Date.now()): LoginCooldown | null {
     this.prune(now);
     let blockedUntil = 0;
-    for (const bucket of this.buckets(ip)) {
+    for (const bucket of this.buckets(ip, username)) {
       const row = this.db
         .prepare('SELECT blocked_until FROM login_attempts WHERE bucket = ?')
         .get(bucket);
@@ -43,9 +43,9 @@ export class LoginThrottle {
       : null;
   }
 
-  failure(ip: string, now = Date.now()): LoginCooldown | null {
+  failure(ip: string, username: string | null, now = Date.now()): LoginCooldown | null {
     this.prune(now);
-    for (const bucket of this.buckets(ip)) {
+    for (const bucket of this.buckets(ip, username)) {
       const row = this.db
         .prepare('SELECT failures FROM login_attempts WHERE bucket = ?')
         .get(bucket);
@@ -59,17 +59,22 @@ export class LoginThrottle {
         )
         .run(bucket, failures, now + delay * 1000, now);
     }
-    return this.check(ip, now);
+    return this.check(ip, username, now);
   }
 
-  success(ip: string): void {
-    for (const bucket of this.buckets(ip)) {
+  success(ip: string, username: string): void {
+    for (const bucket of this.buckets(ip, username)) {
       this.db.prepare('DELETE FROM login_attempts WHERE bucket = ?').run(bucket);
     }
   }
 
-  private buckets(ip: string): string[] {
-    return ['shared-account', `ip:${createHash('sha256').update(ip).digest('hex')}`];
+  private buckets(ip: string, username: string | null): string[] {
+    return [
+      username === null
+        ? 'unknown-account'
+        : `account:${createHash('sha256').update(username).digest('hex')}`,
+      `ip:${createHash('sha256').update(ip).digest('hex')}`,
+    ];
   }
 
   private prune(now: number): void {

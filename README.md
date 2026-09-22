@@ -42,9 +42,16 @@ pnpm dev
 Frontend: <http://localhost:5173> · API: <http://localhost:8787>
 
 Die öffentliche Landingpage führt über **Anmelden** zum lokalen Demozugang
-**admin / admin**. Die API legt beim ersten Start ein Beispiel-Notebook an und speichert
+**Huskynar / admin**. Die API legt beim ersten Start ein Beispiel-Notebook an und speichert
 Notebooks, Quellen und Notizen in einer lokalen SQLite-Datei. Ohne Modellschlüssel
 liefert sie ausschließlich sichtbar markierte Fundstellen, keine erfundene KI-Antwort.
+
+Weitere feste Zugänge, beispielsweise `everlabs`, werden ausschließlich im Backend
+über `AUTH_ADDITIONAL_USERS` in `apps/api/.env` konfiguriert (JSON-Liste mit
+`username` und `password`, siehe `.env.example`). Das angeforderte Testpasswort ist
+nur in der lokalen, von Git ausgeschlossenen Konfiguration hinterlegt und muss auf
+einem anderen Rechner gesondert gesetzt werden. Alle Zugänge teilen die Notebooks;
+es gibt weiterhin keine Registrierung, Rollen oder getrennten Datenbestände.
 
 `pnpm install` baut das gemeinsame Schema und installiert die Git-Hooks, sofern keine
 fremden Hooks konfiguriert sind. Die API liest `apps/api/.env` automatisch. Der
@@ -100,9 +107,9 @@ Funktionsumfang und kein Modell. Sie ist kein Ersatz für den API-Betrieb.
 ## Schutz und Betrieb
 
 Nach drei Fehlanmeldungen: 30 Sekunden Wartezeit, anschließend exponentiell bis
-15 Minuten. Der Server speichert Sperren in SQLite für IP und gemeinsamen Zugang;
+15 Minuten. Der Server speichert Sperren in SQLite pro IP und pro konfiguriertem Zugang;
 der Client zeigt den Countdown auch nach Neuladen. Nur der Server entscheidet über
-Zugriff. Ein geteilter Admin ist keine Mehrbenutzertrennung und kann durch absichtliche
+Zugriff. Die Zugänge zum gemeinsamen Arbeitsbereich bieten keine Datentrennung und kann durch absichtliche
 Fehlanmeldungen vorübergehend blockiert werden.
 
 Produktionsbetrieb verlangt ein eigenes langes Passwort und Signaturgeheimnis.

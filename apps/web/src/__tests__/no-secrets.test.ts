@@ -75,6 +75,7 @@ describe('Keine Geheimnisse im Frontend', () => {
         /\bsk-[A-Za-z0-9]{16,}\b/,
         /LLM_API_KEY/,
         /AUTH_PASSWORD/,
+        /AUTH_ADDITIONAL_USERS/,
         /AUTH_SECRET/,
       ]) {
         if (pattern.test(content)) offenders.push(`${file}: ${pattern.source}`);

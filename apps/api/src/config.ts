@@ -15,6 +15,15 @@ function validProxy(value: string): boolean {
  *
  *  Geheimnisse leben ausschliesslich hier im Serverprozess. Nichts davon wird
  *  jemals an einen Client ausgeliefert (AGENTS.md Regel 4). */
+const AdditionalUsersSchema = z
+  .array(
+    z.object({
+      username: z.string().min(1).max(200),
+      password: z.string().min(1).max(1024),
+    }),
+  )
+  .max(10);
+
 const ConfigSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -49,8 +58,24 @@ const ConfigSchema = z
 
     DATABASE_PATH: z.string().default('./data/notebook.db'),
 
-    AUTH_USERNAME: z.string().min(1).max(200).default('admin'),
+    AUTH_USERNAME: z.string().min(1).max(200).default('Huskynar'),
     AUTH_PASSWORD: z.string().min(1).max(1024).default('admin'),
+    AUTH_ADDITIONAL_USERS: z
+      .string()
+      .default('[]')
+      .transform((value, ctx) => {
+        try {
+          const parsed = AdditionalUsersSchema.safeParse(JSON.parse(value));
+          if (parsed.success) return parsed.data;
+        } catch {
+          /* Invalid JSON must not echo credentials in startup errors. */
+        }
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Gültige JSON-Liste mit höchstens zehn Zugangspaaren erforderlich.',
+        });
+        return z.NEVER;
+      }),
     /** Signiert die Sitzungstoken. Ohne Vorgabe wird beim Start ein zufaelliger
      *  Wert erzeugt - dann gelten Sitzungen nur bis zum Neustart. */
     AUTH_SECRET: z.string().min(16).optional(),
@@ -77,7 +102,30 @@ const ConfigSchema = z
       .transform((v) => v === 'true'),
   })
   .superRefine((config, ctx) => {
+    const names = [
+      config.AUTH_USERNAME,
+      ...config.AUTH_ADDITIONAL_USERS.map((user) => user.username),
+    ];
+    if (new Set(names).size !== names.length) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AUTH_ADDITIONAL_USERS'],
+        message: 'Benutzernamen müssen eindeutig sein.',
+      });
+    }
     if (config.NODE_ENV !== 'production') return;
+    if (
+      config.AUTH_ADDITIONAL_USERS.some(
+        (user) => user.password === 'admin' || user.password.length < 16,
+      )
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AUTH_ADDITIONAL_USERS'],
+        message:
+          'Produktion verlangt für jeden Zugang ein eigenes Passwort mit mindestens 16 Zeichen.',
+      });
+    }
     if (config.AUTH_PASSWORD === 'admin' || config.AUTH_PASSWORD.length < 16) {
       ctx.addIssue({
         code: 'custom',

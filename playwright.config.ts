@@ -50,6 +50,11 @@ export default defineConfig({
       env: {
         DATABASE_PATH: './.e2e/notebook.db',
         LLM_PROVIDER: 'stub',
+        AUTH_USERNAME: 'Huskynar',
+        AUTH_PASSWORD: 'admin',
+        AUTH_ADDITIONAL_USERS: JSON.stringify([
+          { username: 'everlabs', password: 'browser-fixture-password-only' },
+        ]),
         AUTH_SECRET: 'e2e-geheimnis-mindestens-16-zeichen',
         CORS_ORIGIN: 'http://127.0.0.1:4173,http://localhost:4173',
         SEED_ON_EMPTY: 'true',

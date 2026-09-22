@@ -11,6 +11,7 @@ import { LoginThrottle } from './loginThrottle.ts';
 import { buildServer } from './server.ts';
 
 const env = {
+  AUTH_USERNAME: 'admin',
   AUTH_SECRET: 'test-only-stable-secret-of-at-least-32-characters',
   SEED_ON_EMPTY: 'false',
 };
@@ -21,39 +22,39 @@ describe('Persistente Login-Drossel', () => {
     try {
       const limiter = new LoginThrottle(db);
       let now = 1_000_000;
-      expect(limiter.failure('192.0.2.1', now)).toBeNull();
-      expect(limiter.failure('192.0.2.1', now)).toBeNull();
-      expect(limiter.failure('192.0.2.1', now)?.retryAfterSeconds).toBe(30);
-      expect(limiter.check('192.0.2.1', now + 1001)?.retryAfterSeconds).toBe(29);
+      expect(limiter.failure('192.0.2.1', 'admin', now)).toBeNull();
+      expect(limiter.failure('192.0.2.1', 'admin', now)).toBeNull();
+      expect(limiter.failure('192.0.2.1', 'admin', now)?.retryAfterSeconds).toBe(30);
+      expect(limiter.check('192.0.2.1', 'admin', now + 1001)?.retryAfterSeconds).toBe(29);
       now += 30_000;
-      expect(limiter.check('192.0.2.1', now)).toBeNull();
+      expect(limiter.check('192.0.2.1', 'admin', now)).toBeNull();
       for (const expected of [60, 120, 240, 480, 900, 900]) {
-        expect(limiter.failure('192.0.2.1', now)?.retryAfterSeconds).toBe(expected);
+        expect(limiter.failure('192.0.2.1', 'admin', now)?.retryAfterSeconds).toBe(expected);
         now += expected * 1000;
       }
-      limiter.success('192.0.2.1');
-      expect(limiter.failure('192.0.2.1', now)).toBeNull();
+      limiter.success('192.0.2.1', 'admin');
+      expect(limiter.failure('192.0.2.1', 'admin', now)).toBeNull();
     } finally {
       db.close();
     }
   });
 
-  it('übersteht Neustarts und begrenzt wechselnde IPs am gemeinsamen Konto', () => {
+  it('übersteht Neustarts und begrenzt wechselnde IPs pro Konto', () => {
     const dir = mkdtempSync(join(tmpdir(), 'notebook-security-'));
     const path = join(dir, 'state.sqlite');
     try {
       const firstDb = openDatabase(path);
       const first = new LoginThrottle(firstDb);
-      first.failure('192.0.2.1', 1_000_000);
-      first.failure('192.0.2.2', 1_000_000);
-      first.failure('192.0.2.3', 1_000_000);
+      first.failure('192.0.2.1', 'admin', 1_000_000);
+      first.failure('192.0.2.2', 'admin', 1_000_000);
+      first.failure('192.0.2.3', 'admin', 1_000_000);
       firstDb.close();
       const secondDb = openDatabase(path);
       try {
-        expect(new LoginThrottle(secondDb).check('192.0.2.4', 1_001_000)?.retryAfterSeconds).toBe(
-          29,
-        );
-        expect(new LoginThrottle(secondDb).check('192.0.2.4', 100_000_000)).toBeNull();
+        expect(
+          new LoginThrottle(secondDb).check('192.0.2.4', 'admin', 1_001_000)?.retryAfterSeconds,
+        ).toBe(29);
+        expect(new LoginThrottle(secondDb).check('192.0.2.4', 'admin', 100_000_000)).toBeNull();
       } finally {
         secondDb.close();
       }
@@ -110,7 +111,7 @@ describe('Sicherer API-Vertrag', () => {
       payload: { username: 'admin', password: 'admin' },
     });
     expect(accepted.statusCode).toBe(200);
-    expect(ctx.loginThrottle.check('127.0.0.1')).toBeNull();
+    expect(ctx.loginThrottle.check('127.0.0.1', 'admin')).toBeNull();
   });
 
   it('vertraut ohne Opt-in keinem X-Forwarded-For und schreibt keine IP im Klartext in Loginzustand', async () => {
@@ -125,7 +126,7 @@ describe('Sicherer API-Vertrag', () => {
     expect(buckets).toHaveLength(2);
     expect(JSON.stringify(buckets)).not.toContain('192.0.2.25');
     expect(JSON.stringify(buckets)).not.toContain('198.51.100.44');
-    expect(ctx.loginThrottle.failure('192.0.2.25')).toBeNull();
+    expect(ctx.loginThrottle.failure('192.0.2.25', 'admin')).toBeNull();
     const rows = ctx.db.prepare('SELECT failures FROM login_attempts ORDER BY failures').all();
     expect(rows.map((row) => row['failures'])).toEqual([2, 2]);
   });

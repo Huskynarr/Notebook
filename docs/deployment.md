@@ -41,7 +41,7 @@ PORT=8787
 CORS_ORIGIN=https://notebook.sebastianselinger.de
 TRUST_PROXY=127.0.0.1,::1
 DATABASE_PATH=./data/notebook.db
-AUTH_USERNAME=admin
+AUTH_USERNAME=Huskynar
 # Eigenes langes Passwort und ein zufälliges Geheimnis serverseitig eintragen:
 AUTH_PASSWORD=
 AUTH_SECRET=
@@ -50,8 +50,11 @@ LLM_PROVIDER=stub
 SEED_ON_EMPTY=true
 ```
 
-Der Produktionsstart lehnt `admin:admin`, Passwörter unter 16 Zeichen und
-Signaturgeheimnisse unter 32 Zeichen ab. `admin:admin` bleibt für localhost nutzbar.
+Der Produktionsstart lehnt das Standardpasswort `admin`, Passwörter unter 16 Zeichen und
+Signaturgeheimnisse unter 32 Zeichen ab. `Huskynar:admin` bleibt für localhost nutzbar.
+Weitere Zugänge werden in `shared/api.env` über `AUTH_ADDITIONAL_USERS` als JSON-Liste
+mit `username` und `password` eingerichtet; auch deren Passwörter müssen in Produktion
+mindestens 16 Zeichen haben. Das lokale Testpasswort wurde nicht auf den Server übertragen.
 Ein zufälliges Geheimnis kann mit `openssl rand -hex 32` erzeugt werden; nicht ins Git
 übernehmen. Die KI-Konfiguration steht in [providers.md](providers.md).
 
