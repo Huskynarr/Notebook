@@ -11,22 +11,29 @@
   "type": "module",
   "packageManager": "pnpm@9.15.9",
   "engines": {
-    "node": ">=20.11"
+    "node": ">=22.18.0"
   },
   "scripts": {
-    "prepare": "pnpm --filter @notebook/shared build",
+    "prepare": "pnpm build:shared && node tools/install-hooks.mjs",
     "build:shared": "pnpm --filter @notebook/shared build",
-    "dev": "pnpm build:shared && pnpm -r --parallel dev",
-    "build": "pnpm -r build",
+    "dev": "pnpm preflight && pnpm build:shared && pnpm -r --parallel dev",
+    "build": "pnpm preflight && pnpm -r build",
     "theme": "python3 tools/build-theme.py && prettier --write apps/web/src/styles/theme.css --log-level warn",
     "typecheck": "pnpm build:shared && pnpm -r typecheck",
     "lint": "pnpm build:shared && eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "pnpm build:shared && vitest run",
+    "test": "pnpm build && pnpm test:unit",
     "test:watch": "pnpm build:shared && vitest",
     "test:e2e": "pnpm build:shared && pnpm --filter @notebook/web build && playwright test",
-    "verify": "pnpm theme && pnpm build:shared && pnpm -r typecheck && eslint . --max-warnings=0 && prettier --check . && vitest run && pnpm --filter @notebook/web build"
+    "verify": "pnpm preflight && pnpm theme:check && pnpm typecheck && pnpm lint && pnpm format:check && pnpm build && pnpm test:unit && pnpm test:tools",
+    "preflight": "node tools/preflight.mjs",
+    "hooks:install": "node tools/install-hooks.mjs",
+    "theme:check": "node tools/check-theme.mjs",
+    "test:tools": "node --test tools/*.test.mjs",
+    "check:all": "pnpm verify && pnpm test:e2e",
+    "package:release": "node tools/package-release.mjs",
+    "test:unit": "vitest run"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

@@ -16,3 +16,14 @@ test-results/
 # Vom Claude-Desktop angelegt, wenn Dateien in den Chat geliefert werden.
 Claude outputs/
 apps/api/.e2e/
+# Persistente Laufzeitdaten und Deploy-Schlüssel bleiben außerhalb von Git.
+**/data/*.db
+**/data/*.db-*
+**/data/*.sqlite*
+*.pem
+*.p12
+*.pfx
+*.key
+
+node-compile-cache/
+!deploy/fail2ban/test.log

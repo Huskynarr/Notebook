@@ -204,3 +204,10 @@ Relevant, weil sie bestimmen, was lokal überhaupt geprüft werden konnte:
   `apps/web/src/preview/previewClient.ts` — der Vorläufer des Demo-Clients aus D-016, der
   gegen die heutige Schnittstelle nicht mehr typprüft. Solange er dort liegt, schlägt
   `pnpm typecheck` in diesem Ordner fehl; im Repository ist er nicht enthalten.
+
+
+### 2026-09-22 · Zwischenstand 01
+
+build(ci): vereinheitliche Qualitätsprüfung und lokale Hooks. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.

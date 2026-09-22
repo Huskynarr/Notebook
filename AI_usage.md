@@ -108,3 +108,10 @@ Gehört hierher, weil es den Wert des Protokolls ausmacht:
 - Jeder Eintrag nennt Datum, Werkzeug, Aufgabe und Prüfung.
 - Generierter Code, der ungeprüft übernommen wurde, wird als solcher eingetragen.
 - Nicht ausgeführte Prüfungen werden als nicht ausgeführt eingetragen, nicht weggelassen.
+
+
+### 2026-09-22 · KI-Einsatz 01
+
+build(ci): vereinheitliche Qualitätsprüfung und lokale Hooks. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.

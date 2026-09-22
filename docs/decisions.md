@@ -440,3 +440,10 @@ den Repository-Einstellungen „Allow GitHub Actions to create and approve pull 
 **Nicht gemacht — Vorschau-Adresse je PR:** GitHub Pages kennt eine Seite je Repository;
 eine eigene Adresse je PR bräuchte einen anderen Host (Netlify, Cloudflare Pages) und damit
 Infrastruktur ohne Auftrag (Regel 6). Das Artefakt je PR ist der ehrliche Ersatz.
+
+
+### 2026-09-22 · Entscheidung 01
+
+build(ci): vereinheitliche Qualitätsprüfung und lokale Hooks. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
