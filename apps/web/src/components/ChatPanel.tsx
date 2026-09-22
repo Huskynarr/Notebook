@@ -30,7 +30,7 @@ export function ChatPanel({
   selectedCount: number;
   activeMarker: number | null;
   onAsk: (question: string) => void;
-  onSelectCitation: (citation: Citation) => void;
+  onSelectCitation: (citation: Citation, citations: readonly Citation[]) => void;
   onSaveNote: (exchange: Exchange) => void;
   /** Liefert die Teilen-Aktionen für eine Antwort; `element` ist die Karte
    *  für Bild und Druck. */
@@ -112,7 +112,9 @@ export function ChatPanel({
                 exchange={exchange}
                 response={exchange.response}
                 activeMarker={activeMarker}
-                onSelectCitation={onSelectCitation}
+                onSelectCitation={(citation) => {
+                  onSelectCitation(citation, exchange.response?.citations ?? [citation]);
+                }}
                 onSaveNote={() => {
                   onSaveNote(exchange);
                 }}

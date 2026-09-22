@@ -31,6 +31,7 @@ import { zustimmungLesen, zustimmungSchreiben, type Zustimmung } from './lib/con
 import { ConsentBanner } from './components/ConsentBanner.tsx';
 import { useResizableColumns } from './hooks/useResizableColumns.ts';
 import { ChatPanel, type Exchange } from './components/ChatPanel.tsx';
+import { LandingPage } from './components/LandingPage.tsx';
 import { LoginScreen } from './components/LoginScreen.tsx';
 import { NotesPanel } from './components/NotesPanel.tsx';
 import { SettingsDialog } from './components/SettingsDialog.tsx';
@@ -80,6 +81,16 @@ function Arbeitsbereich({
 }): ReactElement {
   const [token, setToken] = useState<string | null>(() => readToken());
   const toast = useToast();
+  const [loginOpen, setLoginOpen] = useState(() => window.location.hash === '#login');
+  useEffect(() => {
+    const changed = (): void => {
+      setLoginOpen(window.location.hash === '#login');
+    };
+    window.addEventListener('hashchange', changed);
+    return () => {
+      window.removeEventListener('hashchange', changed);
+    };
+  }, []);
 
   // Eine stabile Uebersetzungsfunktion: Client und Ladeeffekte haengen an ihr,
   // nicht an `t` - sonst wuerde ein Sprachwechsel den Client neu bauen und den
@@ -106,6 +117,7 @@ function Arbeitsbereich({
   const [pending, setPending] = useState(false);
 
   const [openSource, setOpenSource] = useState<SourceContent | null>(null);
+  const sourceLoad = useRef(0);
   const [citationList, setCitationList] = useState<readonly Citation[]>([]);
   const [citationIndex, setCitationIndex] = useState(0);
   const [rightTab, setRightTab] = useState<RightTab>('notes');
@@ -119,11 +131,13 @@ function Arbeitsbereich({
   // Erst die Einwilligung, dann die Einfuehrung: zwei Dialoge auf einmal
   // waeren zu viel, und die Einfuehrung speichert bereits Einstellungen.
   const [zustimmung, setZustimmung] = useState<Zustimmung | null>(() => zustimmungLesen());
-  const [tourOpen, setTourOpen] = useState(() => zustimmungLesen() !== null && !tourGesehen());
+  const [tourOpen, setTourOpen] = useState(
+    () => token !== null && zustimmungLesen() !== null && !tourGesehen(),
+  );
   const entscheiden = (einstellungen: boolean): void => {
     const war = zustimmung;
     setZustimmung(zustimmungSchreiben(einstellungen));
-    if (war === null && !tourGesehen()) setTourOpen(true);
+    if (war === null && token !== null && !tourGesehen()) setTourOpen(true);
   };
   const [erscheinungsbild, setErscheinungsbild] = useState<Erscheinungsbild>(() =>
     erscheinungsbildLesen(),
@@ -187,6 +201,7 @@ function Arbeitsbereich({
   useEffect(() => {
     if (token === null || activeId === null) return undefined;
     setExchanges([]);
+    sourceLoad.current += 1;
     setOpenSource(null);
     setCitationList([]);
     setSources(null);
@@ -210,20 +225,25 @@ function Arbeitsbereich({
     const session = await api.login(username, password);
     writeToken(session.token);
     setToken(session.token);
+    window.location.hash = '';
+    if (!tourGesehen() && zustimmung !== null) setTourOpen(true);
   };
 
   const showCitation = useCallback(
     async (citation: Citation, list: readonly Citation[]): Promise<void> => {
+      const generation = ++sourceLoad.current;
       const index = list.findIndex((c) => c.marker === citation.marker);
       setCitationList(list);
       setCitationIndex(index < 0 ? 0 : index);
       setRightTab('source');
       setMobileTab('notes');
       if (openSource?.id !== citation.sourceId) {
+        setOpenSource(null);
         try {
-          setOpenSource(await api.getSource(citation.sourceId));
+          const source = await api.getSource(citation.sourceId);
+          if (generation === sourceLoad.current) setOpenSource(source);
         } catch (cause) {
-          report(cause, t('error.loadSource'));
+          if (generation === sourceLoad.current) report(cause, t('error.loadSource'));
         }
       }
     },
@@ -441,14 +461,29 @@ function Arbeitsbereich({
     return (
       <>
         {banner}
-        <LoginScreen
-          apiBaseUrl={API_BASE_URL}
-          demo={DEMO_MODE}
-          onLogin={login}
-          onOpenSettings={() => {
-            setSettingsOpen(true);
-          }}
-        />
+        {loginOpen ? (
+          <LoginScreen
+            apiBaseUrl={API_BASE_URL}
+            demo={DEMO_MODE}
+            onLogin={login}
+            onBack={() => {
+              window.location.hash = '';
+            }}
+            onOpenSettings={() => {
+              setSettingsOpen(true);
+            }}
+          />
+        ) : (
+          <LandingPage
+            demo={DEMO_MODE}
+            onLogin={() => {
+              window.location.hash = 'login';
+            }}
+            onOpenSettings={() => {
+              setSettingsOpen(true);
+            }}
+          />
+        )}
         {einstellungen}
         {tour}
       </>
@@ -457,6 +492,7 @@ function Arbeitsbereich({
 
   const notesPanel = (
     <NotesPanel
+      sources={sources}
       notes={notes}
       onSelectCitation={(citation) => {
         void showCitation(citation, [citation]);
@@ -492,9 +528,15 @@ function Arbeitsbereich({
       hitCounts={hitCounts}
       onToggle={toggleSource}
       onOpen={(source) => {
+        const generation = ++sourceLoad.current;
+        setOpenSource(null);
+        setCitationList([]);
+        setRightTab('source');
+        setMobileTab('notes');
         api
           .getSource(source.id)
           .then((full) => {
+            if (generation !== sourceLoad.current) return;
             setOpenSource(full);
             setCitationList([]);
             setRightTab('source');
@@ -529,9 +571,8 @@ function Arbeitsbereich({
       selectedCount={selected.length}
       activeMarker={activeCitation?.marker ?? null}
       onAsk={ask}
-      onSelectCitation={(citation) => {
-        const last = exchanges[exchanges.length - 1]?.response;
-        void showCitation(citation, last?.citations ?? [citation]);
+      onSelectCitation={(citation, citations) => {
+        void showCitation(citation, citations);
       }}
       onSaveNote={saveNote}
       shareActions={antwortTeilen}
@@ -636,6 +677,11 @@ function Arbeitsbereich({
         </div>
       </header>
 
+      {DEMO_MODE && (
+        <p className="bg-warning-surface text-warning px-4 py-2 text-xs" role="status">
+          {t('login.demoWarning')}
+        </p>
+      )}
       <div className="xl:hidden">
         <Tabs
           label={t('tabs.area')}
@@ -715,10 +761,8 @@ function Arbeitsbereich({
                 citationIndex={citationIndex}
                 citationCount={citationList.length}
                 onStep={(delta) => {
-                  setCitationIndex((current) => {
-                    const next = current + delta;
-                    return next < 0 || next >= citationList.length ? current : next;
-                  });
+                  const next = citationList[citationIndex + delta];
+                  if (next !== undefined) void showCitation(next, citationList);
                 }}
               />
             )}
