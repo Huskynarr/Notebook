@@ -3,11 +3,16 @@ import { z } from 'zod';
 /** Die Antwortform, auf die das Modell festgelegt wird (siehe domain/prompt.ts).
  *  Wird streng validiert - ein Modell, das sich nicht daran haelt, darf keine
  *  halbgare Antwort durchreichen. */
-export const ModelAnswerSchema = z.object({
-  grounded: z.boolean(),
-  answer: z.string(),
-  quotes: z.record(z.string(), z.string()).default({}),
-});
+export const ModelAnswerSchema = z
+  .object({
+    grounded: z.boolean(),
+    answer: z.string().trim().min(1).max(20_000),
+    quotes: z
+      .record(z.string().regex(/^[1-9]\d?$/), z.string().min(8).max(10_000))
+      .refine((quotes) => Object.keys(quotes).length <= 50)
+      .default({}),
+  })
+  .strict();
 export type ModelAnswer = z.infer<typeof ModelAnswerSchema>;
 
 export interface CompletionRequest {
@@ -48,9 +53,8 @@ export function extractJson(raw: string): unknown {
   }
   try {
     return JSON.parse(candidate.slice(start, end + 1)) as unknown;
-  } catch (error) {
-    throw new LlmUnavailableError(
-      `Die Modellantwort ist kein gueltiges JSON: ${error instanceof Error ? error.message : 'unbekannt'}`,
-    );
+  } catch {
+    // Parserfehler können Ausschnitte fremder Antwortdaten enthalten.
+    throw new LlmUnavailableError('Die Modellantwort ist kein gültiges JSON.');
   }
 }

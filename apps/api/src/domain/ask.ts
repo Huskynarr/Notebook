@@ -6,6 +6,7 @@ import {
   SYSTEM_PROMPT,
   buildContext,
   buildUserPrompt,
+  insufficientEvidenceAnswer,
   noMatchAnswer,
   noSourcesAnswer,
 } from './prompt.ts';
@@ -51,19 +52,46 @@ export async function ask(
     language,
   });
 
+  // Der explizite Offline-Modus enthält nur Systemhinweise und Suchtreffer,
+  // keine Modellbehauptungen. Sein Inhalt bleibt deutlich als simuliert markiert.
+  if (provider.name === 'stub' && completion.simulated) {
+    return {
+      ...emptyResponse(completion.answer.answer, provider, startedAt),
+      retrieved,
+      // Diese Belege stammen direkt aus dem Datenbankabruf, nicht aus einer
+      // simulierten Modellbehauptung. So bleibt die Originalprüfung im Beispiel
+      // nutzbar, ohne eine KI-Antwort oder eine exakte Zitatwahl vorzutäuschen.
+      citations: retrieved.slice(0, 3).map((chunk, index) => ({
+        marker: index + 1,
+        sourceId: chunk.sourceId,
+        sourceTitle: chunk.sourceTitle,
+        chunkId: chunk.id,
+        headingPath: chunk.headingPath,
+        startOffset: chunk.startOffset,
+        endOffset: chunk.endOffset,
+        excerpt: chunk.text,
+        precision: 'chunk' as const,
+      })),
+    };
+  }
+
   const validated = validateCitations(
     completion.answer.answer,
     retrieved,
     completion.answer.quotes,
   );
 
-  // Das Modell darf sich selbst als "belegt" bezeichnen - massgeblich ist aber,
-  // ob nach der Validierung ueberhaupt ein Beleg uebrig geblieben ist.
-  const grounded = completion.answer.grounded && validated.citations.length > 0;
+  // Fail closed: keine einzelne unbelegte Behauptung gelangt als Antwort zum
+  // Client. Ein passender Marker beweist nur Herkunft, nicht semantische Wahrheit.
+  const grounded =
+    completion.answer.grounded &&
+    validated.citations.length > 0 &&
+    !validated.hasInvalidCitations &&
+    validated.unsupportedSentenceCount === 0;
 
   return {
-    answer: validated.answer,
-    citations: validated.citations,
+    answer: grounded ? validated.answer : insufficientEvidenceAnswer(language),
+    citations: grounded ? validated.citations : [],
     retrieved,
     grounded,
     unsupportedSentenceCount: validated.unsupportedSentenceCount,

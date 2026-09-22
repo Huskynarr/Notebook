@@ -87,14 +87,15 @@ describe('validateCitations', () => {
   });
 
   it('behaelt bei gemischten Markern nur den gueltigen Teil', () => {
-    const result = validateCitations('Aussage [1,4].', retrieved);
+    const result = validateCitations('Aussage [1,4].', retrieved, { '1': 'vierzehn Tage' });
     expect(result.answer).toContain('[1]');
     expect(result.answer).not.toContain('4');
     expect(result.droppedMarkers).toEqual([4]);
   });
 
   it('liefert niemals einen Beleg, der nicht auf einen abgerufenen Abschnitt zeigt', () => {
-    const result = validateCitations('A [1]. B [2]. C [99].', retrieved);
+    const result = validateCitations('A [1]. B [2]. C [99].', retrieved, { '1': 'vierzehn Tage' });
+    expect(result.citations).toHaveLength(1);
     const ids = new Set(retrieved.map((c) => c.id));
     for (const citation of result.citations) {
       expect(ids.has(citation.chunkId)).toBe(true);
@@ -105,6 +106,26 @@ describe('validateCitations', () => {
     const result = validateCitations('Ein Satz [7].', retrieved);
     expect(result.answer).toBe('Ein Satz.');
   });
+
+  it.each([undefined, 'Die Frist beträgt hundert Jahre.'])(
+    'verwirft fehlende oder erfundene Zitate (%s)',
+    (quote) => {
+      const result = validateCitations(
+        'Die Frist beträgt hundert Jahre [1].',
+        retrieved,
+        quote === undefined ? {} : { '1': quote },
+      );
+      expect(result.citations).toEqual([]);
+      expect(result.droppedMarkers).toEqual([1]);
+      expect(result.hasInvalidCitations).toBe(true);
+    },
+  );
+
+  it('markiert numerisch überlaufende Belege ebenfalls als ungültig', () => {
+    const result = validateCitations(`Aussage [${'9'.repeat(400)}].`, retrieved);
+    expect(result.hasInvalidCitations).toBe(true);
+    expect(result.droppedMarkers).toEqual([]);
+  });
 });
 
 describe('countUnsupportedSentences', () => {
@@ -113,7 +134,15 @@ describe('countUnsupportedSentences', () => {
       'Die Frist beträgt vierzehn Tage [1]. Danach ist der Bescheid unanfechtbar geworden.';
     expect(countUnsupportedSentences(text)).toBe(1);
   });
-  it('zählt Ueberschriften und kurze Fragmente nicht mit', () => {
-    expect(countUnsupportedSentences('## Fristen\n\nJa.\n\nAlles belegt [1].')).toBe(0);
+  it('prüft auch kurze Aussagen und Überschriften', () => {
+    expect(countUnsupportedSentences('## Fristen\n\nJa.\n\nAlles belegt [1].')).toBe(2);
+  });
+  it('lässt einen Marker vor einer späteren Behauptung nicht gelten', () => {
+    expect(countUnsupportedSentences('Die Frist gilt [1], danach verfällt jeder Anspruch.')).toBe(
+      1,
+    );
+  });
+  it('trennt Dezimalzahlen nicht als eigene Aussage', () => {
+    expect(countUnsupportedSentences('Die Quote beträgt 10.5 Prozent [1].')).toBe(0);
   });
 });
