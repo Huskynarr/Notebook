@@ -232,3 +232,10 @@ Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
 fix(api): begrenze Anmeldeversuche und Quellenimporte. Codex bearbeitete die zugehörigen Dateien.
 Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
 Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Zwischenstand 05
+
+refactor(api): entferne den deaktivierten Websiteabruf. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.

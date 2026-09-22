@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { ausAntwort, ausHtml, entitaetenAufloesen } from './extract.ts';
-import { istPrivateAdresse } from './fetchSource.ts';
 
 const SEITE = `<!doctype html><html><head><title>Prüfungsordnung &ndash; Fakultät</title>
 <style>body{color:red}</style><script>alert(1)</script></head>
@@ -72,26 +71,5 @@ describe('entitaetenAufloesen', () => {
     expect(entitaetenAufloesen('&auml; &#252; &#x1F600; &amp; &unbekannt;')).toBe(
       'ä ü 😀 & &unbekannt;',
     );
-  });
-});
-
-describe('istPrivateAdresse', () => {
-  it('sperrt lokale und private Netze', () => {
-    for (const ip of [
-      '127.0.0.1',
-      '10.1.2.3',
-      '172.16.0.1',
-      '192.168.1.1',
-      '169.254.169.254',
-      '::1',
-      'fd00::1',
-      '::ffff:127.0.0.1',
-    ]) {
-      expect(istPrivateAdresse(ip)).toBe(true);
-    }
-  });
-  it('lässt öffentliche Adressen zu', () => {
-    for (const ip of ['1.1.1.1', '93.184.216.34', '2606:4700::1111'])
-      expect(istPrivateAdresse(ip)).toBe(false);
   });
 });
