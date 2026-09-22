@@ -25,11 +25,18 @@ function speicher(): Storage {
 }
 
 describe('DemoClient', () => {
-  it('prueft den festen Zugang statt jeden hereinzulassen', async () => {
+  it('opens an explicitly unprotected demo without embedded credentials', async () => {
     const client = new DemoClient(speicher());
-    await expect(client.login('admin', 'falsch')).rejects.toThrow(/fehlgeschlagen/);
-    await expect(client.login('root', 'admin')).rejects.toThrow(/fehlgeschlagen/);
-    await expect(client.login('admin', 'admin')).resolves.toHaveProperty('token');
+    await expect(client.login('', '')).resolves.toHaveProperty('token', 'demo');
+  });
+
+  it('does not simulate full notebook management or website imports', async () => {
+    const client = new DemoClient(speicher());
+    await expect(client.createNotebook('new')).rejects.toThrow(/Beispiel-Notebook/);
+    await expect(client.deleteNotebook('demo')).rejects.toThrow(/Beispiel-Notebook/);
+    await expect(
+      client.createSource('demo', { kind: 'url', url: 'https://example.com' }),
+    ).rejects.toThrow(/Website-Import/);
   });
 
   it('startet mit dem Beispiel-Notebook', async () => {

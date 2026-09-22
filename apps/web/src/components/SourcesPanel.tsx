@@ -1,5 +1,6 @@
-import { useState, type ReactElement } from 'react';
+import { useRef, useState, type ReactElement } from 'react';
 import type { CreateSourceRequest, Source } from '@notebook/shared';
+import { checkSourceText, readSourceFile, SourceImportError } from '../lib/sourceImport.ts';
 import { useT } from '../i18n/index.ts';
 import { Button } from './ui/Button.tsx';
 import { Dialog } from './ui/Dialog.tsx';
@@ -174,7 +175,7 @@ export function SourcesPanel({
                     size="sm"
                     variant="ghost"
                     aria-label={t('sources.deleteTitle', { title: source.title })}
-                    className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+                    className="opacity-100 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 md:opacity-0"
                     onClick={() => {
                       onDelete(source);
                     }}
@@ -199,7 +200,7 @@ export function SourcesPanel({
   );
 }
 
-type Art = 'text' | 'file' | 'url';
+type Art = 'text' | 'file';
 
 function AddSourceDialog({
   open,
@@ -214,14 +215,16 @@ function AddSourceDialog({
   const [art, setArt] = useState<Art>('text');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [url, setUrl] = useState('');
+  const [reading, setReading] = useState(false);
+  const readGeneration = useRef(0);
   const [error, setError] = useState<string | undefined>(undefined);
   const [saving, setSaving] = useState(false);
 
   const reset = (): void => {
     setTitle('');
     setContent('');
-    setUrl('');
+    readGeneration.current += 1;
+    setReading(false);
     setError(undefined);
   };
   const schliessen = (): void => {
@@ -231,28 +234,28 @@ function AddSourceDialog({
 
   const submit = async (): Promise<void> => {
     setError(undefined);
-    let eingabe: CreateSourceRequest;
-    if (art === 'url') {
-      if (!/^https?:\/\/\S+\.\S+/i.test(url.trim())) {
-        setError(t('addSource.urlError'));
-        return;
-      }
-      eingabe = {
-        kind: 'url',
-        url: url.trim(),
-        ...(title.trim() === '' ? {} : { title: title.trim() }),
-      };
-    } else {
-      if (content.trim() === '') {
-        setError(t('addSource.emptyError'));
-        return;
-      }
-      eingabe = {
-        kind: title.trim().endsWith('.md') ? 'markdown' : 'text',
-        title: title.trim() === '' ? t('common.untitled') : title.trim(),
-        content,
-      };
+    if (saving || reading) return;
+    if (content.trim() === '') {
+      setError(t('addSource.emptyError'));
+      return;
     }
+    try {
+      checkSourceText(content);
+    } catch (cause) {
+      setError(
+        t(
+          cause instanceof SourceImportError
+            ? `addSource.${cause.reason}`
+            : 'addSource.genericError',
+        ),
+      );
+      return;
+    }
+    const eingabe: CreateSourceRequest = {
+      kind: title.trim().toLowerCase().endsWith('.md') ? 'markdown' : 'text',
+      title: title.trim() === '' ? t('common.untitled') : title.trim(),
+      content,
+    };
     setSaving(true);
     try {
       await onAdd(eingabe);
@@ -264,7 +267,7 @@ function AddSourceDialog({
     }
   };
 
-  const schmutzig = title !== '' || content !== '' || url !== '';
+  const schmutzig = title !== '' || content !== '';
 
   return (
     <Dialog
@@ -272,21 +275,21 @@ function AddSourceDialog({
       wide
       title={t('addSource.title')}
       description={t('addSource.description')}
-      dismissable={!schmutzig}
+      dismissable={!schmutzig && !saving && !reading}
       onClose={schliessen}
       footer={
         <>
-          <Button variant="ghost" onClick={schliessen}>
+          <Button variant="ghost" onClick={schliessen} disabled={saving}>
             {t('common.cancel')}
           </Button>
           <Button
             variant="primary"
-            loading={saving}
+            loading={saving || reading}
             onClick={() => {
               void submit();
             }}
           >
-            {saving && art === 'url' ? t('addSource.fetching') : t('addSource.submit')}
+            {t('addSource.submit')}
           </Button>
         </>
       }
@@ -302,7 +305,6 @@ function AddSourceDialog({
           items={[
             { id: 'text', label: t('addSource.tab.text') },
             { id: 'file', label: t('addSource.tab.file') },
-            { id: 'url', label: t('addSource.tab.url') },
           ]}
         />
 
@@ -313,57 +315,64 @@ function AddSourceDialog({
           onChange={(event) => {
             setTitle(event.target.value);
           }}
-          hint={art === 'url' ? undefined : t('addSource.titleHint')}
+          hint={t('addSource.titleHint')}
+          maxLength={200}
+          disabled={saving}
         />
 
-        {art === 'url' ? (
-          <TextField
-            label={t('addSource.urlLabel')}
-            type="url"
-            inputMode="url"
-            value={url}
+        <>
+          {art === 'file' && (
+            <label className="flex flex-col gap-1">
+              <span className="text-label text-content">{t('addSource.fileLabel')}</span>
+              <input
+                type="file"
+                accept=".txt,.md,text/plain,text/markdown"
+                disabled={saving}
+                className="text-body text-content-muted file:border-border file:bg-surface-raised file:text-label file:text-content file:mr-3 file:rounded-sm file:border file:px-3 file:py-1.5"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file === undefined) return;
+                  const generation = ++readGeneration.current;
+                  setReading(true);
+                  setContent('');
+                  setError(undefined);
+                  void readSourceFile(file)
+                    .then((text) => {
+                      if (generation !== readGeneration.current) return;
+                      setContent(text);
+                      setTitle(file.name);
+                    })
+                    .catch((cause: unknown) => {
+                      if (generation !== readGeneration.current) return;
+                      setError(
+                        t(
+                          cause instanceof SourceImportError
+                            ? `addSource.${cause.reason}`
+                            : 'addSource.genericError',
+                        ),
+                      );
+                    })
+                    .finally(() => {
+                      if (generation === readGeneration.current) setReading(false);
+                    });
+                }}
+              />
+            </label>
+          )}
+          <TextAreaField
+            label={t('addSource.textLabel')}
+            disabled={saving || reading}
+            rows={art === 'file' ? 6 : 12}
+            value={content}
             error={error}
-            placeholder={t('addSource.urlPlaceholder')}
-            hint={error === undefined ? t('addSource.urlHint') : undefined}
+            placeholder={t('addSource.textPlaceholder')}
             onChange={(event) => {
-              setUrl(event.target.value);
+              setContent(event.target.value);
               setError(undefined);
             }}
+            hint={`${content.length} ${t('common.characters')} · ${t('addSource.fileHint')}`}
           />
-        ) : (
-          <>
-            {art === 'file' && (
-              <label className="flex flex-col gap-1">
-                <span className="text-label text-content">{t('addSource.fileLabel')}</span>
-                <input
-                  type="file"
-                  accept=".txt,.md,text/plain,text/markdown"
-                  className="text-body text-content-muted file:border-border file:bg-surface-raised file:text-label file:text-content file:mr-3 file:rounded-sm file:border file:px-3 file:py-1.5"
-                  onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    if (file === undefined) return;
-                    void file.text().then((text) => {
-                      setContent(text);
-                      if (title === '') setTitle(file.name);
-                    });
-                  }}
-                />
-              </label>
-            )}
-            <TextAreaField
-              label={t('addSource.textLabel')}
-              rows={art === 'file' ? 6 : 12}
-              value={content}
-              error={error}
-              placeholder={t('addSource.textPlaceholder')}
-              onChange={(event) => {
-                setContent(event.target.value);
-                setError(undefined);
-              }}
-              hint={`${content.length} ${t('common.characters')}`}
-            />
-          </>
-        )}
+        </>
       </div>
     </Dialog>
   );

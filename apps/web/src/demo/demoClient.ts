@@ -15,27 +15,13 @@ import {
   type Source,
   type SourceContent,
 } from '@notebook/shared';
+import { checkSourceText } from '../lib/sourceImport.ts';
 import type { NotebookApi } from '../lib/api.ts';
 import { uebersetzen, type Uebersetzer } from '../i18n/index.ts';
 
-/**
- * Datenquelle für die Demo ohne Backend (GitHub Pages).
- *
- * Die Anwendung läuft damit vollständig im Browser und verhält sich wie der
- * Server mit `LLM_PROVIDER=stub`: Anmeldung mit dem festen Zugang, Notebooks,
- * Quellen, Notizen — alles echt und im `localStorage` gespeichert. Quellen
- * werden mit **demselben** `chunkText` zerlegt wie auf dem Server; die Marker
- * zeigen auf tatsächlich gefundene Abschnitte und die Offsets treffen die
- * Stelle im Originaltext.
- *
- * Was fehlt, ist genau eines: ein Sprachmodell. Im Frontend darf keines
- * konfiguriert sein (AGENTS.md Regel 4). Jede Antwort trägt deshalb
- * `simulated: true`, und das UI kennzeichnet sie — nicht mehr und nicht weniger
- * als beim Server ohne Modell (Regel 5).
- *
- * Adressen holt die Demo direkt aus dem Browser. Die meisten Seiten erlauben
- * das nicht (CORS); dann steht ein erklärter Fehler da, kein stilles Scheitern.
- */
+/** Browser-only example with local persistence. No authentication, no live
+ * model and a single example notebook. All responses are marked simulated.
+ * Full notebook management and protected persistence require the real API. */
 
 interface Eintrag {
   source: Source;
@@ -132,51 +118,10 @@ function begriffeAus(frage: string): string[] {
 
 const SPEICHER_SCHLUESSEL = 'notebook.demo.v1';
 
-/** Fester Zugang wie beim Server (D-003). Hier im Klartext, weil es in einer
- *  Demo ohne Server nichts zu schützen gibt - die Prüfung ist Teil des
- *  Bedienablaufs, nicht der Sicherheit. */
-const ZUGANG = { username: 'admin', password: 'admin' };
-
 interface Gespeichert {
   titel: string;
   eintraege: Eintrag[];
   notizen: Note[];
-}
-
-/** Sehr einfache Extraktion für den Browser: Skripte/Stile weg, Überschriften
- *  als Markdown, Rest als Text. Der Server macht es gründlicher; hier reicht
- *  es für Seiten, die den Abruf überhaupt erlauben. */
-function textAusHtml(html: string): { title: string; content: string } {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  for (const sel of [
-    'script',
-    'style',
-    'noscript',
-    'template',
-    'svg',
-    'iframe',
-    'nav',
-    'header',
-    'footer',
-    'aside',
-    'form',
-  ]) {
-    for (const el of doc.querySelectorAll(sel)) el.remove();
-  }
-  for (const h of doc.querySelectorAll('h1,h2,h3,h4,h5,h6')) {
-    const ebene = Number(h.tagName.slice(1));
-    h.replaceWith(doc.createTextNode(`\n\n${'#'.repeat(ebene)} ${h.textContent.trim()}\n\n`));
-  }
-  for (const li of doc.querySelectorAll('li')) li.prepend(doc.createTextNode('\n- '));
-  for (const block of doc.querySelectorAll('p,div,section,article,blockquote,pre,tr,ul,ol,br'))
-    block.append(doc.createTextNode('\n\n'));
-  const content = doc.body.textContent
-    .split('\n')
-    .map((z) => z.replace(/[ \t\u00a0]+/g, ' ').trim())
-    .join('\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-  return { title: doc.title.trim(), content };
 }
 
 export class DemoClient implements NotebookApi {
@@ -278,10 +223,8 @@ export class DemoClient implements NotebookApi {
     });
   }
 
-  login(username: string, password: string): Promise<{ token: string; expiresAt: string }> {
-    if (username !== ZUGANG.username || password !== ZUGANG.password) {
-      return Promise.reject(new Error(this.t('login.failed')));
-    }
+  /** No authentication: demo state is local and intentionally unprotected. */
+  login(_username: string, _password: string): Promise<{ token: string; expiresAt: string }> {
     return Promise.resolve({
       token: 'demo',
       expiresAt: new Date(Date.now() + 86_400_000).toISOString(),
@@ -292,10 +235,8 @@ export class DemoClient implements NotebookApi {
     return Promise.resolve([this.notebook()]);
   }
 
-  createNotebook(title: string): Promise<Notebook> {
-    this.titel = title;
-    this.sichern();
-    return Promise.resolve(this.notebook());
+  createNotebook(_title: string): Promise<Notebook> {
+    return Promise.reject(new Error(this.t('demo.singleNotebook')));
   }
 
   renameNotebook(_id: string, title: string): Promise<Notebook> {
@@ -305,7 +246,7 @@ export class DemoClient implements NotebookApi {
   }
 
   deleteNotebook(_id: string): Promise<void> {
-    return Promise.resolve();
+    return Promise.reject(new Error(this.t('demo.singleNotebook')));
   }
 
   exportNotebook(_id: string): Promise<string> {
@@ -319,49 +260,18 @@ export class DemoClient implements NotebookApi {
     return Promise.resolve(this.eintraege.map((e) => e.source));
   }
 
-  async createSource(_notebookId: string, input: CreateSourceRequest): Promise<Source> {
-    if (input.kind === 'url') {
-      let antwort: Response;
-      try {
-        antwort = await fetch(input.url, {
-          headers: { accept: 'text/html, text/plain, application/json' },
-        });
-      } catch {
-        // Ein TypeError beim fetch ist im Browser fast immer CORS oder Netz -
-        // der Browser verrät den Grund absichtlich nicht.
-        throw new Error(this.t('addSource.corsError'));
-      }
-      if (!antwort.ok) throw new Error(this.t('error.status', { status: antwort.status }));
-      const typ = antwort.headers.get('content-type') ?? '';
-      const text = await antwort.text();
-      let title = input.title ?? new URL(input.url).hostname;
-      let content = text.trim();
-      if (typ.includes('html') || /^\s*<(!doctype|html)/i.test(text)) {
-        const extrahiert = textAusHtml(text);
-        content = extrahiert.content;
-        if (input.title === undefined && extrahiert.title !== '') title = extrahiert.title;
-      } else if (typ.includes('json')) {
-        try {
-          content = JSON.stringify(JSON.parse(text) as unknown, null, 2);
-        } catch {
-          // dann bleibt der Rohtext
-        }
-      }
-      if (content === '') throw new Error(this.t('addSource.emptyError'));
-      const source = this.anlegen(title, 'url', content, input.url);
+  createSource(_notebookId: string, input: CreateSourceRequest): Promise<Source> {
+    return Promise.resolve().then(() => {
+      if (input.kind === 'url') throw new Error(this.t('addSource.unsupportedUrl'));
+      checkSourceText(input.content);
+
+      const source = this.anlegen(input.title, input.kind, input.content, null);
       if (source.chunkCount === 0) {
         this.eintraege.pop();
         throw new Error(this.t('addSource.emptyError'));
       }
       return source;
-    }
-
-    const source = this.anlegen(input.title, input.kind, input.content, null);
-    if (source.chunkCount === 0) {
-      this.eintraege.pop();
-      throw new Error(this.t('addSource.emptyError'));
-    }
-    return source;
+    });
   }
 
   updateSource(sourceId: string, patch: { selected?: boolean; title?: string }): Promise<Source> {

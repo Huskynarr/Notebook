@@ -178,3 +178,10 @@ Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
 fix(web): übernehme serverseitige Wartezeiten und Backendkonfiguration. Codex bearbeitete die zugehörigen Dateien.
 Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
 Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 11
+
+fix(web): validiere Textimporte und kennzeichne die Browserdemo. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
