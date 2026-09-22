@@ -218,3 +218,14 @@ Fail2ban: 5 positive, 7 negative Fälle und 12 Zeitstempel geprüft. Das Release
 wurde mit reinen Produktionsabhängigkeiten installiert und gestartet (Health 200,
 geschützte Route 401). Ein Review korrigierte die SemVer-Regel vor 1.0 und die Reihenfolge
 der Erstinstallation im Betriebshandbuch. Keine externe Modell- oder Plesk-Abnahme.
+
+
+### 2026-09-22 · Abnahme und Veröffentlichung der Branch
+
+Codex prüfte 13 fachliche Zwischenstände jeweils mit `pnpm verify` in einem isolierten
+Checkout und abschließend den gesamten Browserablauf. Mangels lokaler Git-Push-
+Zugangsdaten wurden die Commits mit GitHub-MCP übertragen; jeder Dateibaum wurde
+gegen den geprüften lokalen Git-Baum abgeglichen. Pull Request #9 wurde geöffnet.
+GitHub CI 35763920968 (Node 22, Chromium, Fail2ban) und CodeQL 35763920983 bestanden
+am Commit 16392b6. Kein Merge und kein Deployment wurden ausgelöst. Diese tatsächlichen
+Resultate wurden in der Fortschrittsdokumentation ergänzt.

@@ -28,7 +28,14 @@ Veröffentlichung auf Plesk und keine Live-Abnahme eines KI-Anbieters.
 | Fail2ban 1.1.0, `bash tools/test-fail2ban.sh` | 5 exakte IP-Treffer, 7 Nichttreffer, 12 Zeitstempel; UTC auch unter Europe/Berlin korrekt |
 | Isoliertes Release-Paket, ausschließlich Produktionsabhängigkeiten | Installation erfolgreich; API startet, Health 200, geschützte Notebookroute ohne Token 401 |
 | Deploy-Skript mit lokalen Testdoppeln | Konfigurationsprüfung, erfolgreiche Umschaltung und Rückkehr bei Startfehlern bestanden; kein SSH-Deployment |
+| GitHub CI unter Node 22 und CodeQL für Commit `16392b6` | [CI erfolgreich](https://github.com/Huskynarr/Notebook/actions/runs/35763920968), einschließlich Chromium und Fail2ban; [CodeQL erfolgreich](https://github.com/Huskynarr/Notebook/actions/runs/35763920983) |
 | Visuelle Prüfung der erzeugten Screenshots | Landingpage Desktop/Mobil und Arbeitsbereich Everlast/Huskynarr geprüft; Screenshots in README |
+
+Die 13 fachlichen Commits wurden einzeln in einem isolierten Checkout mit `pnpm verify`
+geprüft; jeder bleibt unter 400 geänderten Produktivcodezeilen. Die Dateibäume wurden
+bei der GitHub-Übertragung abgeglichen. [Pull Request #9](https://github.com/Huskynarr/Notebook/pull/9)
+enthält die Umsetzung und die nachgeführte Abnahmedokumentation. Lokal lief Node 24;
+der erfolgreiche GitHub-Lauf bestätigt zusätzlich Node 22.
 
 Die lokale Chromium-Installation erfolgte wegen eines fehlgeschlagenen Playwright-CDN-
 Downloads über das Paket `@sparticuz/chromium` außerhalb des Repositorys und
@@ -48,8 +55,6 @@ binäre/zu große Quellen, gelöschte Originalquellen und Exportgrenzen.
 - **Kein Deployment** auf `panel.gardenpiratez.de` oder
   `notebook.sebastianselinger.de`; DNS, TLS, Cloudflare, SSH-Secrets, Service-Rechte und
   vHost-Integration müssen am Zielserver eingerichtet und geprüft werden.
-- GitHub-CI-Ergebnis wird nach Veröffentlichung der Branch gesondert geprüft. Ein
-  lokaler Node-22-Lauf wurde nicht ausgeführt; CI verwendet Node 22.
 - Kein Last-/Penetrationstest, keine vollständige Accessibility- oder Kontrastabnahme
   aller acht Theme-Varianten und keine Messung wissenschaftlicher Antwortqualität.
 - PDFs/OCR, Konten/Rollen, Zusammenarbeit, Audio/Video, Crawling und Vektordienste

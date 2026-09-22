@@ -120,6 +120,9 @@ Environment `plesk-production` ausgelöst. Benötigte Variablen:
 `PLESK_SSH_KEY`, `PLESK_KNOWN_HOSTS`. Den Hostschlüssel unabhängig prüfen, nicht im
 Workflow blind mit `ssh-keyscan` übernehmen. Der Deploy-Benutzer erhält nur Zugriff auf
 diese Anwendung. Branch-/Environment-Schutz in GitHub gesondert konfigurieren.
+Für automatische Release-PRs muss unter Actions → General die Option
+„Allow GitHub Actions to create and approve pull requests“ aktiviert sein. Diese
+Repository-Einstellung wurde hier nicht geändert; SemVer wird nicht manuell vorgezogen.
 
 Vor Releases SQLite über die SQLite-Backup-Schnittstelle oder bei gestopptem Dienst
 sichern. Bei laufendem WAL-Betrieb niemals nur `notebook.db` kopieren. Backups verschlüsselt,
