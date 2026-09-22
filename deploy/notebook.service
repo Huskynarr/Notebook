@@ -1,0 +1,22 @@
+[Unit]
+Description=Notebook API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Replace /ABSOLUTE/SUBSCRIPTION_HOME and the Node path for this server.
+WorkingDirectory=/ABSOLUTE/SUBSCRIPTION_HOME/notebook/current/apps/api
+ExecStart=/usr/bin/node --env-file=.env src/main.ts
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=notebook-api
+
+[Install]
+WantedBy=default.target

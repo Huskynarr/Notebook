@@ -192,3 +192,29 @@ Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
 feat(web): verbinde Landingpage und geschützten Quellenarbeitsbereich. Codex bearbeitete die zugehörigen Dateien.
 Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
 Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+## 2026-09-22 · Codex, delegierte Entwicklungs- und Prüfaufgaben
+
+Auftrag: vorhandenes Repository zum geschützten Notebook-Prototyp mit Landingpage,
+Themes, Belegvalidierung und Plesk-Auslieferung erweitern. Codex erzeugte und überarbeitete
+Code, Tests, GitHub-Workflows, Deploymentvorlagen und Dokumentation. Delegierte Agenten
+bearbeiteten Authentifizierung, RAG, Oberfläche, Notizintegrität, Pipeline und Fail2ban.
+Übernommen wurden die nach Codeprüfung und tatsächlich ausgeführten Prüfungen validierten
+Änderungen. GitHub-MCP für Repository-Metadaten, Webrecherche in Herstellerdokumentation
+und Browser-Skill für sichtbare Designreferenzen wurden eingesetzt.
+
+Keine proprietären Universitätsquellen und keine Anbieter-Schlüssel wurden an ein
+Live-Modell gesendet. RAG-/Provider-Tests verwenden markierte Testdoppel; Screenshots
+zeigen die tatsächlich gestartete Anwendung im gekennzeichneten Offline-Modus.
+Die abschließenden ausgeführten Befehle/Resultate stehen in docs/progress.md; fehlende
+Live-Anbieter- und Serverabnahme bleiben dort ausdrücklich offen.
+
+Abschließende lokale Prüfung: 176 Unit-/Integrationstests, 10 Tooling-Tests und
+12 Chromium-E2E-Tests bestanden. Die Browserprüfung fand einen fehlenden Offline-
+Belegmarker und mobilen Überlauf; beide wurden korrigiert und erneut geprüft.
+Visuelle Prüfung führte zusätzlich zu bereinigten Screenshots ohne Tooltip/Animation.
+Fail2ban: 5 positive, 7 negative Fälle und 12 Zeitstempel geprüft. Das Release-Paket
+wurde mit reinen Produktionsabhängigkeiten installiert und gestartet (Health 200,
+geschützte Route 401). Ein Review korrigierte die SemVer-Regel vor 1.0 und die Reihenfolge
+der Erstinstallation im Betriebshandbuch. Keine externe Modell- oder Plesk-Abnahme.

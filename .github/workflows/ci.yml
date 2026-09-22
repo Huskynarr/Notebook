@@ -4,93 +4,25 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
-  pull-requests: write
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
+  fail2ban:
+    name: Fail2ban-Filter und Log-Injection
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y fail2ban
+      - run: bash tools/test-fail2ban.sh
+
   pruefen:
-    name: Typen, Stil, Tests, Build
+    name: Typen, Stil, Tests, Build und Browser
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      # Kein eigener Schritt fuer das geteilte Paket: pnpm install baut es ueber
-      # `prepare`, und typecheck/lint/test bauen es selbst. Die CI geht damit
-      # denselben Weg wie eine Person nach dem Klonen - genau der Weg, der
-      # einmal an einem fehlenden Vor-Schritt scheiterte.
-      - run: pnpm install --frozen-lockfile
-
-      - name: Typen pruefen
-        run: pnpm typecheck
-
-      - name: Stil pruefen
-        run: pnpm lint
-
-      - name: Formatierung pruefen
-        run: pnpm format:check
-
-      - name: Frontend bauen
-        run: pnpm --filter @notebook/web build
-
-      # Nach dem Build, damit der Test das gebaute Bundle wirklich prueft und
-      # nicht nur meldet, dass es fehlt.
-      - name: Tests
-        run: pnpm test
-
-      - name: Keine Geheimnisse im ausgelieferten Bundle
-        run: |
-          if grep -rEl 'AUTH_PASSWORD|AUTH_SECRET|LLM_API_KEY|sk-[A-Za-z0-9]{16,}' apps/web/dist; then
-            echo "Geheimnismuster im Bundle gefunden"
-            exit 1
-          fi
-          echo "Kein Geheimnismuster im Bundle."
-
-      # Groesse des Bundles sichtbar machen: in der Zusammenfassung des Laufs
-      # und - bei Pull Requests - als fortgeschriebener Kommentar, damit ein
-      # Sprung auffaellt, bevor er gemerged ist.
-      - name: Bundle-Groesse
-        id: bundle
-        run: |
-          {
-            echo '## Bundle-Groesse'
-            echo
-            node tools/bundle-size.mjs apps/web/dist
-          } | tee -a "$GITHUB_STEP_SUMMARY" > bundle-size.md
-
-      - name: Bundle-Groesse am Pull Request
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('node:fs');
-            const marker = '<!-- bundle-groesse -->';
-            const body = `${marker}\n${fs.readFileSync('bundle-size.md', 'utf8')}\n\nBuild aus ${context.payload.pull_request.head.sha.slice(0, 7)}.`;
-            const { data: kommentare } = await github.rest.issues.listComments({
-              ...context.repo, issue_number: context.issue.number, per_page: 100,
-            });
-            const vorhanden = kommentare.find((k) => k.body?.startsWith(marker));
-            if (vorhanden) {
-              await github.rest.issues.updateComment({ ...context.repo, comment_id: vorhanden.id, body });
-            } else {
-              await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });
-            }
-
-  ende-zu-ende:
-    name: End-to-End
-    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -98,18 +30,18 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-
       - run: pnpm install --frozen-lockfile
+      - name: Identische lokale Qualitätsprüfung
+        run: pnpm verify
       - run: pnpm exec playwright install --with-deps chromium
-
-      - name: Hauptablauf pruefen
+      - name: Hauptablauf im Browser (klar markierter Offline-Modus)
         run: pnpm test:e2e
-
-      # Immer hochladen, nicht nur bei Fehlern: der Bericht zeigt auch bei
-      # gruenem Lauf, was geprueft wurde.
+      - name: Bundle-Größe
+        run: node tools/bundle-size.mjs apps/web/dist >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-${{ github.run_id }}-${{ github.run_attempt }}
           path: playwright-report/
           retention-days: 14
+          if-no-files-found: ignore

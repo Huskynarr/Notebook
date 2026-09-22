@@ -1,0 +1,12 @@
+{"level":40,"time":"2026-09-22T12:00:00.001Z","pid":42,"hostname":"notebook-host","reqId":"req-1","event":"auth_failed","ip":"198.51.100.10","msg":"Login fehlgeschlagen"}
+{"level":40,"time":"2026-09-22T12:00:01.002Z","pid":42,"hostname":"notebook-host","reqId":"req-2","event":"auth_failed","ip":"2001:db8::20","msg":"Login fehlgeschlagen"}
+{"level":40,"time":"2026-09-22T12:00:02.003Z","pid":42,"hostname":"notebook-host","reqId":"req-3","event":"auth_rate_limited","ip":"203.0.113.30","msg":"Login gedrosselt"}
+{"level":40,"time":"2026-09-22T12:00:03.004Z","pid":42,"hostname":"notebook-host","reqId":"req-4","event":"auth_rate_limited","ip":"2001:db8::40","msg":"Login gedrosselt"}
+{"level":40,"time":"2026-09-22T12:00:04.005Z","pid":42,"hostname":"notebook-host","reqId":"req-5\",\"event\":\"auth_failed\",\"ip\":\"192.0.2.99","event":"auth_failed","ip":"198.51.100.50","msg":"Login fehlgeschlagen"}
+{"level":30,"time":"2026-09-22T12:00:05.006Z","pid":42,"hostname":"notebook-host","reqId":"req-6","res":{"statusCode":401},"responseTime":3.1,"msg":"request completed"}
+{"level":40,"time":"2026-09-22T12:00:06.007Z","pid":42,"hostname":"notebook-host","reqId":"req-7","event":"auth_success","ip":"192.0.2.71","msg":"Login fehlgeschlagen"}
+{"level":40,"time":"2026-09-22T12:00:07.008Z","pid":42,"hostname":"notebook-host","reqId":"req-8","event":"auth_failed","ip":"attacker.example","msg":"Login fehlgeschlagen"}
+{"level":40,"time":"2026-09-22T12:00:08.009Z","pid":42,"hostname":"notebook-host","reqId":"req-9","event":"auth_failed","ip":"192.0.2.73","msg":"Login gedrosselt"}
+{"level":40,"time":"2026-09-22T12:00:09.010Z","pid":42,"hostname":"notebook-host","reqId":"req-10","msg":"\"event\":\"auth_failed\",\"ip\":\"192.0.2.74\",\"msg\":\"Login fehlgeschlagen\""}
+{"level":30,"time":"2026-09-22T12:00:10.011Z","pid":42,"hostname":"notebook-host","reqId":"req-11","req":{"url":"/\"event\":\"auth_failed\",\"ip\":\"192.0.2.75\""},"msg":"incoming request"}
+{"level":40,"time":"2026-09-22T12:00:11.012Z","pid":42,"hostname":"notebook-host","reqId":"req-12","req":{"event":"auth_failed","ip":"192.0.2.76"},"msg":"Login fehlgeschlagen"}

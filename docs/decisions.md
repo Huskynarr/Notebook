@@ -524,3 +524,43 @@ Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
 feat(web): verbinde Landingpage und geschützten Quellenarbeitsbereich. Codex bearbeitete die zugehörigen Dateien.
 Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
 Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+## D-023 · 2026-09-22 · Bestehende Basis gezielt härten
+
+Neubau verworfen: vorhandenes React/Strict-TypeScript/Tailwind/SQLite-Projekt weitergeführt.
+Pflichtablauf bleibt universitär; gemeinsamer Demo-Admin löst keine Mandantentrennung.
+URL-Import aus D-019 zurückgenommen: nicht im aktuellen Auftrag, bestehender Fetchpfad
+hatte unvollständige SSRF-/Stream-Begrenzung. PDFs weiterhin optional.
+
+## D-024 · 2026-09-22 · Echte Antworten bei Belegfehlern vollständig zurückhalten
+
+Markerentfernung allein ließ unbelegte Behauptungen stehen. Jetzt vollständige Abstention
+bei ungültigen Markern, fehlenden Originalzitaten oder unbelegten Sätzen. Exakte
+Zeichenpositionen belegen Zitatvorkommen, keine semantische Entailment-Garantie.
+Quellenmetadaten bleiben unvertrauenswürdiger Modellkontext. Kein Vektordienst ergänzt.
+
+## D-025 · 2026-09-22 · SQLite-Sperren und feste Demo-Budgets
+
+Login: IP plus gemeinsamer Account, ab Fehler 3 Wartezeit30s, exponentiell bis900s,
+24h ohne Fehler setzt Historie zurück. Rotation/Neustart darf Sperren nicht umgehen.
+Tradeoff: absichtliche Fehlversuche können das gemeinsame Konto vorübergehend sperren.
+Clientcountdown nur Bedienhilfe. Ressourcenlimits und Produktionsstartprüfung statt
+zusätzlicher Redis-/Auth-Infrastruktur. Ein API-Prozess pro Datenbank.
+
+## D-026 · 2026-09-22 · Öffentlicher Einstieg und eigenständige Themes
+
+Landingpage vor dem Login, Einführung erst im Arbeitsbereich. Browserprüfung am22.09:
+Everlast kiberatung.de dunkel #060608, helle Schrift/Inter und gelbe Aktionen;
+Huskynarr.de Stone-Dunkel, Inter Variable und Lime. Daraus eigene Tokenpaletten,
+keine übernommene Markenidentität/Logos. Frühere Teal-Näherung in D-015 beziehungsweise
+Designsystem ersetzt. Inline-Bootstrap als externe Datei für CSP.
+
+## D-027 · 2026-09-22 · Anbieter und Auslieferung
+
+OpenAI-kompatibler Backend-Adapter mit begrenztem Prompt/Response/Timeout beibehalten.
+NVIDIA Nemotron als dokumentiertes Testprofil; OpenCode Go ist kostenpflichtig.
+Kein Schlüssel vorhanden, kein Live-Erfolg behauptet. Plesk nginx+systemd-Benutzerdienst,
+SQLite außerhalb Webroot, feste SSH-Hostprüfung, getestetes Releasepaket und Rücksprung.
+Passenger/Docker/Kubernetes verworfen. CI/Git-Hooks verwenden gemeinsame Prüfbefehle;
+Pages und Plesk werden bewusst manuell nach erfolgreichen Gates veröffentlicht.

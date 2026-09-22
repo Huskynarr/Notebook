@@ -2,180 +2,147 @@
 
 [![CI](https://github.com/Huskynarr/Notebook/actions/workflows/ci.yml/badge.svg)](https://github.com/Huskynarr/Notebook/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Huskynarr/Notebook/actions/workflows/codeql.yml/badge.svg)](https://github.com/Huskynarr/Notebook/actions/workflows/codeql.yml)
-[![Pages](https://github.com/Huskynarr/Notebook/actions/workflows/pages.yml/badge.svg)](https://huskynarr.is-a.dev/Notebook/)
 [![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](LICENSE)
-[![Conventional Commits](https://img.shields.io/badge/Commits-Conventional-fe5196.svg)](https://www.conventionalcommits.org/de/)
 
-Ein quellenbasierter Arbeitsbereich für die Universität Freiburg. Fragen werden
-ausschließlich aus selbst hinzugefügten Texten beantwortet, und **jede Aussage lässt sich in
-einem Klick auf die Textstelle zurückführen, aus der sie stammt** — nicht auf das Dokument,
-auf die Stelle.
+Ein eigenständiger NotebookLM-inspirierter Arbeitsbereich für die Universität:
+**eigene Quellen auswählen, Fragen stellen, Belegstellen im Original prüfen und
+Ergebnisse als Notiz speichern**. Keine Verbindung zu Google NotebookLM.
 
-Was das Projekt ist, für wen und mit welchen Grenzen: [`docs/product.md`](docs/product.md).
-Verbindliche Arbeitsregeln: [`AGENTS.md`](AGENTS.md).
+React, TypeScript strict, Tailwind CSS und Fastify; SQLite mit FTS5/BM25 statt
+zusätzlichem Datenbankserver oder Vektordienst. Zielbetrieb:
+`notebook.sebastianselinger.de` auf Plesk, später hinter Cloudflare.
+Die Zieladresse wurde durch diese Änderung noch nicht veröffentlicht.
 
-## So sieht es aus
+## Oberfläche
 
-Oberfläche auf **Deutsch und Englisch**; die Einführung beim ersten Start fragt Sprache und
-Design ab. Quellen kommen als Text, Datei oder **Adresse** (Webseite, Text-/JSON-Endpunkt)
-hinein; **Teilen** exportiert das Notebook oder eine einzelne Antwort als Markdown, Word,
-PDF oder PNG. Die Spalten lassen sich am Trenner ziehen. Ein **Einwilligungsbanner** fragt
-beim ersten Start, ob Einstellungen auf dem Gerät bleiben dürfen — Cookies oder Tracking
-gibt es nicht, und eine Ablehnung wirkt.
+Everlast ist das Standardtheme; Huskynarr, Papier und Tinte sowie Universität Freiburg
+sind umschaltbar, jeweils hell/dunkel. Die Themes sind eigene Ableitungen, keine
+behauptete offizielle Designfreigabe. Deutsch und Englisch sind verfügbar.
 
-Drei Designs, in den **Einstellungen** umschaltbar, je hell und dunkel. Die Komponenten
-kennen kein Design — ein Design ist nur ein Satz von Farb-, Schrift- und Radius-Werten
-(`tools/build-theme.py`). In jedem Design ist ein Zitat die einzige Stelle in der
-Akzentfarbe: die gehört dem Beleg.
+![Öffentliche Landingpage im Everlast-Theme](docs/bilder/landing-everlast.png)
 
-Alle Aufnahmen entstanden am 2026-09-18 ohne angebundenes Sprachmodell — daher die Plakette
-„kein Modell verbunden". Die Belegkette ist darin echt: die Marker zeigen auf tatsächliche
-Zeichenpositionen in den Texten. Nur der Antworttext ist nicht formuliert, sondern eine
-Aufzählung der gefundenen Stellen.
+![Arbeitsbereich mit Originalbeleg im Everlast-Theme](docs/bilder/workspace-everlast.png)
 
-### Live-Demo
+![Arbeitsbereich im Huskynarr-Theme](docs/bilder/workspace-huskynarr.png)
 
-**<https://huskynarr.is-a.dev/Notebook/>** — Zugang `admin` / `admin`.
+Die Screenshots vom 22.09.2026 zeigen den **gekennzeichneten Offline-Modus** mit
+fiktiven Beispielquellen. Die Belegpositionen stammen aus diesen Originaltexten;
+es wurde dafür keine echte Modellantwort erzeugt.
+[Mobile Landingpage](docs/bilder/landing-mobile.png).
 
-Die Demo läuft vollständig im Browser: Notebooks, Quellen, Notizen und die Belegmechanik
-sind echt und bleiben in deinem Browser gespeichert. Ein Sprachmodell ist nicht angebunden —
-Antworten zeigen die gefundenen Belegstellen, formuliert wird nichts. Das ist dasselbe
-Verhalten wie beim Server ohne Modell und an der Antwort gekennzeichnet.
+## Schnellstart auf localhost
 
-### Papier und Tinte (Vorgabe)
-
-Eigener Entwurf: warme Flächen, Serife für Lesetext, Braun für Belege.
-
-![Design „Papier und Tinte" mit angeklicktem Beleg und hervorgehobener Fundstelle](docs/bilder/design-eigen.png)
-
-### Universität Freiburg
-
-Nach dem [Corporate Design](https://cd.uni-freiburg.de): Blau `#344A9A`, Sandtöne, Schwarz
-für Text; CD-Grün ausschließlich für Belege. Die Hausschrift „Social" ist lizenzpflichtig
-und nicht im Repository — zu sehen ist **Arial**, die vom CD vorgesehene Zweitschrift
-(`apps/web/public/fonts/README.md`). Wo das Design über das CD hinausgeht, steht in
-`docs/design-system.md`, Abschnitt 10.
-
-![Design „Universität Freiburg" mit angeklicktem Beleg](docs/bilder/design-uni-freiburg.png)
-
-### huskynarr
-
-Angenähert an <https://huskynarr.de>. **Belegt ist nur die Grundfarbe `#0c0a09`**; Schriften
-und Akzente der Vorlage sind nicht bekannt, der Rest ist Ableitung (`docs/design-system.md`,
-Abschnitt 11).
-
-![Design „huskynarr" im dunklen Erscheinungsbild mit angeklicktem Beleg](docs/bilder/design-huskynarr.png)
-
-### Einstellungen
-
-Sprache, Design und Erscheinungsbild (System, Hell, Dunkel). Änderungen wirken sofort und
-bleiben auf dem Gerät gespeichert.
-
-![Dialog „Einstellungen" mit Sprache, den drei Designs und den drei Erscheinungsbildern](docs/bilder/einstellungen.png)
-
-### Einführung beim ersten Start
-
-![Einführung, Schritt 1 von 3: Sprache wählen](docs/bilder/einfuehrung.png)
-
-## Schnellstart
-
-Voraussetzung: Node 22 oder neuer und pnpm 9. Sonst nichts — keine Datenbank, kein Docker.
+Voraussetzung: Node **ab 22.18** und **pnpm 9.15.9**, Python 3 für den Theme-Check.
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-`pnpm install` baut das geteilte Paket `@notebook/shared` gleich mit (`prepare`); `test`,
-`typecheck`, `lint` und `dev` bauen es vor dem Start erneut, damit ein `git pull` mit
-Änderungen an den Schemata nicht zu veralteten Typen führt.
+Frontend: <http://localhost:5173> · API: <http://localhost:8787>
 
-Frontend: <http://localhost:5173> · Backend: <http://localhost:8787> · Zugang: `admin` / `admin`
+Die öffentliche Landingpage führt über **Anmelden** zum lokalen Demozugang
+**admin / admin**. Die API legt beim ersten Start ein Beispiel-Notebook an und speichert
+Notebooks, Quellen und Notizen in einer lokalen SQLite-Datei. Ohne Modellschlüssel
+liefert sie ausschließlich sichtbar markierte Fundstellen, keine erfundene KI-Antwort.
 
-Beim ersten Start legt das Backend ein Beispiel-Notebook mit zwei erfundenen Texten an.
-Ohne verbundenes Modell läuft die Anwendung im **Offline-Modus**: sie formuliert keine
-Antwort, sondern zeigt nur, welche Textstellen gefunden wurden, und kennzeichnet das
-sichtbar. Das ist Absicht — eine plausibel klingende Ersatzantwort wäre eine unmarkierte
-Simulation.
+`pnpm install` baut das gemeinsame Schema und installiert die Git-Hooks, sofern keine
+fremden Hooks konfiguriert sind. Die API liest `apps/api/.env` automatisch. Der
+Frontend-API-Ursprung wird über `VITE_API_BASE_URL` eingestellt; ein explizit leerer Wert
+verwendet denselben Ursprung, ohne Angabe gilt lokal `http://localhost:8787`.
 
 ## Ein echtes Modell verbinden
-
-Backend-Konfiguration nach `apps/api/.env` kopieren und anpassen:
 
 ```bash
 cp apps/api/.env.example apps/api/.env
 ```
 
+Beispiel für einen kompatiblen NVIDIA-Nemotron-Endpunkt, **nur im Backend**:
+
 ```ini
 LLM_PROVIDER=openai
-LLM_BASE_URL=http://localhost:11434/v1   # Ollama, vLLM, LiteLLM, Azure, OpenAI …
-LLM_MODEL=qwen2.5:14b-instruct
-LLM_API_KEY=                             # nur wenn der Endpunkt einen verlangt
+LLM_BASE_URL=https://integrate.api.nvidia.com/v1
+LLM_MODEL=nvidia/nemotron-3-super-120b-a12b
+LLM_API_KEY=HIER_EIGENEN_SCHLUESSEL_EINTRAGEN
 ```
 
-Es genügt ein beliebiger Endpunkt, der die OpenAI-Chat-Completions-Schnittstelle spricht.
-Zugangsdaten leben ausschließlich im Backend-Prozess; im Frontend ist genau eine Variable
-konfigurierbar, `VITE_API_BASE_URL`.
+Anbieterzugang und dessen Kontingent sind erforderlich. Kostenlose Testkontingente sind
+keine Garantie für kostenlosen Dauerbetrieb; OpenCode Go ist ein kostenpflichtiges
+Angebot. Konfiguration, Quellenübermittlung und Grenzen:
+[docs/providers.md](docs/providers.md). Ein Live-Aufruf wurde hier mangels Schlüssel
+**nicht ausgeführt**. HTTP- und Antwortvalidierung sind mit lokalen Testservern geprüft.
 
-## Aufbau
+## Umfang und Belegprüfung
 
+- Notebooks anlegen, öffnen, umbenennen und löschen.
+- UTF-8-Text und Markdown einfügen oder importieren, maximal **10 MiB je Quelle**.
+- Quellen gezielt auswählen; nur diese werden für die Frage abgerufen.
+- Echte Modellantworten mit Markern, Originalzitaten und genauen Zeichenpositionen.
+- Belege im Original hervorheben; Ergebnisse mit Belegauszügen als Notiz speichern,
+  bearbeiten, löschen und als Markdown exportieren.
+- Lokale Persistenz und sofort nutzbares Beispiel; keine Registrierung nötig.
+
+Das Modell erhält nummerierte, als untrusted markierte Textabschnitte. Die API prüft
+Marker, tatsächlich abgerufene Quellen, Zitate und Satzabdeckung. Ungültige echte
+Modellantworten werden **vollständig zurückgehalten**. Ein wiedergefundenes Zitat
+beweist keine inhaltliche Schlussfolgerung: Die fachliche Prüfung bleibt erforderlich.
+Lexikalische Suche kann Synonyme und Fachformulierungen übersehen.
+
+Beim Speichern einer Notiz werden Referenzen erneut gegen die Datenbank geprüft.
+Wird die Quelle später gelöscht, bleibt der gespeicherte Auszug erhalten; das fehlende
+Original wird in Oberfläche und Export kenntlich gemacht.
+
+Text-PDFs sind optional und noch nicht implementiert. Registrierung, Rollen,
+Zusammenarbeit, Audio/Video, Website-Import und Crawling sind keine Ziele dieser Version.
+Die separat baubare Browserdemo (`VITE_DEMO=true`) ist **ungeschützt**, hat einen kleineren
+Funktionsumfang und kein Modell. Sie ist kein Ersatz für den API-Betrieb.
+
+## Schutz und Betrieb
+
+Nach drei Fehlanmeldungen: 30 Sekunden Wartezeit, anschließend exponentiell bis
+15 Minuten. Der Server speichert Sperren in SQLite für IP und gemeinsamen Zugang;
+der Client zeigt den Countdown auch nach Neuladen. Nur der Server entscheidet über
+Zugriff. Ein geteilter Admin ist keine Mehrbenutzertrennung und kann durch absichtliche
+Fehlanmeldungen vorübergehend blockiert werden.
+
+Produktionsbetrieb verlangt ein eigenes langes Passwort und Signaturgeheimnis.
+Upload-, Speicher-, Export- und Anfragegrenzen begrenzen den Demo-Verbrauch. Forwarded-
+Header werden nur von ausdrücklich konfigurierten Proxys akzeptiert. Modellschlüssel
+bleiben im Backend; Sitzungstoken sind Zugangsdaten und liegen im Sitzungsspeicher.
+
+- [Plesk, nginx, systemd, Cloudflare, Deployment und Backup](docs/deployment.md)
+- [Fail2ban-Regeln mit positiven und negativen Prüffällen](docs/fail2ban.md)
+- [Vollständiger Pflichtumfang und offene Annahmen](docs/product.md)
+
+## Tests, Hooks und GitHub CI/CD
+
+```bash
+pnpm verify                         # Typen, Lint, Format, Build, Unit-/Integrations-/Tooltests
+pnpm exec playwright install chromium
+pnpm test:e2e                       # vollständiger Browserablauf
+pnpm check:all                      # beide Prüfstufen
+bash tools/test-fail2ban.sh          # benötigt installiertes fail2ban-regex
 ```
-apps/web        Vite + React 19, TypeScript strict, Tailwind 4, drei Designs
-tools           build-theme.py - erzeugt theme.css aus den Paletten
-apps/api        Fastify, SQLite aus Nodes Standardbibliothek, FTS5/BM25
-packages/shared zod-Schemata — der gemeinsame API-Vertrag
-e2e             Playwright, prüft den Hauptablauf Ende zu Ende
-docs            Produkt, Entscheidungen, Fortschritt, Design-System
-```
 
-## Wie ein Beleg entsteht
+Pre-Commit prüft `pnpm verify`, Commit-Msg erzwingt Conventional Commits mit
+`Verifiziert-durch:`, Pre-Push prüft `pnpm check:all`. GitHub CI prüft Pull Requests und
+`main` zusätzlich mit Chromium und Fail2ban. `release-please` leitet SemVer-Versionen
+aus den Commit-Präfixen ab.
 
-1. Beim Anlegen wird eine Quelle in Absatz-Abschnitte zerlegt. Jeder Abschnitt merkt sich
-   seine **Zeichen-Offsets** im unveränderten Originaltext.
-2. Zu einer Frage werden Abschnitte lexikalisch abgerufen (BM25) und dem Modell
-   **nummeriert** vorgelegt. Deckt nichts die Frage, wird das Modell gar nicht erst gefragt.
-3. Das Modell setzt Marker `[n]` und liefert zu jedem ein wörtliches Zitat.
-4. Das Backend prüft **jeden** Marker gegen die tatsächlich abgerufenen Abschnitte. Was sich
-   nicht auflösen lässt, wird aus der Antwort entfernt und in `droppedMarkers` gemeldet.
-5. Das wörtliche Zitat wird im Abschnitt wiedergefunden — daraus entstehen die genauen
-   Offsets. Gelingt das nicht, gilt der ganze Abschnitt, ausgewiesen als
-   `precision: "chunk"`.
-6. Ein Klick auf den Marker öffnet die Quelle und hebt genau diese Zeichen hervor.
+Die Plesk-Pipeline baut erst nach erfolgreichen Prüfungen ein geprüftes Release-Artefakt.
+Deployment erfordert den manuellen Schalter und das Environment `plesk-production` mit
+SSH-Zugang und geprüftem Hostschlüssel. Startfehler lösen einen Code-Rollback aus;
+Datenbank-Backups bleiben gesondert erforderlich. Pages und Demo-Artefakte werden nur
+manuell erstellt, keine automatische Veröffentlichung des lokalen Demozugangs.
 
-## Befehle
-
-| Befehl | Wirkung |
-|---|---|
-| `pnpm dev` | Frontend und Backend parallel |
-| `pnpm verify` | Typen, Stil, Tests, Build — das, was die CI prüft |
-| `pnpm test` | Unit- und Integrationstests (vitest) |
-| `pnpm test:e2e` | Hauptablauf im Browser (Playwright); baut Frontend und geteiltes Paket vorher |
-| `pnpm format` | Formatierung schreiben |
-| `pnpm theme` | `theme.css` aus den Paletten neu erzeugen |
+Aktueller Prüfstand und ausdrücklich nicht ausgeführte Prüfungen:
+[docs/progress.md](docs/progress.md).
 
 ## Mitwirken
 
-Regeln, Einrichtung und Ablauf: [`CONTRIBUTING.md`](CONTRIBUTING.md). Verhaltenskodex:
-[`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md). Sicherheitslücken bitte privat melden:
-[`SECURITY.md`](SECURITY.md).
-
-Die Pipeline prüft jeden Push und Pull Request (Typen, Stil, Formatierung, Tests, Build,
-E2E im Browser, CodeQL), hängt an Pull Requests die Bundle-Größe und einen Demo-Build als
-Artefakt, aktualisiert Abhängigkeiten wöchentlich (Dependabot) und erzeugt Releases aus den
-Commit-Präfixen (release-please). `main` wird nach jedem Push als Demo auf GitHub Pages
-veröffentlicht.
-
-## Lizenz
-
-[MIT](LICENSE) © 2026 Sebastian Selinger. Die Beispieltexte im Notebook sind erfunden und
-keine Rechtsauskunft; die Hausschrift des Designs `uni-freiburg` ist nicht enthalten
-(`apps/web/public/fonts/README.md`).
-
-## Stand
-
-Was tatsächlich funktioniert und was offen ist, steht in
-[`docs/progress.md`](docs/progress.md) — nicht hier, damit es nicht veraltet.
-
-Nicht-Ziele dieser Version: Nutzerkonten, Zusammenarbeit, Audio- und Videogenerierung,
-Website-Crawling (eine einzelne Adresse als Quelle geht), umfangreiche
-Vektor-Infrastruktur. PDFs sind als spätere Erweiterung vorgesehen.
+[AGENTS.md](AGENTS.md) enthält die verbindlichen Arbeitsregeln.
+[CONTRIBUTING.md](CONTRIBUTING.md) beschreibt die Mitarbeit;
+[docs/design-system.md](docs/design-system.md) die Tokens und Komponenten,
+[docs/decisions.md](docs/decisions.md) die Entscheidungen und
+[AI_usage.md](AI_usage.md) den tatsächlichen KI-Einsatz.
+Sicherheitsmeldungen: [SECURITY.md](SECURITY.md). Lizenz: [MIT](LICENSE).
