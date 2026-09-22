@@ -211,7 +211,7 @@ describe('Notebooks, Quellen und Notizen', () => {
         payload: { kind: 'url', url: adresse },
       });
       expect(response.statusCode).toBe(422);
-      expect(response.body).toContain('fetch_failed');
+      expect(response.body).toContain('not_supported');
     }
   });
 

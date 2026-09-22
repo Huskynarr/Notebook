@@ -1,5 +1,6 @@
 import type { Config } from './config.ts';
 import { Auth } from './auth.ts';
+import { LoginThrottle } from './loginThrottle.ts';
 import { openDatabase, type Db } from './db/database.ts';
 import { NoteRepository, NotebookRepository, SourceRepository } from './db/repositories.ts';
 import { OpenAiCompatibleProvider } from './llm/openai.ts';
@@ -10,6 +11,7 @@ export interface AppContext {
   readonly config: Config;
   readonly db: Db;
   readonly auth: Auth;
+  readonly loginThrottle: LoginThrottle;
   readonly llm: LlmProvider;
   readonly notebooks: NotebookRepository;
   readonly sources: SourceRepository;
@@ -22,6 +24,7 @@ export function createContext(config: Config, db?: Db): AppContext {
     config,
     db: database,
     auth: new Auth(config),
+    loginThrottle: new LoginThrottle(database),
     llm:
       config.LLM_PROVIDER === 'openai'
         ? new OpenAiCompatibleProvider({
