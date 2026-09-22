@@ -4,8 +4,10 @@ import type { AppContext } from '../context.ts';
 import { ask } from '../domain/ask.ts';
 import { LlmUnavailableError } from '../llm/provider.ts';
 import { fail, idParam, notFound, parseBody } from './helpers.ts';
+import { AskBudget } from '../askBudget.ts';
 
 export function registerAskRoutes(app: FastifyInstance, ctx: AppContext): void {
+  const budget = new AskBudget(ctx.db);
   app.post('/v1/notebooks/:id/ask', async (request, reply) => {
     const notebookId = idParam(request);
     if (ctx.notebooks.get(notebookId) === null) return notFound(reply, 'Notebook');
@@ -16,6 +18,23 @@ export function registerAskRoutes(app: FastifyInstance, ctx: AppContext): void {
     // Quellen eines anderen zugreifen.
     const allowed = new Set(ctx.sources.listByNotebook(notebookId).map((s) => s.id));
     const sourceIds = body.sourceIds.filter((id) => allowed.has(id));
+
+    const admission = budget.acquire();
+    if ('retryAfterSeconds' in admission) {
+      const seconds = admission.retryAfterSeconds;
+      return reply
+        .header('Retry-After', seconds)
+        .status(429)
+        .send({
+          error: {
+            code: 'rate_limited',
+            message:
+              'Das Anfragekontingent ist erreicht oder es laufen bereits zwei Fragen. Später erneut versuchen.',
+            retryAfterSeconds: seconds,
+            retryAt: new Date(Date.now() + seconds * 1000).toISOString(),
+          },
+        });
+    }
 
     try {
       return await ask(
@@ -28,9 +47,11 @@ export function registerAskRoutes(app: FastifyInstance, ctx: AppContext): void {
       );
     } catch (error) {
       if (error instanceof LlmUnavailableError) {
-        return fail(reply, 503, 'llm_unavailable', error.message);
+        return await fail(reply, 503, 'llm_unavailable', error.message);
       }
       throw error;
+    } finally {
+      admission.release();
     }
   });
 }
