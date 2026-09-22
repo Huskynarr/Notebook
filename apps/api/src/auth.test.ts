@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { Auth, bearerToken } from './auth.ts';
 import { loadConfig } from './config.ts';
 
@@ -45,6 +45,19 @@ describe('Auth', () => {
     expect(auth.verify(undefined)).toBe(false);
     expect(auth.verify('')).toBe(false);
     expect(auth.verify('nur-ein-teil')).toBe(false);
+  });
+
+  it('verwirft Zusatzsegmente und tatsächlich abgelaufene Sitzungen', () => {
+    const auth = new Auth(config);
+    const session = auth.login('admin', 'admin');
+    expect(session).not.toBeNull();
+    expect(auth.verify(`${session?.token ?? ''}.extra`)).toBe(false);
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(Date.parse(session?.expiresAt ?? '') + 1);
+    try {
+      expect(auth.verify(session?.token)).toBe(false);
+    } finally {
+      clock.mockRestore();
+    }
   });
 
   it('kennzeichnet ein fluechtiges Sitzungsgeheimnis', () => {

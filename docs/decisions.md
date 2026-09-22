@@ -447,3 +447,10 @@ Infrastruktur ohne Auftrag (Regel 6). Das Artefakt je PR ist der ehrliche Ersatz
 build(ci): vereinheitliche Qualitätsprüfung und lokale Hooks. Codex bearbeitete die zugehörigen Dateien.
 Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
 Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 02
+
+fix(api): validiere Zugangskonfiguration und API-Grenzen. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.

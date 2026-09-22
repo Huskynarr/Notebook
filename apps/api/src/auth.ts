@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import type { Config } from './config.ts';
 
 /**
@@ -40,9 +40,11 @@ export class Auth {
   }
 
   verify(token: string | undefined): boolean {
-    if (token === undefined || token === '') return false;
-    const [encoded, signature] = token.split('.');
-    if (encoded === undefined || signature === undefined) return false;
+    if (token === undefined || token === '' || token.length > 4096) return false;
+    const parts = token.split('.');
+    const [encoded, signature] = parts;
+    if (parts.length !== 2 || encoded === undefined || signature === undefined) return false;
+    if (!/^[A-Za-z0-9_-]+$/.test(encoded) || !/^[A-Za-z0-9_-]{43}$/.test(signature)) return false;
 
     let payload: string;
     try {
@@ -52,8 +54,12 @@ export class Auth {
     }
     if (!safeEquals(signature, this.sign(payload))) return false;
 
-    const expiresAtMs = Number.parseInt(payload.slice(payload.lastIndexOf('.') + 1), 10);
-    return Number.isFinite(expiresAtMs) && expiresAtMs > Date.now();
+    const separator = payload.lastIndexOf('.');
+    if (payload.slice(0, separator) !== this.config.AUTH_USERNAME) return false;
+    const expiry = payload.slice(separator + 1);
+    if (!/^\d+$/.test(expiry)) return false;
+    const expiresAtMs = Number(expiry);
+    return Number.isSafeInteger(expiresAtMs) && expiresAtMs > Date.now();
   }
 
   private sign(payload: string): string {
@@ -64,13 +70,8 @@ export class Auth {
 /** Laufzeitkonstanter Vergleich, damit ein Passwort nicht Zeichen fuer Zeichen
  *  erraten werden kann. */
 function safeEquals(a: string, b: string): boolean {
-  const bufferA = Buffer.from(a);
-  const bufferB = Buffer.from(b);
-  if (bufferA.length !== bufferB.length) {
-    // Trotzdem vergleichen, damit die Dauer nicht von der Laenge abhaengt.
-    timingSafeEqual(bufferA, bufferA);
-    return false;
-  }
+  const bufferA = createHash('sha256').update(a).digest();
+  const bufferB = createHash('sha256').update(b).digest();
   return timingSafeEqual(bufferA, bufferB);
 }
 

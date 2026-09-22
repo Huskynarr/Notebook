@@ -1,46 +1,98 @@
 import { z } from 'zod';
+import { isIP } from 'node:net';
+
+function validProxy(value: string): boolean {
+  const [address, prefix, extra] = value.split('/');
+  if (address === undefined || extra !== undefined) return false;
+  const family = isIP(address);
+  if (family === 0) return false;
+  if (prefix === undefined) return true;
+  return /^\d+$/.test(prefix) && Number(prefix) > 0 && Number(prefix) <= (family === 4 ? 32 : 128);
+}
 
 /** Konfiguration des Backends. Wird beim Start einmal validiert; ein fehlerhafter
  *  Wert bricht den Start ab, statt spaeter als Laufzeitfehler aufzutauchen.
  *
  *  Geheimnisse leben ausschliesslich hier im Serverprozess. Nichts davon wird
  *  jemals an einen Client ausgeliefert (AGENTS.md Regel 4). */
-const ConfigSchema = z.object({
-  PORT: z.coerce.number().int().min(1).max(65535).default(8787),
-  HOST: z.string().default('127.0.0.1'),
+const ConfigSchema = z
+  .object({
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    PORT: z.coerce.number().int().min(1).max(65535).default(8787),
+    HOST: z.string().default('127.0.0.1'),
+    /** Empty by default. Only explicit proxy IPs/CIDRs are accepted, never blanket trust. */
+    TRUST_PROXY: z
+      .string()
+      .default('')
+      .transform((value) => (value === '' ? [] : value.split(',').map((part) => part.trim())))
+      .refine(
+        (values) => values.every(validProxy),
+        'TRUST_PROXY verlangt explizite IP-Adressen oder CIDR-Netze.',
+      ),
 
-  /** Woher das Frontend kommen darf. Mehrere durch Komma getrennt. */
-  CORS_ORIGIN: z.string().default('http://localhost:5173'),
+    /** Woher das Frontend kommen darf. Mehrere durch Komma getrennt. */
+    CORS_ORIGIN: z
+      .string()
+      .default('http://localhost:5173')
+      .refine(
+        (value) =>
+          value.split(',').every((entry) => {
+            try {
+              const url = new URL(entry.trim());
+              return ['http:', 'https:'].includes(url.protocol) && url.origin === entry.trim();
+            } catch {
+              return false;
+            }
+          }),
+        'CORS_ORIGIN verlangt vollständige Origins ohne Pfad oder Wildcard.',
+      ),
 
-  DATABASE_PATH: z.string().default('./data/notebook.db'),
+    DATABASE_PATH: z.string().default('./data/notebook.db'),
 
-  AUTH_USERNAME: z.string().min(1).default('admin'),
-  AUTH_PASSWORD: z.string().min(1).default('admin'),
-  /** Signiert die Sitzungstoken. Ohne Vorgabe wird beim Start ein zufaelliger
-   *  Wert erzeugt - dann gelten Sitzungen nur bis zum Neustart. */
-  AUTH_SECRET: z.string().min(16).optional(),
-  AUTH_TOKEN_TTL_HOURS: z.coerce.number().int().positive().default(12),
+    AUTH_USERNAME: z.string().min(1).max(200).default('admin'),
+    AUTH_PASSWORD: z.string().min(1).max(1024).default('admin'),
+    /** Signiert die Sitzungstoken. Ohne Vorgabe wird beim Start ein zufaelliger
+     *  Wert erzeugt - dann gelten Sitzungen nur bis zum Neustart. */
+    AUTH_SECRET: z.string().min(16).optional(),
+    AUTH_TOKEN_TTL_HOURS: z.coerce.number().int().positive().default(12),
 
-  /** `openai` spricht einen echten, OpenAI-kompatiblen Endpunkt an.
-   *  `stub` liefert nachvollziehbar simulierte Antworten und kennzeichnet sie
-   *  als solche - siehe AGENTS.md Regel 5. */
-  LLM_PROVIDER: z.enum(['openai', 'stub']).default('stub'),
-  LLM_BASE_URL: z.url().default('http://localhost:11434/v1'),
-  LLM_API_KEY: z.string().default(''),
-  LLM_MODEL: z.string().default('qwen2.5:14b-instruct'),
-  LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
-  LLM_TEMPERATURE: z.coerce.number().min(0).max(2).default(0),
+    /** `openai` spricht einen echten, OpenAI-kompatiblen Endpunkt an.
+     *  `stub` liefert nachvollziehbar simulierte Antworten und kennzeichnet sie
+     *  als solche - siehe AGENTS.md Regel 5. */
+    LLM_PROVIDER: z.enum(['openai', 'stub']).default('stub'),
+    LLM_BASE_URL: z.url().default('http://localhost:11434/v1'),
+    LLM_API_KEY: z.string().default(''),
+    LLM_MODEL: z.string().default('qwen2.5:14b-instruct'),
+    LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
+    LLM_TEMPERATURE: z.coerce.number().min(0).max(2).default(0),
 
-  /** Wie viele Abschnitte dem Modell hoechstens vorgelegt werden. */
-  RETRIEVAL_TOP_K: z.coerce.number().int().positive().max(50).default(12),
-  /** Zielgroesse eines Abschnitts in Zeichen. */
-  CHUNK_TARGET_CHARS: z.coerce.number().int().positive().default(1200),
+    /** Wie viele Abschnitte dem Modell hoechstens vorgelegt werden. */
+    RETRIEVAL_TOP_K: z.coerce.number().int().positive().max(50).default(12),
+    /** Zielgroesse eines Abschnitts in Zeichen. */
+    CHUNK_TARGET_CHARS: z.coerce.number().int().positive().default(1200),
 
-  SEED_ON_EMPTY: z
-    .enum(['true', 'false'])
-    .default('true')
-    .transform((v) => v === 'true'),
-});
+    SEED_ON_EMPTY: z
+      .enum(['true', 'false'])
+      .default('true')
+      .transform((v) => v === 'true'),
+  })
+  .superRefine((config, ctx) => {
+    if (config.NODE_ENV !== 'production') return;
+    if (config.AUTH_PASSWORD === 'admin' || config.AUTH_PASSWORD.length < 16) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AUTH_PASSWORD'],
+        message: 'Produktion verlangt ein eigenes Passwort mit mindestens 16 Zeichen.',
+      });
+    }
+    if (config.AUTH_SECRET === undefined || config.AUTH_SECRET.length < 32) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['AUTH_SECRET'],
+        message: 'Produktion verlangt ein stabiles AUTH_SECRET mit mindestens 32 Zeichen.',
+      });
+    }
+  });
 
 export type Config = z.infer<typeof ConfigSchema>;
 
