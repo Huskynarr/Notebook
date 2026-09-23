@@ -575,3 +575,14 @@ keine neue Registrierungs- oder Rollenverwaltung. Beide Zugänge teilen denselbe
 Datenbestand. Login-Sperren gelten pro Nutzer und zusätzlich pro IP; unbekannte Namen
 teilen einen Sammelbereich. Alternative globaler Kontosperre verworfen, weil ein
 Nutzer sonst den zweiten von allen IPs ausschließen könnte.
+
+## D-029 · 2026-09-23 · Sites mit D1/R2 und kontogetrennten Demo-Daten
+
+Auf ausdrücklichen Auftrag kommt ein zweiter Build für ChatGPT Sites hinzu:
+React und das API-Format bleiben, die Laufzeit bekommt einen Worker statt
+Fastify/node:sqlite. D1 enthält den FTS5-Index, R2 unveränderliche Originaltexte
+über der D1-Zellgrenze. Gegenüber D-028 sind Sites-Notebooks pro Konto getrennt,
+damit der öffentlich bekannte Testzugang nicht auf den Hauptzugang zugreift.
+Stabile Anmeldesperren und Kontingente liegen in D1. Ein Redis-/Vektordienst
+und eine gemeinsame Datenbank für Plesk/Sites wurden verworfen. Der lokale
+Plesk-Pfad bleibt erhalten; eine Datenmigration zwischen beiden ist noch offen.

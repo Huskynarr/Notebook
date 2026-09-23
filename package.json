@@ -18,6 +18,8 @@
     "build:shared": "pnpm --filter @notebook/shared build",
     "dev": "pnpm preflight && pnpm build:shared && pnpm -r --parallel dev",
     "build": "pnpm preflight && pnpm -r build",
+    "sites:build": "pnpm build:shared && node tools/build-sites.mjs",
+    "sites:typecheck": "pnpm build:shared && pnpm --filter @notebook/api typecheck",
     "theme": "python3 tools/build-theme.py && prettier --write apps/web/src/styles/theme.css --log-level warn",
     "typecheck": "pnpm build:shared && pnpm -r typecheck",
     "lint": "pnpm build:shared && eslint . --max-warnings=0",

@@ -8,10 +8,10 @@ Ein eigenständiger NotebookLM-inspirierter Arbeitsbereich für die Universität
 **eigene Quellen auswählen, Fragen stellen, Belegstellen im Original prüfen und
 Ergebnisse als Notiz speichern**. Keine Verbindung zu Google NotebookLM.
 
-React, TypeScript strict, Tailwind CSS und Fastify; SQLite mit FTS5/BM25 statt
-zusätzlichem Datenbankserver oder Vektordienst. Zielbetrieb:
-`notebook.sebastianselinger.de` auf Plesk, später hinter Cloudflare.
-Die Zieladresse wurde durch diese Änderung noch nicht veröffentlicht.
+React, TypeScript strict und Tailwind CSS. Lokal/Plesk: Fastify und SQLite mit
+FTS5/BM25. Für ChatGPT Sites: Worker, D1 für Suchindex/Notizen und R2 für
+Originaltexte. Zieladresse: `notebook.sebastianselinger.de`. Die DNS-Umstellung
+erfolgt nach erfolgreicher Sites-Veröffentlichung.
 
 ## Oberfläche
 
@@ -50,8 +50,9 @@ Weitere feste Zugänge, beispielsweise `everlabs`, werden ausschließlich im Bac
 über `AUTH_ADDITIONAL_USERS` in `apps/api/.env` konfiguriert (JSON-Liste mit
 `username` und `password`, siehe `.env.example`). Das angeforderte Testpasswort ist
 nur in der lokalen, von Git ausgeschlossenen Konfiguration hinterlegt und muss auf
-einem anderen Rechner gesondert gesetzt werden. Alle Zugänge teilen die Notebooks;
-es gibt weiterhin keine Registrierung, Rollen oder getrennten Datenbestände.
+einem anderen Rechner gesondert gesetzt werden. Im lokalen Fastify-Modus teilen
+die Zugänge die Notebooks; auf Sites sind die Daten der Konten getrennt. Es gibt
+weiterhin keine Registrierung oder Rollen.
 
 `pnpm install` baut das gemeinsame Schema und installiert die Git-Hooks, sofern keine
 fremden Hooks konfiguriert sind. Die API liest `apps/api/.env` automatisch. Der
@@ -107,17 +108,18 @@ Funktionsumfang und kein Modell. Sie ist kein Ersatz für den API-Betrieb.
 ## Schutz und Betrieb
 
 Nach drei Fehlanmeldungen: 30 Sekunden Wartezeit, anschließend exponentiell bis
-15 Minuten. Der Server speichert Sperren in SQLite pro IP und pro konfiguriertem Zugang;
-der Client zeigt den Countdown auch nach Neuladen. Nur der Server entscheidet über
-Zugriff. Die Zugänge zum gemeinsamen Arbeitsbereich bieten keine Datentrennung und kann durch absichtliche
-Fehlanmeldungen vorübergehend blockiert werden.
+15 Minuten. Sperren gelten pro IP und Zugang; sie liegen lokal in SQLite, auf
+Sites in D1. Der Client zeigt den Countdown auch nach Neuladen. Nur der Server
+entscheidet über den Zugriff. Absichtliche Fehlanmeldungen können ein Konto
+vorübergehend sperren; der Sites-Betrieb trennt die Daten der beiden Konten.
 
 Produktionsbetrieb verlangt ein eigenes langes Passwort und Signaturgeheimnis.
 Upload-, Speicher-, Export- und Anfragegrenzen begrenzen den Demo-Verbrauch. Forwarded-
 Header werden nur von ausdrücklich konfigurierten Proxys akzeptiert. Modellschlüssel
 bleiben im Backend; Sitzungstoken sind Zugangsdaten und liegen im Sitzungsspeicher.
 
-- [Plesk, nginx, systemd, Cloudflare, Deployment und Backup](docs/deployment.md)
+- [ChatGPT Sites: D1/R2, Zugang, Veröffentlichung und Domain](docs/sites.md)
+- [Alternativer Plesk-Betrieb: nginx, systemd und Backup](docs/deployment.md)
 - [Fail2ban-Regeln mit positiven und negativen Prüffällen](docs/fail2ban.md)
 - [Vollständiger Pflichtumfang und offene Annahmen](docs/product.md)
 
@@ -128,15 +130,19 @@ pnpm verify                         # Typen, Lint, Format, Build, Unit-/Integrat
 pnpm exec playwright install chromium
 pnpm test:e2e                       # vollständiger Browserablauf
 pnpm check:all                      # beide Prüfstufen
+pnpm sites:build                    # Client + Sites-Worker bauen
+node tools/check-sites-output.mjs   # Worker-Artefakt und Bindings prüfen
 bash tools/test-fail2ban.sh          # benötigt installiertes fail2ban-regex
 ```
 
 Pre-Commit prüft `pnpm verify`, Commit-Msg erzwingt Conventional Commits mit
 `Verifiziert-durch:`, Pre-Push prüft `pnpm check:all`. GitHub CI prüft Pull Requests und
-`main` zusätzlich mit Chromium und Fail2ban. `release-please` leitet SemVer-Versionen
+`main` zusätzlich mit Chromium, Sites-Build und Fail2ban. `release-please` leitet SemVer-Versionen
 aus den Commit-Präfixen ab.
 
-Die Plesk-Pipeline baut erst nach erfolgreichen Prüfungen ein geprüftes Release-Artefakt.
+Sites nutzt ein eigenes Quellrepository; ein GitHub-Push allein veröffentlicht
+keine neue Sites-Version. Die alternative Plesk-Pipeline baut erst nach erfolgreichen
+Prüfungen ein geprüftes Release-Artefakt.
 Deployment erfordert den manuellen Schalter und das Environment `plesk-production` mit
 SSH-Zugang und geprüftem Hostschlüssel. Startfehler lösen einen Code-Rollback aus;
 Datenbank-Backups bleiben gesondert erforderlich. Pages und Demo-Artefakte werden nur

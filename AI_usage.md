@@ -241,3 +241,16 @@ wurde weder ins Git noch in das Frontend übernommen. Prüfresultate stehen in
 `docs/progress.md`: 190 Unit-/Integrationstests, 10 Tooling-Tests und 13 Browsertests
 bestanden. Beide lokal konfigurierten Zugangspaare wurden zusätzlich gegen die API
 geprüft; der alte Standardname wird abgewiesen. Kein Server-Deployment.
+
+## 2026-09-23 · Sites-Migration
+
+Codex portierte die bestehende API auf einen Sites-Worker mit D1/R2 und
+kontogetrennten Notebooks. Delegierte Agenten untersuchten die Sites-Laufzeit,
+Speichergrenzen, Sicherheitsanforderungen und die vorhandenen CI-/Dokumentations-
+Regeln; sie änderten keine Dateien. Übernommen wurden insbesondere der R2-Pfad
+für 10-MiB-Originaltexte, D1-gestützte Sperren und der Erhalt der bisherigen
+Belegprüfung. Codex schrieb und prüfte die Umsetzung durch TypeScript, ESLint,
+lokale SQLite-kompatible Worker-Tests und einen Worker-Build. Diese Tests sind
+keine externe D1-/R2- oder Live-Modellabnahme. Das bekannte Testpasswort wird
+weder in Quellcode noch in öffentliche Assets eingebaut; Tests verwenden ein
+anderes Passwort.

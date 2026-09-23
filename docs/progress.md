@@ -67,7 +67,6 @@ Stellen übersehen. Die festen Zugänge teilen denselben Datenbestand und
 können durch verteilte Fehlanmeldungen pro Konto zeitweise blockiert werden. SQLite liegt lokal
 beim Backend; Browserdemo und API-Betrieb haben unterschiedliche Schutz-/Funktionsgrenzen.
 
-
 ## 2026-09-22 · Zugänge Huskynar und everlabs
 
 Der bisherige lokale Standardname lautet jetzt `Huskynar`, Passwort unverändert.
@@ -80,3 +79,30 @@ Trennung der Notebookdaten. `pnpm check:all`: 190 Unit-/Integrationstests, 10 To
 Tests und 13 Chromium-E2E-Tests bestanden. Konfiguration, ungültige/entfernte Nutzer,
 vertauschte Passwörter, isolierte Kontosperren und zweiter Browserlogin sind abgedeckt.
 Kein Deployment; die bisher oben verlinkte GitHub-Abnahme betrifft den vorigen Stand.
+
+## 2026-09-23 · Migration auf ChatGPT Sites
+
+Die unveränderte React-Oberfläche kann zusätzlich als Sites-Build mit einem
+Worker für `/v1` erstellt werden. D1 speichert Metadaten, FTS5, Notizen und
+Kontingente; R2 nimmt unveränderte Originaltexte auf. Im neuen Betriebsweg
+sind `Huskynar` und `everlabs` getrennte Datenräume. Die bisherigen lokalen
+Fastify-/Plesk-Dateien wurden nicht als Sites-Laufzeit deklariert. Loginsperren
+sind in D1 atomar; der clientseitige Countdown bleibt bestehen.
+
+Lokal tatsächlich geprüft: Worker-Typecheck und ESLint bestanden; `pnpm sites:build` erzeugte Client und ESM-Worker, das Packaging enthielt Worker,
+Assets, Manifest und die initiale SQL-Migration. Sieben Worker-Tests auf
+SQLite-kompatibler Testdatenbank bestanden: Kontentrennung, Beispiel,
+Anmeldedrossel samt parallelen Fehlversuchen, Originalbeleg/Notiz/Export,
+Quelle über 2 MiB, exakt 10 MiB UTF-8 und Zurückhalten eines ungültig
+belegten Modelltextes. Die bestehende Chromium-Strecke prüft weiter den
+lokalen Fastify-Modus; eine echte gehostete D1/R2-Abnahme ist damit nicht
+behauptet. Externe Modellantworten benötigen einen noch nicht vorhandenen
+Anbieterschlüssel. `pnpm verify` bestand am 23.09. mit 197 Unit-/Integrationstests
+in 26 Dateien und 10 Tooling-Tests. Der Sites-Build und die Prüfung von
+`dist/server/wrangler.json` bestanden ebenfalls.
+
+Lokale Browserprüfung **nicht bestanden**: Playwrights Chromium fehlt in dieser
+Umgebung; der vorhandene Ersatz-Browser beendet sich bereits bei `--version`
+mit SIGSEGV. Alle 13 Browserfälle brachen vor dem Seitenaufruf ab. Die GitHub-
+CI installiert ihren eigenen Chromium-Build; ein erfolgreicher neuer CI-Lauf
+steht noch aus. Das ist kein Ergebnis über das Verhalten der Sites-Anwendung.
