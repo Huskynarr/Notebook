@@ -331,3 +331,6 @@ mit den lokalen Bäumen verglichen; GitHub CI und CodeQL für den zweiten
 Commit meldeten Erfolg. Über Sites wurde daraus Version 5 mit dem serverseitigen
 MiMo-Free-Laufzeitwert veröffentlicht, die aktive Custom Domain wurde geprüft.
 Ein produktiver Login oder Live-Modellaufruf bleibt ungetestet.
+Sites-Version 6 wurde aus dem nachgeführten Dokumentationscommit veröffentlicht.
+Ein direkter HTTPS-Abruf des produktiven Health-Endpunkts bestätigte die
+MiMo-Free-Modell-ID; das ist noch kein Test einer echten KI-Antwort.

@@ -219,6 +219,12 @@ beibehalten. Sites meldet `notebook.sebastianselinger.de` und TLS als aktiv.
 Der Header zeigt laut Code den Modellwert aus `/v1/health`; die gehostete
 Darstellung hinter dem Login, eine Anmeldung, die Migration des bestehenden
 D1-Beispiels und eine echte MiMo-Antwort samt Belegen wurden nicht live
-getestet. Ein direkter Abruf von `/v1/health` war mit dem verfügbaren
-Web-Abrufwerkzeug nicht möglich. Die Tests prüfen die erwartete API-Antwort;
-der UI-Code liest das Health-Feld. Eine produktive Sitzung ist nicht geprüft.
+getestet. Ein direkter HTTPS-Abruf von `/v1/health` lieferte anschließend
+`configured: true` und `model: "mimo-v2.6-flash-free"`. Der UI-Code liest
+dieses Feld; eine produktive Sitzung hinter dem Login ist nicht geprüft.
+Der abschließende Dokumentationsstand wurde aus dem ebenfalls lokal
+geprüften Commit `d518b50` als Sites-Version 6 veröffentlicht, mit derselben
+Laufzeitrevision 3 und weiterhin aktiver Custom Domain samt TLS.
+[GitHub CI 35841728179](https://github.com/Huskynarr/Notebook/actions/runs/35841728179)
+und [CodeQL 35841728198](https://github.com/Huskynarr/Notebook/actions/runs/35841728198)
+bestanden auch für diesen Dokumentationscommit.
