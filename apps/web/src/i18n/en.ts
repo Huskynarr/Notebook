@@ -183,7 +183,7 @@ export const en: Texte = {
 
   'consent.title': 'Storage on this device',
   'consent.body':
-    'This application sets no cookies and does no tracking. It stores data only in your browser. You decide what stays beyond this session.',
+    'This application sets no cookies and does no tracking. Online notebooks, sources and notes are stored on the server. Here you decide whether local settings remain beyond this session.',
   'consent.necessary.title': 'Necessary',
   'consent.necessary.body':
     'Sign-in session; in the demo also notebooks, sources and notes. The application does not work without them.',

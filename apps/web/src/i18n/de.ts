@@ -200,7 +200,7 @@ export const de = {
 
   'consent.title': 'Speicherung auf diesem Gerät',
   'consent.body':
-    'Diese Anwendung setzt keine Cookies und kein Tracking. Sie speichert Daten ausschließlich in deinem Browser. Du entscheidest, was über die Sitzung hinaus bleibt.',
+    'Diese Anwendung setzt keine Cookies und kein Tracking. Im Onlinebetrieb liegen Notebooks, Quellen und Notizen auf dem Server. Hier entscheidest du, ob lokale Einstellungen über die Sitzung hinaus gespeichert werden.',
   'consent.necessary.title': 'Notwendig',
   'consent.necessary.body':
     'Anmeldesitzung; in der Demo außerdem Notebooks, Quellen und Notizen. Ohne sie funktioniert die Anwendung nicht.',

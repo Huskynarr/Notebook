@@ -106,3 +106,21 @@ Umgebung; der vorhandene Ersatz-Browser beendet sich bereits bei `--version`
 mit SIGSEGV. Alle 13 Browserfälle brachen vor dem Seitenaufruf ab. Die GitHub-
 CI installiert ihren eigenen Chromium-Build; ein erfolgreicher neuer CI-Lauf
 steht noch aus. Das ist kein Ergebnis über das Verhalten der Sites-Anwendung.
+
+## 2026-09-23 · Sites-Veröffentlichung und Datenschutzhinweis
+
+Sieben kleine Commits wurden einzeln mit `pnpm verify` geprüft und mit
+identischen Dateibäumen in PR #9 übertragen. GitHub CI 35833602868 bestand
+einschließlich Chromium-Ablauf, Sites-Build und Fail2ban; CodeQL 35833602806
+bestand ebenfalls. Der Sites-Worker wurde aus Commit `86e07bb` erfolgreich
+veröffentlicht, zunächst privat und danach auf ausdrücklichen Auftrag mit
+öffentlicher Landingpage. D1 meldet alle sieben erwarteten Tabellen.
+
+Der Browser zeigte die öffentliche Landingpage. Der dort entdeckte alte
+Einwilligungstext behauptete ausschließlich lokale Datenspeicherung; die
+deutsche und englische Fassung beschreiben nun die serverseitige Speicherung
+im Onlinebetrieb. Der gehostete Login/Import wurde dabei nicht geprüft.
+`notebook.sebastianselinger.de` ist beim Sites-Dienst registriert, aber DNS-
+und Zertifikatsprüfung stehen noch aus. Ohne Anbieterschlüssel bleibt das
+sichtbar gekennzeichnete KI-Stubprofil aktiv. Die Textkorrektur benötigt eine
+eigene CI-Abnahme und ein neues Sites-Deployment.

@@ -254,3 +254,12 @@ lokale SQLite-kompatible Worker-Tests und einen Worker-Build. Diese Tests sind
 keine externe D1-/R2- oder Live-Modellabnahme. Das bekannte Testpasswort wird
 weder in Quellcode noch in öffentliche Assets eingebaut; Tests verwenden ein
 anderes Passwort.
+
+Codex übertrug die einzeln lokal geprüften Commits in den bestehenden
+GitHub-PR und verglich jeden übertragenen Dateibaum mit dem lokalen Git-Baum.
+Die Sites-Werkzeuge veröffentlichten den daraus gebauten Worker; die
+produktive D1-Tabellenübersicht und die öffentliche Landingpage wurden gelesen.
+Der Browserfund eines inhaltlich falschen Datenschutzhinweises führte zu einer
+Korrektur in beiden Sprachfassungen. GitHub CI und CodeQL für den vorherigen
+Stand waren erfolgreich; ein gehosteter Login oder Live-Modellaufruf wurde
+nicht als geprüft ausgegeben.
