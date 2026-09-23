@@ -41,7 +41,7 @@ PORT=8787
 CORS_ORIGIN=https://notebook.sebastianselinger.de
 TRUST_PROXY=127.0.0.1,::1
 DATABASE_PATH=./data/notebook.db
-AUTH_USERNAME=Huskynar
+AUTH_USERNAME=Huskynarr
 # Eigenes langes Passwort und ein zufälliges Geheimnis serverseitig eintragen:
 AUTH_PASSWORD=
 AUTH_SECRET=
@@ -51,12 +51,16 @@ SEED_ON_EMPTY=true
 ```
 
 Der Produktionsstart lehnt das Standardpasswort `admin`, Passwörter unter 16 Zeichen und
-Signaturgeheimnisse unter 32 Zeichen ab. `Huskynar:admin` bleibt für localhost nutzbar.
+Signaturgeheimnisse unter 32 Zeichen ab. `Huskynarr:admin` bleibt für localhost nutzbar.
 Weitere Zugänge werden in `shared/api.env` über `AUTH_ADDITIONAL_USERS` als JSON-Liste
-mit `username` und `password` eingerichtet; auch deren Passwörter müssen in Produktion
-mindestens 16 Zeichen haben. Das lokale Testpasswort wurde nicht auf den Server übertragen.
+mit `username` und `password` eingerichtet, etwa für den gewünschten Namen `Everlast`;
+auch deren Passwörter müssen in Produktion mindestens 16 Zeichen haben. Das lokale
+Testpasswort gehört nur in die ignorierte Backend-Umgebung, nicht ins Frontend oder Git.
 Ein zufälliges Geheimnis kann mit `openssl rand -hex 32` erzeugt werden; nicht ins Git
-übernehmen. Die KI-Konfiguration steht in [providers.md](providers.md).
+übernehmen. Für OpenCode Console/Big Pickle serverseitig `LLM_PROVIDER=openai`,
+`LLM_BASE_URL=https://opencode.ai/inference/openai/v1`, `LLM_MODEL=big-pickle` und
+ein leeres `LLM_API_KEY` konfigurieren; [Kosten-, Datenschutz- und Abnahmegrenzen](providers.md)
+beachten. Go ist dafür nicht der dokumentierte Big-Pickle-Endpunkt.
 
 Das Frontend wird für den gleichen Ursprung mit `VITE_API_BASE_URL=` gebaut. Für lokale
 Entwicklung ist die Vorgabe `http://localhost:8787`; ein abweichender API-Ursprung ist

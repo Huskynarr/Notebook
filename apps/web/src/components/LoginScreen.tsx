@@ -27,7 +27,7 @@ export function LoginScreen({
   onBack: () => void;
 }): ReactElement {
   const t = useT();
-  const [username, setUsername] = useState('Huskynar');
+  const [username, setUsername] = useState('Huskynarr');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | undefined>(undefined);
   const [busy, setBusy] = useState(false);

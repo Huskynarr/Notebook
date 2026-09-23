@@ -25,7 +25,7 @@ describe('Notizbelege und Exportintegrität', () => {
     const login = await app.inject({
       method: 'POST',
       url: '/v1/auth/login',
-      payload: { username: 'Huskynar', password: 'admin' },
+      payload: { username: 'Huskynarr', password: 'admin' },
     });
     auth = { authorization: `Bearer ${LoginResponseSchema.parse(login.json()).token}` };
     notebookId = ctx.notebooks.create('Belege').id;

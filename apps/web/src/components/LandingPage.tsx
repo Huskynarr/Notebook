@@ -56,6 +56,8 @@ const COPY = {
     modelTitle: 'Das Modell ist austauschbar. Die Quelle bleibt.',
     modelBody:
       'Mit verbundenem KI-Anbieter entstehen echte Modellantworten. Ohne Modell ist jede simulierte Antwort sichtbar gekennzeichnet. Ausgewählte Textausschnitte werden bei einem KI-Aufruf an den konfigurierten Anbieter übermittelt.',
+    privacyNotice:
+      'Bei Nutzung von Big Pickle gehen Frage und relevante Textausschnitte an OpenCode (USA). Während der kostenlosen Phase können diese Daten zur Verbesserung des Modells verwendet werden. Für diese Demo nur nicht vertrauliche Beispieldaten verwenden.',
     footer: 'Eigenständiges Hochschulprojekt · keine Verbindung zu Google NotebookLM',
     demo: 'Browser-Demo: ohne Zugangsschutz, ohne KI-Modell. Nur Beispieldaten verwenden.',
     theme: 'Design & Sprache',
@@ -111,6 +113,8 @@ const COPY = {
     modelTitle: 'Change the model. Keep the source.',
     modelBody:
       'A connected AI provider generates real model responses. Without a model, every simulated answer is visibly labelled. When calling an AI model, selected text passages are sent to the configured provider.',
+    privacyNotice:
+      'When using Big Pickle, your question and relevant passages go to OpenCode (US). During its free period, this data may be used to improve the model. For this demo, use non-confidential sample data only.',
     footer: 'Independent university project · not affiliated with Google NotebookLM',
     demo: 'Browser demo: no access protection, no AI model. Use sample data only.',
     theme: 'Design & language',
@@ -348,6 +352,9 @@ export function LandingPage({
               {copy.modelTitle}
             </h2>
             <p className="text-content-muted mt-5 text-sm leading-7">{copy.modelBody}</p>
+            <p className="bg-warning-surface text-warning mt-5 rounded-md p-4 text-sm leading-6">
+              {copy.privacyNotice}
+            </p>
             <Button variant="secondary" className="rounded-full! mt-7" onClick={onLogin}>
               {copy.start}
               <span aria-hidden="true">↗</span>

@@ -4,8 +4,8 @@ test('zusätzlicher Zugang öffnet denselben geschützten Arbeitsbereich', async
   await page.goto('/');
   await page.getByRole('button', { name: 'Nur notwendige' }).click();
   await page.getByRole('button', { name: /Anmelden/ }).click();
-  await expect(page.getByLabel('Benutzername')).toHaveValue('Huskynar');
-  await page.getByLabel('Benutzername').fill('everlabs');
+  await expect(page.getByLabel('Benutzername')).toHaveValue('Huskynarr');
+  await page.getByLabel('Benutzername').fill('Everlast');
   await page.getByLabel('Passwort').fill('browser-fixture-password-only');
   await page.getByRole('button', { name: /Anmelden/ }).click();
   await page.getByRole('button', { name: 'Überspringen' }).click();

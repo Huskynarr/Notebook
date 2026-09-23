@@ -56,6 +56,37 @@ describe('OpenAI-kompatibler HTTP-Vertrag', () => {
     expect(fetchMock.mock.calls[0]?.[1]?.headers).not.toHaveProperty('authorization');
   });
 
+  it('ruft Big Pickle an der Console ohne Schlüssel und ohne ungeprüftes response_format auf', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(completion());
+    vi.stubGlobal('fetch', fetchMock);
+    await new OpenAiCompatibleProvider({
+      ...options,
+      baseUrl: 'https://opencode.ai/inference/openai/v1',
+      apiKey: '',
+      model: 'big-pickle',
+    }).complete(request);
+    const [url, init] = fetchMock.mock.calls[0]!;
+    expect(url).toBe('https://opencode.ai/inference/openai/v1/chat/completions');
+    expect(init?.headers).not.toHaveProperty('authorization');
+    if (typeof init?.body !== 'string') throw new Error('JSON-Request-Body erwartet');
+    const body = JSON.parse(init.body) as unknown;
+    expect(body).not.toHaveProperty('response_format');
+    expect(body).toMatchObject({ model: 'big-pickle' });
+  });
+
+  it('sperrt andere Console-Modelle auch bei gesetztem Schlüssel', async () => {
+    const fetchMock = vi.fn<typeof fetch>();
+    vi.stubGlobal('fetch', fetchMock);
+    await expect(
+      new OpenAiCompatibleProvider({
+        ...options,
+        baseUrl: 'https://opencode.ai/inference/openai/v1',
+        model: 'paid-model',
+      }).complete(request),
+    ).rejects.toThrow('nur Big Pickle');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it.each([401, 429, 500])(
     'gibt bei HTTP %i weder Antwortkörper noch Schlüssel weiter',
     async (status) => {

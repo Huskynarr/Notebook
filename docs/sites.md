@@ -6,7 +6,12 @@ Sites-Worker liest D1 (`DB`) und R2 (`BUCKET`), die in `.openai/hosting.json` al
 logische Bindings deklariert sind. Die unveränderten UTF-8-Originaltexte liegen
 in R2; D1 enthält Metadaten, Notizen, Offsets, FTS5-Index, Anmeldesperren und
 API-/KI-Kontingente. Neue Installationen wenden `drizzle/0000_sites.sql` vor
-dem Worker-Upload an. Die Sites-Daten sind **nicht** die lokale Plesk-Datenbank;
+dem Worker-Upload an. Der veröffentlichte Datenbestand mit einem Notebook unter
+dem bisherigen Namen `Huskynar` benötigt bei der Umstellung auf `Huskynarr`
+eine eng begrenzte Eigentümerkorrektur. Sie erfolgt idempotent im Worker beim
+ersten authentifizierten Zugriff des korrigierten Kontos, nicht per D1-Schema-
+Migration; Quellen und Notizen bleiben über ihre Notebook-IDs zugeordnet.
+Die Sites-Daten sind **nicht** die lokale Plesk-Datenbank;
 eine automatische Übernahme bestehender Daten gibt es nicht.
 
 ## Bauen und verifizieren
@@ -34,28 +39,46 @@ niemals in Git, `VITE_`-Variablen, `.openai/hosting.json` oder den Client-Build:
 
 | Name | Zweck |
 |---|---|
-| `AUTH_USERNAME`, `AUTH_PASSWORD` | Zugang `Huskynar` mit eigenem langem Passwort |
-| `AUTH_ADDITIONAL_USERS` | JSON-Liste für `everlabs` und weitere feste Testkonten |
+| `AUTH_USERNAME`, `AUTH_PASSWORD` | Zugang `Huskynarr` mit eigenem langem Passwort |
+| `AUTH_ADDITIONAL_USERS` | Serverseitige JSON-Liste für `Everlast` und weitere feste Testkonten |
 | `AUTH_SECRET` | Stabiles zufälliges Signaturgeheimnis, mindestens 32 Zeichen |
 | `LLM_PROVIDER` | `stub` (sichtbar markierter Offline-Modus) oder `openai` |
-| `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` | Serverseitiger OpenAI-kompatibler Modellendpunkt |
+| `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` | Serverseitiger Modellendpunkt; für das kostenlose Big-Pickle-Console-Profil bleibt der Schlüssel leer |
 
 Produktionszugänge haben mindestens 16 Zeichen. Das aus dem Auftrag bekannte
-`everlabs`-Testpasswort ist für einen öffentlichen Testzugang verwendbar, aber
+`Everlast`-Testpasswort ist für einen öffentlichen Testzugang verwendbar, aber
 keine Schutzmaßnahme für vertrauliche Daten. Der Worker trennt die Notebook-
 Daten nach Konto. Für echte Universitätsquellen muss der Testzugang deaktiviert
 oder mit einem neuen geheimen Passwort versehen werden. Ohne Modellschlüssel
-werden **keine** echten Antworten behauptet: der Offline-Modus ist sichtbar.
+ist der kostenlose Console-Endpunkt gemäß Anbieter-Dokumentation für kostenlose
+Chatmodelle vorgesehen; ob Big Pickle hier tatsächlich antwortet, muss ein
+Live-Aufruf zeigen. `LLM_PROVIDER=stub` bleibt sichtbar als Simulation markiert.
+
+Für die gewünschte Modellwahl ausschließlich folgende Sites-Laufzeitwerte
+serverseitig setzen; keine `VITE_`-Variablen und keine automatische Ausweichroute:
+
+```ini
+LLM_PROVIDER=openai
+LLM_BASE_URL=https://opencode.ai/inference/openai/v1
+LLM_MODEL=big-pickle
+LLM_API_KEY=
+```
+
+Die OpenCode-Go-Modellliste enthält Big Pickle nicht. Der kostenlose Big-Pickle-
+Tarif ist nach [Anbieterangaben](https://opencode.ai/v2/docs/console/models/)
+befristet; Console-Auto-Reload deaktivieren und vertrauliche Universitätsquellen
+bis zur Freigabe nicht übertragen. Der Anbieter hostet in den USA und kann
+Big-Pickle-Daten in der kostenlosen Phase zur Modellverbesserung nutzen.
+[Details und Abnahme](providers.md).
 
 ## Öffentlichkeit und Domain
 
-Eine neue Site ist zunächst nur für den Eigentümer erreichbar. Die öffentliche
-Landingpage erfordert eine gesonderte Sites-Freigabe `public`; das eigene Login
-schützt auch dann sämtliche `/v1`-Datenrouten serverseitig. Nach dem ersten
-erfolgreichen Deployment lässt sich `notebook.sebastianselinger.de` an die Site
-binden. Sites gibt dafür einen CNAME und zusätzliche DNS-Validierungseinträge
-aus. Die Domain erst umschalten, wenn diese Einträge gesetzt und der Status
-`active` ist; ein bestehender Plesk-Eintrag darf bis dahin bleiben.
+Die Site ist öffentlich und `notebook.sebastianselinger.de` ist als aktive Domain
+mit TLS gebunden. Die öffentliche Landingpage benötigt kein Konto; das eigene
+Login schützt sämtliche `/v1`-Datenrouten serverseitig. Nach Änderung der
+Sites-Umgebung eine neue Version aus dem geprüften Commit veröffentlichen und
+den Domain- und Loginstatus erneut prüfen. Der alternative Plesk-Betriebsweg
+nutzt dieselbe Zieladresse und kann nicht gleichzeitig deren DNS-Ziel sein.
 
 Der Worker erzwingt pro IP 120 geschützte Anfragen pro Minute, global 300,
 pro Zugang 10 KI-Fragen pro Minute und 100 pro Tag. Anmeldung: nach drei

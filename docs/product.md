@@ -1,14 +1,16 @@
 # Produktdefinition
 
-Stand: 2026-09-22 · eigenständiger NotebookLM-inspirierter Prototyp, keine Google-Anbindung.
+Stand: 2026-09-23 · eigenständiger NotebookLM-inspirierter Prototyp, keine Google-Anbindung.
 
 ## Zielgruppe und Nutzungssituation
 
 Studierende, wissenschaftliche Mitarbeitende und Lehrende arbeiten allein mit einem
 abgegrenzten Korpus aus Skripten, Seminarunterlagen, Protokollen oder eigenen Notizen.
 Typischer Arbeitsumfang als Annahme: 3–30 Textdokumente. Entwicklung auf localhost;
-später ein geschützter gemeinsamer Demo-Arbeitsraum unter notebook.sebastianselinger.de.
-Feste Zugänge teilen denselben Arbeitsbereich, ohne Mehrbenutzer- oder Mandantentrennung.
+eine öffentliche Sites-Landingpage und ein geschützter Demo-Arbeitsraum unter
+notebook.sebastianselinger.de. Feste Zugänge teilen auf dem lokalen Fastify-Weg
+denselben Datenbestand; Sites trennt Notebookdaten nach Konto. Es gibt keine
+Registrierung, Rollenverwaltung oder Zusammenarbeit.
 
 ## Zentrales Problem und kurze Produktanalyse
 
@@ -43,12 +45,12 @@ am Hauptablauf geprüft; Zeitersparnis und Modellqualität bleiben zu messen.
 | P2 | Text-/Markdown-Import | Einfügen und Datei, Originaltext unverändert, höchstens 10 MiB UTF-8 |
 | P3 | Text-/Markdown-Export | Vollständige Quellen, Notizen, Belegauszüge und Positionen in Markdown |
 | P4 | Quellenwahl | Abgewählte oder notebookfremde Quellen gelangen nicht in den Modellkontext |
-| P5 | Echte KI-Antworten | Konfigurierbarer kompatibler Backend-Anbieter; Live-Abnahme gesondert erforderlich |
+| P5 | Echte KI-Antworten | Serverseitig konfigurierte Chat-Completions-API; für die Sites-Demo nur OpenCode Console/`big-pickle`, Live-Abnahme gesondert erforderlich |
 | P6 | Überprüfbare Verweise | Marker → abgerufener Abschnitt → Originalposition; ungültige echte Antworten vollständig zurückhalten |
 | P7 | Notizen | Anlegen, bearbeiten, löschen; Referenzen serverseitig prüfen; fehlende Originale kennzeichnen |
-| P8 | Lokale Persistenz | SQLite-Datei auf dem API-Rechner, kein externer Datenbankdienst |
+| P8 | Persistenz | Lokal SQLite-Datei auf dem API-Rechner; auf Sites D1 für Metadaten und R2 für Originaltexte |
 | P9 | Sofort nutzbares Beispiel | Fiktives Notebook, Quellen und Beispielfragen; Fundstellen ohne API-Schlüssel erkundbar |
-| P10 | Einfacher Zugangsschutz | localhost Huskynar:admin; weitere Zugänge per Backend-Konfiguration; serverseitige Anmeldung, Token und verzögerte Wiederholung |
+| P10 | Einfacher Zugangsschutz | localhost Huskynarr:admin; zusätzlich Everlast per Backend-Konfiguration; serverseitige Anmeldung, Token und verzögerte Wiederholung |
 | P11 | Landingpage und Themes | Öffentliche Erklärung, Login oben rechts; Everlast, Huskynarr und bestehende Themes |
 | P12 | Reproduzierbare Qualität | Typecheck, Lint, Build, Unit-/Integrationstests, E2E, Git-Hooks und GitHub CI/CD |
 
@@ -85,12 +87,17 @@ brauchen zusätzlichen Platz. KI-Anfragen: zwei gleichzeitig, zehn pro Minute,
 
 1. Absatz-Chunking und lexikalischer FTS5/BM25-Abruf reichen für deutsche Fachtexte;
    Synonyme, Komposita, Tabellen und Formeln sind nur begrenzt abgedeckt.
-2. Ein passender Anbieterzugang und die Freigabe für übermittelte Quellen liegen vor.
-   NVIDIA-Testkontingente sind keine Zusage für kostenlosen Dauerbetrieb.
+2. Die OpenCode-Console-Inference-Schnittstelle liefert für `big-pickle` ohne Schlüssel
+   nutzbare Antworten im geforderten Belegformat. Ihre kostenlose Verfügbarkeit ist
+   laut Anbieter befristet; Go enthält Big Pickle nicht in seiner Modellliste.
+   Vor Verwendung vertraulicher Quellen ist die Freigabe der Universität nötig:
+   OpenCode hostet in den USA und kann Big-Pickle-Daten zur Modellverbesserung nutzen.
 3. Modellantworten halten das strenge JSON-/Belegformat zuverlässig ein. Die Testdoppel
    belegen den Softwarevertrag, nicht die Qualität eines laufenden Modells.
-4. Die festen Zugänge zum gemeinsamen Arbeitsbereich reichen für eine abgegrenzte Demo. Ein zentraler Dienst mit
-   persönlichen Daten benötigt später individuelle Konten und getrennte Arbeitsräume.
+4. Die festen Zugänge mit lokaler gemeinsamer Datenbank und Sites-Kontentrennung reichen
+   für eine abgegrenzte Demo. Ein zentraler Dienst mit persönlichen Daten benötigt
+   später ein überprüftes Kontenmodell und ein freigegebenes Datenschutzkonzept.
 5. Everlast-/Huskynarr-Themes sind eigenständige Ableitungen beobachteter Farben;
    eine offizielle Corporate-Design-Abnahme liegt nicht vor.
-6. Plesk-Rechte, DNS, TLS, Cloudflare und SSH-Deployment werden erst am Zielserver bestätigt.
+6. Für den alternativen Plesk-Betrieb bleiben Rechte, vHost, Cloudflare und SSH-
+   Deployment unbestätigt. Die Sites-Domain besitzt aktive DNS-/TLS-Anbindung.

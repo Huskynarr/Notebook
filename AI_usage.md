@@ -266,3 +266,22 @@ nicht als geprüft ausgegeben.
 Die korrigierte Fassung wurde als Sites-Version 2 erneut veröffentlicht,
 im Browser angezeigt und durch GitHub CI 35834237603 und CodeQL 35834237634
 für genau diesen Produktstand bestätigt.
+
+## 2026-09-23 · Kontonamen, Anbieterdokumentation und bestehende D1-Daten
+
+Codex überprüfte die OpenCode-Herstellerdokumente für Go, Zen, Console Inference
+und die Modellliste. Übernommen wurden die präzisierten Namen `Huskynarr` und
+`Everlast`, die Big-Pickle-Console-Konfiguration, der Hinweis zur begrenzten
+Kostenfreiheit sowie die Angaben zu US-Hosting und möglicher Modellverbesserung.
+Die Aussagen wurden mit den direkt verlinkten Anbieterseiten abgeglichen.
+Codex prüfte die bestehende D1-Notebook-Eigentümerspalte lesend und schlug
+eine idempotente Korrektur beim ersten authentifizierten Zugriff vor, damit das
+vorhandene Notebook unter dem neuen Namen nicht verschwindet. Diese Recherche
+und Dokumentationsänderung belegen keinen erfolgreichen Live-Modellaufruf,
+keine semantisch korrekte Belegantwort und keine bereits ausgeführte
+Datenkorrektur; die Ergebnisse weiterer Tests und des Deployments stehen
+nach ihrem tatsächlichen Lauf in `docs/progress.md`.
+Die generierte Implementierung wurde anschließend mit `pnpm verify` geprüft:
+203 Unit-/Integrationstests und 10 Tooling-Tests bestanden. Der HTTP-Test für
+Big Pickle benutzt einen Testserver-Ersatz; er belegt keinen erfolgreichen
+Anbieteraufruf oder die Qualität der Modellantwort.

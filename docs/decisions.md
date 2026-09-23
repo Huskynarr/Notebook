@@ -586,3 +586,27 @@ damit der öffentlich bekannte Testzugang nicht auf den Hauptzugang zugreift.
 Stabile Anmeldesperren und Kontingente liegen in D1. Ein Redis-/Vektordienst
 und eine gemeinsame Datenbank für Plesk/Sites wurden verworfen. Der lokale
 Plesk-Pfad bleibt erhalten; eine Datenmigration zwischen beiden ist noch offen.
+
+## D-030 · 2026-09-23 · Namen berichtigen und bestehende Sites-Daten erhalten
+
+Die später präzisierten Kontonamen sind `Huskynarr` und `Everlast`; die früheren
+Namen in D-028/D-029 bleiben als historische Entscheidungen stehen. Passwörter
+bleiben unverändert und ausschließlich serverseitig. Weil die bestehende Sites-D1
+ein Notebook unter `Huskynar` enthält, erfolgt die Umbenennung des Eigentümers
+idempotent und auf die beiden bekannten alten Namen begrenzt beim ersten
+authentifizierten Zugriff des jeweils korrigierten Kontos. Schema-Migrationen
+bleiben schema-only; bloßes Umstellen der ENV ohne Datenkorrektur hätte
+bestehende Notebooks versteckt. Lokales Fastify teilt weiter einen Datenbestand.
+
+## D-031 · 2026-09-23 · Big Pickle nur über die dokumentierte Console-Inference-API
+
+Die gewünschte Sites-Demo konfiguriert `LLM_PROVIDER=openai`,
+`LLM_BASE_URL=https://opencode.ai/inference/openai/v1` und `LLM_MODEL=big-pickle`;
+für kostenlose Chatmodelle erlaubt die Console-Dokumentation Anfragen ohne
+Bearer-Schlüssel. Der Go-Endpunkt wurde verworfen: seine veröffentlichte
+Modellliste enthält Big Pickle nicht und ist auf Coding-Agenten ausgerichtet.
+Kein automatischer Wechsel auf bezahlte Modelle. Kostenfreiheit ist befristet;
+Auto-Reload muss bei Nullkosten-Ziel im Console-Konto deaktiviert werden.
+US-Hosting und mögliche Modellverbesserung mit kostenlosen Big-Pickle-Daten
+erfordern die Freigabe vor Übertragung vertraulicher Universitätsquellen.
+Eine echte Modellantwort samt validiertem Quellenbeleg ist noch nicht geprüft.

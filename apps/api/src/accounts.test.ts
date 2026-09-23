@@ -5,7 +5,7 @@ import { loadConfig } from './config.ts';
 const env = {
   AUTH_SECRET: 'accounts-fixture-secret-at-least-32-characters',
   AUTH_ADDITIONAL_USERS: JSON.stringify([
-    { username: 'everlabs', password: 'second-fixture-password' },
+    { username: 'Everlast', password: 'second-fixture-password' },
   ]),
 };
 
@@ -13,8 +13,8 @@ describe('Konfigurierte Zugänge', () => {
   it('benennt den Standardzugang um und hält beide Passwörter getrennt', () => {
     const auth = new Auth(loadConfig(env));
     for (const [username, password] of [
-      ['Huskynar', 'admin'],
-      ['everlabs', 'second-fixture-password'],
+      ['Huskynarr', 'admin'],
+      ['Everlast', 'second-fixture-password'],
     ]) {
       const session = auth.login(username ?? '', password ?? '');
       expect(session).not.toBeNull();
@@ -24,18 +24,20 @@ describe('Konfigurierte Zugänge', () => {
       );
     }
     expect(auth.login('admin', 'admin')).toBeNull();
-    expect(auth.login('everlabs', 'admin')).toBeNull();
-    expect(auth.login('Huskynar', 'second-fixture-password')).toBeNull();
+    expect(auth.login('Everlast', 'admin')).toBeNull();
+    expect(auth.login('Huskynarr', 'second-fixture-password')).toBeNull();
+    expect(auth.login('Huskynar', 'admin')).toBeNull();
+    expect(auth.login('everlabs', 'second-fixture-password')).toBeNull();
     expect(auth.login('huskynar', 'admin')).toBeNull();
   });
 
   it('verwirft manipulierte und entfernte Benutzer trotz gleichem Signaturgeheimnis', () => {
     const auth = new Auth(loadConfig(env));
-    const token = auth.login('everlabs', 'second-fixture-password')?.token ?? '';
+    const token = auth.login('Everlast', 'second-fixture-password')?.token ?? '';
     const [encoded, signature] = token.split('.');
     const payload = Buffer.from(encoded ?? '', 'base64url')
       .toString()
-      .replace('everlabs', 'Huskynar');
+      .replace('Everlast', 'Huskynarr');
     expect(auth.verify(`${Buffer.from(payload).toString('base64url')}.${signature ?? ''}`)).toBe(
       false,
     );
@@ -46,8 +48,8 @@ describe('Konfigurierte Zugänge', () => {
     '{malformed secret-fixture-value',
     '{}',
     JSON.stringify([{ username: '', password: 'secret-fixture-value' }]),
-    JSON.stringify([{ username: 'everlabs', password: '' }]),
-    JSON.stringify([{ username: 'Huskynar', password: 'secret-fixture-value' }]),
+    JSON.stringify([{ username: 'Everlast', password: '' }]),
+    JSON.stringify([{ username: 'Huskynarr', password: 'secret-fixture-value' }]),
     JSON.stringify(
       Array.from({ length: 11 }, (_, i) => ({
         username: `user${i}`,
@@ -55,8 +57,8 @@ describe('Konfigurierte Zugänge', () => {
       })),
     ),
     JSON.stringify([
-      { username: 'everlabs', password: 'secret-fixture-value' },
-      { username: 'everlabs', password: 'other-fixture-value' },
+      { username: 'Everlast', password: 'secret-fixture-value' },
+      { username: 'Everlast', password: 'other-fixture-value' },
     ]),
   ])('weist ungültige Konfiguration ohne Passwortausgabe ab (%#)', (value) => {
     expect(() => loadConfig({ ...env, AUTH_ADDITIONAL_USERS: value })).toThrow(
@@ -79,7 +81,7 @@ describe('Konfigurierte Zugänge', () => {
     expect(() =>
       loadConfig({
         ...production,
-        AUTH_ADDITIONAL_USERS: JSON.stringify([{ username: 'everlabs', password: 'short' }]),
+        AUTH_ADDITIONAL_USERS: JSON.stringify([{ username: 'Everlast', password: 'short' }]),
       }),
     ).toThrow('AUTH_ADDITIONAL_USERS');
   });

@@ -24,6 +24,7 @@ import {
   verify,
 } from './auth.ts';
 import { askSites, LlmUnavailableError } from './ask.ts';
+import { isOpenCodeConsole } from '../llm/bigPickle.ts';
 import {
   canonicalCitations,
   getNote,
@@ -72,6 +73,15 @@ function clientIp(request: Request): string {
   return request.headers.get('CF-Connecting-IP') ?? 'unknown';
 }
 
+/** Preserve existing notebook IDs and their sources when a configured account
+ * is renamed. Only the authenticated successor may trigger this data update;
+ * an old account that is still configured retains its own notebooks. */
+async function adoptPreviousOwner(env: SiteEnv, owner: string): Promise<void> {
+  const previous = owner === 'Huskynarr' ? 'Huskynar' : owner === 'Everlast' ? 'everlabs' : null;
+  if (previous === null || accounts(env).some((account) => account.username === previous)) return;
+  await env.DB.prepare('UPDATE notebooks SET owner=? WHERE owner=?').bind(owner, previous).run();
+}
+
 export async function handleApi(request: Request, env: SiteEnv): Promise<Response> {
   try {
     return await dispatch(request, env);
@@ -97,7 +107,13 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
       status: 'ok',
       version: '0.1.0',
       llm: {
-        configured: env.LLM_PROVIDER === 'openai' && !!env.LLM_API_KEY,
+        configured:
+          env.LLM_PROVIDER === 'openai' &&
+          !!env.LLM_BASE_URL &&
+          !!env.LLM_MODEL &&
+          (isOpenCodeConsole(env.LLM_BASE_URL)
+            ? env.LLM_MODEL === 'big-pickle'
+            : !!env.LLM_API_KEY),
         provider: env.LLM_PROVIDER === 'openai' ? 'openai' : 'stub',
         model: env.LLM_PROVIDER === 'openai' ? (env.LLM_MODEL ?? '') : 'kein Modell verbunden',
       },
@@ -126,6 +142,7 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
   if (ipWindow) limited(ipWindow);
   const globalWindow = await quota(env.DB, 'api:global', 60_000, 300);
   if (globalWindow) limited(globalWindow);
+  await adoptPreviousOwner(env, owner);
   const db = env.DB;
 
   if (entity === 'notebooks' && parts.length === 2) {

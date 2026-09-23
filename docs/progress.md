@@ -125,3 +125,32 @@ und Zertifikatsprüfung stehen noch aus. Ohne Anbieterschlüssel bleibt das
 sichtbar gekennzeichnete KI-Stubprofil aktiv. Die Textkorrektur wurde als
 Sites-Version 2 aus Commit `0a837f5` veröffentlicht und im Browser angezeigt;
 GitHub CI 35834237603 und CodeQL 35834237634 bestanden für diesen Stand.
+
+## 2026-09-23 · Präzisierte Konten und Big-Pickle-Profil
+
+Die öffentliche Sites-Landingpage und die Domain
+`notebook.sebastianselinger.de` sind inzwischen mit aktiver TLS-Bindung erreichbar.
+Vor der aktuellen Namensumstellung enthält die produktive D1 ein Notebook
+mit dem Eigentümer `Huskynar`; für `everlabs` wurde keines gefunden. Die
+Anwendung und laufzeitseitigen Zugänge sollen auf `Huskynarr` und `Everlast`
+wechseln, wobei das bisherige Hauptpasswort und das ausschließlich im Backend
+gespeicherte Testpasswort unverändert bleiben. Die Datenkorrektur wird auf die
+alten Namen begrenzt beim ersten authentifizierten Zugriff des neuen Namens
+durchgeführt. Eine bloße ENV-Umbenennung würde das vorhandene Notebook verbergen;
+eine D1-Schema-Migration enthält keine Datenänderung.
+
+OpenCodes aktuelle Dokumentation führt Big Pickle als zeitlich begrenzt
+kostenloses Chatmodell und die Console-Inference-API als für kostenlose
+Chatmodelle ohne Schlüssel aufrufbar. Go listet Big Pickle nicht. Das
+Big-Pickle-only-Profil mit `https://opencode.ai/inference/openai/v1` wurde
+aus den Dokumenten vorbereitet. Ein echter Modellaufruf, das geforderte
+Antwortformat und die Belegqualität sind **noch nicht live geprüft**; das
+öffentliche Deployment antwortet bis zur nachgewiesenen Umstellung weiter
+im sichtbar gekennzeichneten Offline-Modus. Die Auswirkungen auf Kosten
+und Datenschutz sind in `docs/providers.md` dokumentiert.
+
+Die Kontonamen, die idempotente Eigentümerkorrektur und der schlüssellose
+Big-Pickle-HTTP-Vertrag sind implementiert. `pnpm verify` bestand mit 203
+Unit-/Integrationstests und 10 Tooling-Tests einschließlich Typprüfung,
+Lint, Format und Build. Die Modelltests verwenden kontrollierte HTTP-Antworten;
+ein Live-Aufruf und eine Überprüfung echter Modellbelege stehen noch aus.

@@ -8,6 +8,7 @@ import {
   type CompletionResult,
   type LlmProvider,
 } from './provider.ts';
+import { isOpenCodeConsole } from './bigPickle.ts';
 
 const ChatCompletionSchema = z.object({
   choices: z
@@ -85,6 +86,9 @@ export class OpenAiCompatibleProvider implements LlmProvider {
   }
 
   async complete(request: CompletionRequest): Promise<CompletionResult> {
+    if (isOpenCodeConsole(this.options.baseUrl) && this.options.model !== 'big-pickle') {
+      throw new LlmUnavailableError('Für OpenCode Console ist nur Big Pickle freigegeben.');
+    }
     if (request.system.length + request.user.length > MAX_PROVIDER_PROMPT_CHARS) {
       throw new LlmUnavailableError('Die ausgewählten Textstellen sind für eine Anfrage zu groß.');
     }
@@ -105,7 +109,9 @@ export class OpenAiCompatibleProvider implements LlmProvider {
           model: this.options.model,
           temperature: this.options.temperature,
           max_tokens: 4096,
-          response_format: { type: 'json_object' },
+          ...(this.options.model === 'big-pickle'
+            ? {}
+            : { response_format: { type: 'json_object' } }),
           messages: [
             { role: 'system', content: request.system },
             { role: 'user', content: request.user },

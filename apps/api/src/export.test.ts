@@ -27,7 +27,7 @@ describe('Speicherbegrenzter Markdown-Export', () => {
       openDatabase(':memory:'),
     );
     app = await buildServer(ctx);
-    const token = ctx.auth.login('Huskynar', 'admin')?.token;
+    const token = ctx.auth.login('Huskynarr', 'admin')?.token;
     if (token === undefined) throw new Error('Missing test session');
     headers = { authorization: `Bearer ${token}` };
   });

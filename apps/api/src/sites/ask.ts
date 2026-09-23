@@ -12,6 +12,7 @@ import {
 } from '../domain/prompt.ts';
 import { extractJson, LlmUnavailableError, ModelAnswerSchema } from '../llm/provider.ts';
 import { StubProvider } from '../llm/stub.ts';
+import { isBigPickleConsole, isOpenCodeConsole } from '../llm/bigPickle.ts';
 import { retrieved, type SiteEnv } from './db.ts';
 
 const ChatCompletion = z.object({
@@ -37,8 +38,10 @@ async function model(
 }> {
   const base = env.LLM_BASE_URL,
     modelName = env.LLM_MODEL;
-  if (!base || !modelName || !env.LLM_API_KEY)
+  if (!base || !modelName || (!env.LLM_API_KEY && !isBigPickleConsole(base, modelName)))
     throw new LlmUnavailableError('Kein Modell verbunden.');
+  if (isOpenCodeConsole(base) && modelName !== 'big-pickle')
+    throw new LlmUnavailableError('Für OpenCode Console ist nur Big Pickle freigegeben.');
   if (system.length + user.length > 100_000)
     throw new LlmUnavailableError('Die Textstellen sind für eine Anfrage zu groß.');
   const abort = new AbortController();
@@ -50,12 +53,15 @@ async function model(
       method: 'POST',
       redirect: 'error',
       signal: abort.signal,
-      headers: { 'content-type': 'application/json', authorization: `Bearer ${env.LLM_API_KEY}` },
+      headers: {
+        'content-type': 'application/json',
+        ...(env.LLM_API_KEY ? { authorization: `Bearer ${env.LLM_API_KEY}` } : {}),
+      },
       body: JSON.stringify({
         model: modelName,
         temperature: 0,
         max_tokens: 4096,
-        response_format: { type: 'json_object' },
+        ...(modelName === 'big-pickle' ? {} : { response_format: { type: 'json_object' } }),
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user },

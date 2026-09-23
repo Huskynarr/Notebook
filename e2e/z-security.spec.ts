@@ -45,7 +45,7 @@ test('Login-Sperre bleibt nach Neuladen sichtbar und die API schützt den Arbeit
   // Bypass all browser state: the backend must independently refuse the known
   // valid demo credentials during its own persisted cooldown.
   const rejected = await request.post('http://127.0.0.1:8787/v1/auth/login', {
-    data: { username: 'Huskynar', password: 'admin' },
+    data: { username: 'Huskynarr', password: 'admin' },
   });
   expect(rejected.status()).toBe(429);
   expect(Number(rejected.headers()['retry-after'])).toBeGreaterThan(0);

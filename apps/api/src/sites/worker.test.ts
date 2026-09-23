@@ -82,10 +82,10 @@ function setup(): SiteEnv {
   return {
     DB,
     BUCKET: new TestBucket(),
-    AUTH_USERNAME: 'Huskynar',
+    AUTH_USERNAME: 'Huskynarr',
     AUTH_PASSWORD: 'local-only-passphrase-with-length',
     AUTH_ADDITIONAL_USERS: JSON.stringify([
-      { username: 'everlabs', password: 'local-second-account-passphrase-only' },
+      { username: 'Everlast', password: 'local-second-account-passphrase-only' },
     ]),
     AUTH_SECRET: 'local-test-signing-secret-at-least-32-characters',
     LLM_PROVIDER: 'stub',
@@ -114,7 +114,7 @@ function call(
 
 async function signIn(
   env: SiteEnv,
-  username = 'Huskynar',
+  username = 'Huskynarr',
   password = 'local-only-passphrase-with-length',
 ): Promise<string> {
   const response = await call(env, '/v1/auth/login', 'POST', undefined, { username, password });
@@ -124,6 +124,71 @@ async function signIn(
 }
 
 describe('Sites Worker API and durable SQLite-compatible state', () => {
+  it('retains notebook and source IDs when both accounts are renamed', async () => {
+    const env = setup();
+    env.AUTH_USERNAME = 'Huskynar';
+    env.AUTH_ADDITIONAL_USERS = JSON.stringify([
+      { username: 'everlabs', password: 'local-second-account-passphrase-only' },
+    ]);
+    const oldPrimaryToken = await signIn(env, 'Huskynar');
+    const oldSecondaryToken = await signIn(env, 'everlabs', 'local-second-account-passphrase-only');
+    const primaryList = (await (
+      await call(env, '/v1/notebooks', 'GET', oldPrimaryToken)
+    ).json()) as {
+      notebooks: Array<{ id: string }>;
+    };
+    const secondaryList = (await (
+      await call(env, '/v1/notebooks', 'GET', oldSecondaryToken)
+    ).json()) as { notebooks: Array<{ id: string }> };
+    const firstId = primaryList.notebooks[0]?.id ?? '';
+    const secondId = secondaryList.notebooks[0]?.id ?? '';
+    const oldSources = (await (
+      await call(env, `/v1/notebooks/${firstId}/sources`, 'GET', oldPrimaryToken)
+    ).json()) as { sources: Array<{ id: string }> };
+
+    env.AUTH_USERNAME = 'Huskynarr';
+    env.AUTH_ADDITIONAL_USERS = JSON.stringify([
+      { username: 'Everlast', password: 'local-second-account-passphrase-only' },
+    ]);
+    expect((await call(env, '/v1/notebooks', 'GET', oldPrimaryToken)).status).toBe(401);
+    const primaryToken = await signIn(env);
+    const secondaryToken = await signIn(env, 'Everlast', 'local-second-account-passphrase-only');
+    for (const [token, notebookId, expectedOwner] of [
+      [primaryToken, firstId, 'Huskynarr'],
+      [secondaryToken, secondId, 'Everlast'],
+    ] as const) {
+      const list = (await (await call(env, '/v1/notebooks', 'GET', token)).json()) as {
+        notebooks: Array<{ id: string }>;
+      };
+      expect(list.notebooks.map((notebook) => notebook.id)).toEqual([notebookId]);
+      expect(
+        (env.DB as TestDb).raw.prepare('SELECT owner FROM notebooks WHERE id=?').get(notebookId),
+      ).toMatchObject({ owner: expectedOwner });
+    }
+    expect(
+      (await call(env, `/v1/sources/${oldSources.sources[0]?.id}`, 'GET', primaryToken)).status,
+    ).toBe(200);
+    expect((await call(env, `/v1/notebooks/${firstId}`, 'GET', secondaryToken)).status).toBe(404);
+  });
+
+  it('does not move notebooks while the former account still exists', async () => {
+    const env = setup();
+    env.AUTH_ADDITIONAL_USERS = JSON.stringify([
+      { username: 'Huskynar', password: 'local-second-account-passphrase-only' },
+    ]);
+    (env.DB as TestDb).raw
+      .prepare('INSERT INTO notebooks VALUES(?,?,?,?,?)')
+      .run('old-book', 'Huskynar', 'Alt', '2026-09-01', '2026-09-01');
+    const token = await signIn(env);
+    const response = await call(env, '/v1/notebooks', 'GET', token);
+    expect(response.status).toBe(200);
+    expect(
+      (env.DB as TestDb).raw.prepare('SELECT owner FROM notebooks WHERE id=?').get('old-book'),
+    ).toMatchObject({
+      owner: 'Huskynar',
+    });
+  });
+
   it('separates account data and seeds a real searchable example per user', async () => {
     const env = setup(),
       first = await signIn(env);
@@ -138,7 +203,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
       sources: Array<{ id: string }>;
     };
     expect(sources.sources).toHaveLength(2);
-    const other = await signIn(env, 'everlabs', 'local-second-account-passphrase-only');
+    const other = await signIn(env, 'Everlast', 'local-second-account-passphrase-only');
     expect((await call(env, `/v1/notebooks/${bookId}`, 'GET', other)).status).toBe(404);
     expect((await call(env, `/v1/sources/${sources.sources[0]?.id}`, 'GET', other)).status).toBe(
       404,
@@ -151,7 +216,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     const env = setup();
     for (const status of [401, 401, 429]) {
       const response = await call(env, '/v1/auth/login', 'POST', undefined, {
-        username: 'Huskynar',
+        username: 'Huskynarr',
         password: 'false-password',
       });
       expect(response.status).toBe(status);
@@ -159,7 +224,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
         expect(Number(response.headers.get('Retry-After'))).toBeGreaterThanOrEqual(29);
     }
     const stillBlocked = await call(env, '/v1/auth/login', 'POST', undefined, {
-      username: 'Huskynar',
+      username: 'Huskynarr',
       password: 'local-only-passphrase-with-length',
     });
     expect(stillBlocked.status).toBe(429);
@@ -175,7 +240,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     const attempts = await Promise.all(
       Array.from({ length: 3 }, () =>
         call(env, '/v1/auth/login', 'POST', undefined, {
-          username: 'Huskynar',
+          username: 'Huskynarr',
           password: 'false-password',
         }),
       ),
@@ -343,5 +408,83 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     expect(answer.grounded).toBe(false);
     expect(answer.citations).toHaveLength(0);
     expect(answer.answer).toContain('keine Antwort freigegeben');
+  });
+
+  it('calls only Big Pickle at the keyless Console endpoint and checks the citations', async () => {
+    const env = setup();
+    env.LLM_PROVIDER = 'openai';
+    env.LLM_BASE_URL = 'https://opencode.ai/inference/openai/v1';
+    env.LLM_MODEL = 'big-pickle';
+    const outgoing = vi.fn<typeof fetch>().mockResolvedValue(
+      Response.json({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                grounded: true,
+                answer: 'Unbelegte Aussage [1].',
+                quotes: { '1': 'erfundenes Zitat' },
+              }),
+            },
+            finish_reason: 'stop',
+          },
+        ],
+      }),
+    );
+    vi.stubGlobal('fetch', outgoing);
+    const health = (await (await call(env, '/v1/health')).json()) as {
+      llm: { configured: boolean; model: string };
+    };
+    expect(health.llm).toMatchObject({ configured: true, model: 'big-pickle' });
+    const token = await signIn(env);
+    const list = (await (await call(env, '/v1/notebooks', 'GET', token)).json()) as {
+      notebooks: Array<{ id: string }>;
+    };
+    const bookId = list.notebooks[0]?.id ?? '';
+    const sources = (await (
+      await call(env, `/v1/notebooks/${bookId}/sources`, 'GET', token)
+    ).json()) as { sources: Array<{ id: string }> };
+    const response = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wie lang ist die Widerspruchsfrist?',
+      sourceIds: sources.sources.map((source) => source.id),
+    });
+    expect(response.status).toBe(200);
+    const result = (await response.json()) as AskResponse;
+    expect(result).toMatchObject({ simulated: false, grounded: false, citations: [] });
+    expect(outgoing).toHaveBeenCalledOnce();
+    const [url, options] = outgoing.mock.calls[0]!;
+    expect(url).toBe('https://opencode.ai/inference/openai/v1/chat/completions');
+    expect(options?.headers).not.toHaveProperty('authorization');
+    if (typeof options?.body !== 'string') throw new Error('JSON-Request-Body erwartet');
+    const body = JSON.parse(options.body) as unknown;
+    expect(body).toMatchObject({ model: 'big-pickle' });
+    expect(body).not.toHaveProperty('response_format');
+  });
+
+  it('rejects a different Console model before any provider call', async () => {
+    const env = setup();
+    env.LLM_PROVIDER = 'openai';
+    env.LLM_BASE_URL = 'https://opencode.ai/inference/openai/v1';
+    env.LLM_MODEL = 'paid-model';
+    const outgoing = vi.fn<typeof fetch>();
+    vi.stubGlobal('fetch', outgoing);
+    const health = (await (await call(env, '/v1/health')).json()) as {
+      llm: { configured: boolean };
+    };
+    expect(health.llm.configured).toBe(false);
+    const token = await signIn(env);
+    const list = (await (await call(env, '/v1/notebooks', 'GET', token)).json()) as {
+      notebooks: Array<{ id: string }>;
+    };
+    const bookId = list.notebooks[0]?.id ?? '';
+    const sources = (await (
+      await call(env, `/v1/notebooks/${bookId}/sources`, 'GET', token)
+    ).json()) as { sources: Array<{ id: string }> };
+    const response = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wie lang ist die Widerspruchsfrist?',
+      sourceIds: sources.sources.map((source) => source.id),
+    });
+    expect(response.status).toBe(503);
+    expect(outgoing).not.toHaveBeenCalled();
   });
 });

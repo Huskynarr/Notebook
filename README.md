@@ -10,8 +10,8 @@ Ergebnisse als Notiz speichern**. Keine Verbindung zu Google NotebookLM.
 
 React, TypeScript strict und Tailwind CSS. Lokal/Plesk: Fastify und SQLite mit
 FTS5/BM25. Für ChatGPT Sites: Worker, D1 für Suchindex/Notizen und R2 für
-Originaltexte. Zieladresse: `notebook.sebastianselinger.de`. Die DNS-Umstellung
-erfolgt nach erfolgreicher Sites-Veröffentlichung.
+Originaltexte. Die öffentliche Sites-Version ist unter
+`https://notebook.sebastianselinger.de` erreichbar.
 
 ## Oberfläche
 
@@ -42,11 +42,11 @@ pnpm dev
 Frontend: <http://localhost:5173> · API: <http://localhost:8787>
 
 Die öffentliche Landingpage führt über **Anmelden** zum lokalen Demozugang
-**Huskynar / admin**. Die API legt beim ersten Start ein Beispiel-Notebook an und speichert
+**Huskynarr / admin**. Die API legt beim ersten Start ein Beispiel-Notebook an und speichert
 Notebooks, Quellen und Notizen in einer lokalen SQLite-Datei. Ohne Modellschlüssel
 liefert sie ausschließlich sichtbar markierte Fundstellen, keine erfundene KI-Antwort.
 
-Weitere feste Zugänge, beispielsweise `everlabs`, werden ausschließlich im Backend
+Weitere feste Zugänge, beispielsweise `Everlast`, werden ausschließlich im Backend
 über `AUTH_ADDITIONAL_USERS` in `apps/api/.env` konfiguriert (JSON-Liste mit
 `username` und `password`, siehe `.env.example`). Das angeforderte Testpasswort ist
 nur in der lokalen, von Git ausgeschlossenen Konfiguration hinterlegt und muss auf
@@ -65,20 +65,27 @@ verwendet denselben Ursprung, ohne Angabe gilt lokal `http://localhost:8787`.
 cp apps/api/.env.example apps/api/.env
 ```
 
-Beispiel für einen kompatiblen NVIDIA-Nemotron-Endpunkt, **nur im Backend**:
+Für die gewünschte kostenlose Demo mit **ausschließlich Big Pickle** wird der
+OpenCode-Console-Inference-Endpunkt im Backend konfiguriert:
 
 ```ini
 LLM_PROVIDER=openai
-LLM_BASE_URL=https://integrate.api.nvidia.com/v1
-LLM_MODEL=nvidia/nemotron-3-super-120b-a12b
-LLM_API_KEY=HIER_EIGENEN_SCHLUESSEL_EINTRAGEN
+LLM_BASE_URL=https://opencode.ai/inference/openai/v1
+LLM_MODEL=big-pickle
+LLM_API_KEY=
 ```
 
-Anbieterzugang und dessen Kontingent sind erforderlich. Kostenlose Testkontingente sind
-keine Garantie für kostenlosen Dauerbetrieb; OpenCode Go ist ein kostenpflichtiges
-Angebot. Konfiguration, Quellenübermittlung und Grenzen:
-[docs/providers.md](docs/providers.md). Ein Live-Aufruf wurde hier mangels Schlüssel
-**nicht ausgeführt**. HTTP- und Antwortvalidierung sind mit lokalen Testservern geprüft.
+Diese Werte gehören in `apps/api/.env` oder die Sites-Umgebung, niemals ins
+Frontend. Die [Console-Dokumentation](https://opencode.ai/v2/docs/console/inference/)
+erlaubt schlüssellose Anfragen an kostenlose Chatmodelle. Big Pickle ist in der
+[Modellliste](https://opencode.ai/v2/docs/console/models/) derzeit nur **befristet**
+kostenlos; der konkrete Antwortpfad dieses Produkts wurde noch nicht live geprüft.
+OpenCode Go enthält Big Pickle nicht in seiner dokumentierten Modellliste. Ein
+Anbieterfehler schaltet nicht heimlich auf ein anderes Modell um. Eingereichte Fragen
+und Quellenausschnitte verlassen den Server und werden in den USA verarbeitet;
+laut Anbieter können Daten des kostenlosen Big-Pickle-Betriebs zur Modellverbesserung
+genutzt werden. Vertrauliche Universitätsdaten benötigen vor Nutzung eine
+ausdrückliche Freigabe. [Einrichtung, Grenzen und weitere Anbieter](docs/providers.md).
 
 ## Umfang und Belegprüfung
 

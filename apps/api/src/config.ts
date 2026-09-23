@@ -58,7 +58,7 @@ const ConfigSchema = z
 
     DATABASE_PATH: z.string().default('./data/notebook.db'),
 
-    AUTH_USERNAME: z.string().min(1).max(200).default('Huskynar'),
+    AUTH_USERNAME: z.string().min(1).max(200).default('Huskynarr'),
     AUTH_PASSWORD: z.string().min(1).max(1024).default('admin'),
     AUTH_ADDITIONAL_USERS: z
       .string()
