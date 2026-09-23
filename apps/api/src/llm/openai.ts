@@ -8,8 +8,8 @@ import {
   type CompletionResult,
   type LlmProvider,
 } from './provider.ts';
-import { FREE_MIMO_MODEL, isOpenCodeConsole } from './freeMimo.ts';
-import { FREE_MUSE_MODEL, isAllowedConsoleModel } from './freeMuse.ts';
+import { isOpenCodeConsole } from './freeMimo.ts';
+import { FREE_MUSE_MODEL, GLM_FLASH_MODEL, isAllowedConsoleModel } from './freeMuse.ts';
 import { parseMuseAnswer } from './museResponse.ts';
 
 const ChatCompletionSchema = z.object({
@@ -94,6 +94,14 @@ export class OpenAiCompatibleProvider implements LlmProvider {
     ) {
       throw new LlmUnavailableError('Dieses OpenCode-Console-Modell ist nicht freigegeben.');
     }
+    if (
+      isOpenCodeConsole(this.options.baseUrl) &&
+      this.options.model === GLM_FLASH_MODEL &&
+      !this.options.apiKey
+    )
+      throw new LlmUnavailableError(
+        'Für das gewählte Console-Modell fehlt der serverseitige Schlüssel.',
+      );
     if (request.system.length + request.user.length > MAX_PROVIDER_PROMPT_CHARS) {
       throw new LlmUnavailableError('Die ausgewählten Textstellen sind für eine Anfrage zu groß.');
     }
@@ -128,7 +136,7 @@ export class OpenAiCompatibleProvider implements LlmProvider {
                   model: this.options.model,
                   temperature: this.options.temperature,
                   max_tokens: 4096,
-                  ...(this.options.model === FREE_MIMO_MODEL
+                  ...(isOpenCodeConsole(this.options.baseUrl)
                     ? {}
                     : { response_format: { type: 'json_object' } }),
                   messages: [

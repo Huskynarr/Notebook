@@ -159,3 +159,26 @@ weitere Modellwechsel beheben sie nicht nachweislich. Die veröffentlichte Site
 ist wieder `blocked`. Ein direkter Test vom vorgesehenen Plesk-Backend mit dem
 Console-Service-Key und einer nicht vertraulichen Testfrage muss HTTP-Status
 und Modellantwort bestätigen, bevor die Modellfunktion freigegeben wird.
+
+### Einzelprüfung: GLM 5.3 Flash
+
+Der OpenCode-Console-Katalog nennt `glm-5.3-flash` mit $0.15 je Million
+Eingabetoken und $0.50 je Million Ausgabetoken (23.09.2026). Die feste
+Chat-Completions-Adresse bleibt `https://opencode.ai/inference/openai/v1`.
+Ein Versuch ist nur mit gesetztem Backend-Schlüssel und deaktivierter
+`LLM_ACCESS_STATUS=blocked`-Sperre möglich; dafür wird die Demo kurzzeitig
+mit unkritischen Beispieldaten geprüft und sofort wieder gesperrt, falls
+HTTP-Zugriff oder Belegprüfung fehlschlagen. Das Modell wird nie still
+als Ersatz für ein Free-Modell gewählt. Kosten entstehen beim erfolgreichen
+Testaufruf; vor einem regulären Betrieb Preis, verfügbares Guthaben und
+Auto-Reload-Einstellungen bei OpenCode prüfen.
+
+**Tatsächliches Ergebnis:** Der Live-Aufruf aus Sites an
+`glm-5.3-flash` lieferte mit dem gespeicherten Schlüssel HTTP 401; Muse Free
+lieferte HTTP 403. Damit ist die HTTP-Verbindung nachgewiesen, jedoch keine
+autorisierte Modellantwort. Der API-Key kann für einen anderen OpenCode-Dienst
+oder Workspace gelten; seine genaue Gültigkeit ist aus dem Fehler allein
+nicht zu ermitteln. Die Site ist wieder gesperrt. Für eine erneute Abnahme
+den Console-Inference-Service-Key des richtigen Workspace ausschließlich als
+Sites-Secret `LLM_API_KEY` setzen und den modellbezogenen Zugriff im Console-
+Workspace prüfen. Keine Schlüssel an Chat, GitHub oder das Frontend senden.

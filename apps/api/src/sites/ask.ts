@@ -12,8 +12,13 @@ import {
 } from '../domain/prompt.ts';
 import { extractJson, LlmUnavailableError, ModelAnswerSchema } from '../llm/provider.ts';
 import { StubProvider } from '../llm/stub.ts';
-import { FREE_MIMO_MODEL, isFreeMimoConsole, isOpenCodeConsole } from '../llm/freeMimo.ts';
-import { FREE_MUSE_MODEL, isAllowedConsoleModel, isBlockedConsoleModel } from '../llm/freeMuse.ts';
+import { isFreeMimoConsole, isOpenCodeConsole } from '../llm/freeMimo.ts';
+import {
+  FREE_MUSE_MODEL,
+  isAllowedConsoleModel,
+  isBlockedConsoleModel,
+  isFreeMuseConsole,
+} from '../llm/freeMuse.ts';
 import { parseMuseAnswer } from '../llm/museResponse.ts';
 import { retrieved, type SiteEnv } from './db.ts';
 
@@ -47,9 +52,7 @@ async function model(
   if (
     !base ||
     !modelName ||
-    (!env.LLM_API_KEY &&
-      !isFreeMimoConsole(base, modelName) &&
-      !isAllowedConsoleModel(base, modelName))
+    (!env.LLM_API_KEY && !isFreeMimoConsole(base, modelName) && !isFreeMuseConsole(base, modelName))
   )
     throw new LlmUnavailableError('Kein Modell verbunden.');
   if (isOpenCodeConsole(base) && !isAllowedConsoleModel(base, modelName))
@@ -66,7 +69,7 @@ async function model(
       `${base.replace(/\/$/, '')}/${muse ? 'responses' : 'chat/completions'}`,
       {
         method: 'POST',
-        redirect: 'error',
+        redirect: 'manual',
         signal: abort.signal,
         headers: {
           'content-type': 'application/json',
@@ -84,9 +87,7 @@ async function model(
                 model: modelName,
                 temperature: 0,
                 max_tokens: 4096,
-                ...(modelName === FREE_MIMO_MODEL
-                  ? {}
-                  : { response_format: { type: 'json_object' } }),
+                ...(isOpenCodeConsole(base) ? {} : { response_format: { type: 'json_object' } }),
                 messages: [
                   { role: 'system', content: system },
                   { role: 'user', content: user },
@@ -95,6 +96,18 @@ async function model(
         ),
       },
     );
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location');
+      let targetOrigin = 'invalid';
+      try {
+        if (location) targetOrigin = new URL(location, base).origin;
+      } catch {
+        // A malformed Location header is not sent to logs or the browser.
+      }
+      console.warn('LLM outbound redirect', { status: response.status, targetOrigin });
+      await response.body?.cancel();
+      throw new LlmUnavailableError('Der Modellendpunkt leitet die Anfrage weiter.');
+    }
     if (!response.ok) {
       await response.body?.cancel();
       throw new LlmUnavailableError(`Das Modell antwortete mit HTTP ${response.status}.`);
@@ -131,6 +144,29 @@ async function model(
     return { answer: answer.data, model: modelName, simulated: false };
   } catch (error) {
     if (error instanceof LlmUnavailableError) throw error;
+    const cause = error instanceof Error ? error.cause : undefined;
+    const code =
+      typeof cause === 'object' &&
+      cause !== null &&
+      'code' in cause &&
+      typeof cause.code === 'string' &&
+      /^[A-Z][A-Z0-9_]{1,63}$/.test(cause.code)
+        ? cause.code
+        : undefined;
+    const name = error instanceof Error ? error.name : 'unknown';
+    const message = error instanceof Error ? error.message.toLowerCase() : '';
+    const category = abort.signal.aborted
+      ? 'timeout'
+      : /redirect/.test(message)
+        ? 'redirect'
+        : /dns|resolve/.test(message)
+          ? 'dns'
+          : /connect|network/.test(message)
+            ? 'connection'
+            : /blocked|denied|not permitted|not allowed/.test(message)
+              ? 'policy'
+              : 'unknown';
+    console.warn('LLM outbound transport failed', { name, category, code });
     throw new LlmUnavailableError('Der Modellendpunkt ist nicht erreichbar.');
   } finally {
     clearTimeout(timer);

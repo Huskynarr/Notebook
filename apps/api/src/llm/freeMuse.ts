@@ -1,4 +1,5 @@
 export const FREE_MUSE_MODEL = 'muse-spark-1.3-contributor-free';
+export const GLM_FLASH_MODEL = 'glm-5.3-flash';
 export const OPENCODE_CONSOLE_URL = 'https://opencode.ai/inference/openai/v1';
 
 export function isFreeMuseConsole(base: string, model: string): boolean {
@@ -8,7 +9,7 @@ export function isFreeMuseConsole(base: string, model: string): boolean {
 export function isAllowedConsoleModel(base: string, model: string): boolean {
   return (
     base.replace(/\/+$/, '') === OPENCODE_CONSOLE_URL &&
-    (model === FREE_MUSE_MODEL || model === 'mimo-v2.6-flash-free')
+    (model === FREE_MUSE_MODEL || model === 'mimo-v2.6-flash-free' || model === GLM_FLASH_MODEL)
   );
 }
 

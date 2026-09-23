@@ -24,8 +24,12 @@ import {
   verify,
 } from './auth.ts';
 import { askSites, LlmUnavailableError } from './ask.ts';
-import { isOpenCodeConsole } from '../llm/freeMimo.ts';
-import { isAllowedConsoleModel, isBlockedConsoleModel } from '../llm/freeMuse.ts';
+import { isFreeMimoConsole, isOpenCodeConsole } from '../llm/freeMimo.ts';
+import {
+  isAllowedConsoleModel,
+  isBlockedConsoleModel,
+  isFreeMuseConsole,
+} from '../llm/freeMuse.ts';
 import {
   canonicalCitations,
   getNote,
@@ -127,7 +131,10 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
           !!env.LLM_BASE_URL &&
           !!env.LLM_MODEL &&
           (isOpenCodeConsole(env.LLM_BASE_URL)
-            ? isAllowedConsoleModel(env.LLM_BASE_URL, env.LLM_MODEL)
+            ? isAllowedConsoleModel(env.LLM_BASE_URL, env.LLM_MODEL) &&
+              (isFreeMimoConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
+                isFreeMuseConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
+                !!env.LLM_API_KEY)
             : !!env.LLM_API_KEY),
         provider: env.LLM_PROVIDER === 'openai' ? 'openai' : 'stub',
         model: env.LLM_PROVIDER === 'openai' ? (env.LLM_MODEL ?? '') : 'kein Modell verbunden',

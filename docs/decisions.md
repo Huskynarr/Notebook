@@ -682,3 +682,30 @@ gesperrt, damit kein versehentlich kostenpflichtiges Modell gewählt wird.
 Der vorhandene serverseitige Sperrstatus gilt auch für Muse, bis ein echter
 Modellaufruf samt Quellenbelegen erfolgreich geprüft ist. Verworfen: allein die
 Modell-ID austauschen; Muse benötigt ein anderes Request- und Antwortformat.
+
+## 2026-09-23 · Transportfehler datensparsam diagnostizieren
+
+Der Site-Worker protokolliert bei einem fehlgeschlagenen Modell-Fetch nur
+Fehlertyp, eine feste Fehlerkategorie und gegebenenfalls einen eingeschränkt
+validierten Ursachencode. Anfrage, Quellenauszüge, Anbieterantworten, Schlüssel
+und freie Fehlermeldungen werden nicht protokolliert. Verworfen: Modellwechsel
+auf Verdacht und ungefiltertes Ausgeben der Fetch-Exception.
+
+## 2026-09-23 · Redirectziel vor Anbieteraufruf prüfen
+
+Der bereinigte Worker-Log ergab `TypeError`, Kategorie `redirect`.
+Die Modellanfrage liest eine eventuelle HTTP-Weiterleitung zunächst manuell,
+protokolliert nur Status und Ziel-Origin und sendet weder Schlüssel noch
+Quellentext automatisch an das Ziel. Erst ein geprüfter OpenCode-Origin darf
+als erlaubter Endpunkt ausdrücklich ergänzt werden. Verworfen: blindes
+`redirect: follow` mit möglicher Weitergabe vertraulicher Quellenausschnitte.
+
+## 2026-09-23 · Ein günstiges Console-Modell einzeln prüfen
+
+Der manuelle Site-Aufruf erreichte OpenCode und erhielt mit Muse Free HTTP 403.
+Für die explizite Anforderung einer funktionierenden OpenCode-Anbindung wird
+`glm-5.3-flash` als einziger kostenpflichtiger Testkandidat mit serverseitigem
+Schlüssel freigegeben. Die Console nennt $0.15 je Million Eingabetoken und
+$0.50 je Million Ausgabetoken (Stand 23.09.2026). Der gesperrte Status gilt
+auch für diesen Kandidaten; kein automatischer Fallback und keine Freigabe
+ohne echte Belegabnahme. Verworfen: weitere Free-IDs blind durchprobieren.

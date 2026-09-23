@@ -137,6 +137,31 @@ describe('OpenAI-kompatibler HTTP-Vertrag', () => {
     expect(init?.body).not.toContain(options.apiKey);
   });
 
+  it('begrenzt den Console-Vertrag für GLM Flash auf das explizite Modell mit Schlüssel', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(completion());
+    vi.stubGlobal('fetch', fetchMock);
+    const result = await new OpenAiCompatibleProvider({
+      ...options,
+      baseUrl: 'https://opencode.ai/inference/openai/v1',
+      model: 'glm-5.3-flash',
+    }).complete(request);
+    expect(result.model).toBe('glm-5.3-flash');
+    const [url, init] = fetchMock.mock.calls[0]!;
+    expect(url).toBe('https://opencode.ai/inference/openai/v1/chat/completions');
+    expect(init?.headers).toMatchObject({ authorization: `Bearer ${options.apiKey}` });
+    if (typeof init?.body !== 'string') throw new Error('JSON-Request-Body erwartet');
+    expect(JSON.parse(init.body) as unknown).toMatchObject({ model: 'glm-5.3-flash' });
+    expect(JSON.parse(init.body) as Record<string, unknown>).not.toHaveProperty('response_format');
+    await expect(
+      new OpenAiCompatibleProvider({
+        ...options,
+        baseUrl: 'https://opencode.ai/inference/openai/v1',
+        model: 'glm-5.3-flash',
+        apiKey: '',
+      }).complete(request),
+    ).rejects.toThrow('serverseitige Schlüssel');
+  });
+
   it.each([401, 429, 500])(
     'gibt bei HTTP %i weder Antwortkörper noch Schlüssel weiter',
     async (status) => {

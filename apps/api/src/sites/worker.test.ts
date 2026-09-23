@@ -593,6 +593,54 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
       citations: [],
     });
     expect(outgoing.mock.calls[2]?.[0]).toBe('https://opencode.ai/inference/openai/v1/responses');
+    outgoing.mockResolvedValueOnce(
+      new Response(null, {
+        status: 307,
+        headers: { location: 'https://other.example/chat' },
+      }),
+    );
+    const redirected = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: sources.sources.map((source) => source.id),
+    });
+    expect(redirected.status).toBe(503);
+    expect(outgoing).toHaveBeenCalledTimes(4);
+    expect(outgoing.mock.calls[3]?.[1]?.redirect).toBe('manual');
+    env.LLM_MODEL = 'glm-5.3-flash';
+    outgoing.mockResolvedValueOnce(
+      Response.json({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                grounded: true,
+                answer: 'Unbelegte Aussage [1].',
+                quotes: { '1': 'erfundenes Zitat' },
+              }),
+            },
+            finish_reason: 'stop',
+          },
+        ],
+      }),
+    );
+    const glm = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: sources.sources.map((source) => source.id),
+    });
+    expect(glm.status).toBe(200);
+    expect((await glm.json()) as AskResponse).toMatchObject({
+      simulated: false,
+      grounded: false,
+      citations: [],
+    });
+    const [glmUrl, glmInit] = outgoing.mock.calls[4]!;
+    expect(glmUrl).toBe('https://opencode.ai/inference/openai/v1/chat/completions');
+    expect(glmInit?.headers).toMatchObject({ authorization: `Bearer ${env.LLM_API_KEY}` });
+    if (typeof glmInit?.body !== 'string') throw new Error('JSON-Request-Body erwartet');
+    expect(JSON.parse(glmInit.body) as unknown).toMatchObject({ model: 'glm-5.3-flash' });
+    expect(JSON.parse(glmInit.body) as Record<string, unknown>).not.toHaveProperty(
+      'response_format',
+    );
   });
 
   it('marks confirmed external free-tier blocking and refuses repeated provider requests', async () => {
@@ -628,6 +676,13 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     const body = (await response.json()) as { error: { code: string; message: string } };
     expect(body.error.code).toBe('llm_unavailable');
     expect(body.error.message).toContain('noch nicht erfolgreich geprüft');
+    expect(outgoing).not.toHaveBeenCalled();
+    env.LLM_MODEL = 'glm-5.3-flash';
+    const blockedPaid = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: sources.sources.map((source) => source.id),
+    });
+    expect(blockedPaid.status).toBe(503);
     expect(outgoing).not.toHaveBeenCalled();
     env.LLM_MODEL = 'muse-spark-1.3-contributor-free';
     const blockedMuse = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {

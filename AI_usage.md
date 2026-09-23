@@ -374,3 +374,24 @@ Codex testete dieselbe öffentliche Demo-Frage über die veröffentlichte Site
 mit Muse und dem vorhandenen serverseitigen Secret: HTTP 503 ohne Anbieterantwort.
 Die Site wurde danach erneut gesperrt; die erfolgreiche Antwort oder eine
 Anbieterautorisierung wird nicht behauptet.
+
+## 2026-09-23 · Diagnose des OpenCode-Transports
+
+Codex verglich die zwei gescheiterten Live-Aufrufe und implementierte eine
+redigierte Diagnose im Site-Worker. Die Einordnung bleibt bis zur Beobachtung
+im Worker-Log eine Arbeitshypothese; keine Modellantwort wird simuliert.
+
+Codex prüfte den bereinigten Worker-Log: `TypeError`, `redirect`. Der Code
+wurde für eine einmalige Zielprüfung auf manuelle Redirectbehandlung gestellt;
+ein automatisches Folgen zu unbekannten Domains wurde nicht übernommen.
+
+Codex prüfte die OpenCode-Console-Preise und den erfolgreichen HTTP-Transport
+bis zu OpenCodes 403-Antwort für Muse Free. Als einzelnen regulären Kandidaten
+für einen echten, begrenzten Live-Test wurde GLM 5.3 Flash ausgewählt; seine
+Verfügbarkeit mit dem gespeicherten Schlüssel ist noch ungeprüft.
+
+Codex testete mit dem vorhandenen Sites-Secret eine einzige Everlast-Frage über
+OpenCode GLM Flash. Der Anbieter antwortete HTTP 401; Muse Free gab HTTP 403.
+Die Site wurde wieder gesperrt. Ein Browser-Zugriff auf ein angemeldetes
+OpenCode-Konto wurde nicht abgeschlossen; weder ein Schlüssel noch eine
+Modellantwort wurden daraus übernommen.

@@ -302,3 +302,36 @@ Das beweist weder die Annahme noch die Ablehnung des Schlüssels durch OpenCode.
 `LLM_ACCESS_STATUS=blocked` wurde wieder aktiviert und mit Sites-Version 10
 neu veröffentlicht; Health meldet das Muse-Modell, `configured:false` und
 `accessBlocked:true`. GitHub CI und CodeQL zum Spiegelcommit stehen noch aus.
+
+## 2026-09-23 · Ursache des ausgehenden Verbindungsfehlers
+
+Muse und MiMo lieferten im Site-Worker beide HTTP 503 vor einer Anbieterantwort.
+Eine datensparsame Kategorisierung des tatsächlichen Fetch-Fehlers wird
+getestet; ein erfolgreiches Modell oder eine funktionsfähige externe Verbindung
+ist weiterhin nicht belegt. Der Site-Sperrstatus bleibt aktiv, bis eine echte
+Frage mit geprüften Belegen beantwortet wird.
+
+Ein kontrollierter Site-Test ergab beim ausgehenden Fetch `TypeError` der
+Kategorie `redirect`. Die Ursache der früheren generischen HTTP-503-Antwort
+ist damit der im Backend gesetzte Redirect-Abbruch. Das konkrete Ziel und
+die Zulässigkeit der Weiterleitung sind noch offen. Die Sperre wurde nach
+dem Test sofort wieder aktiviert.
+
+Der manuelle Redirect-Test mit dem vorhandenen Backend-Secret lieferte für
+Muse Free eine auswertbare Anbieterantwort: HTTP 403. Eine Weiterleitung
+an eine fremde Domain wurde dabei nicht beobachtet. Das ist keine
+funktionierende KI-Antwort. Ein eng begrenzter Test des kostenpflichtigen
+`glm-5.3-flash` soll klären, ob der vorhandene Schlüssel die reguläre
+Console-Inference-API nutzen kann; die Site bleibt dabei initial gesperrt.
+
+## 2026-09-23 · OpenCode-Zugang geprüft
+
+Nach Bereitstellung des manuellen Redirect-Vertrags erreichte der öffentliche
+Worker die OpenCode-Console-Inference-API. `muse-spark-1.3-contributor-free`
+erhielt mit dem gespeicherten Backend-Secret HTTP 403, das reguläre
+`glm-5.3-flash` mit demselben Secret HTTP 401. Ein erfolgreicher externer
+Modellaufruf ist damit weiterhin nicht belegt. Die Site ist wieder mit
+`LLM_ACCESS_STATUS=blocked` veröffentlicht (Revision 23); Health muss
+`configured:false` und `accessBlocked:true` melden. Ein Console-Inference-
+Service-Key mit Zugriff auf ein freigegebenes Modell und erneute Belegabnahme
+sind erforderlich. Ein Browser-Login bei OpenCode wurde nicht abgeschlossen.
