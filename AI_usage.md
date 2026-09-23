@@ -323,3 +323,11 @@ nach dem tatsächlichen Lauf in `docs/progress.md`.
 Der vollständige lokale `pnpm verify`-Lauf bestand mit 205 Unit-/
 Integrationstests und 10 Tooling-Tests; diese automatisierten Testdoppel
 belegen weder einen gehosteten Login noch eine echte Modellantwort.
+
+Codex trennte Modell- und Beispieländerung in zwei jeweils mit `pnpm verify`
+geprüfte Commits (204 beziehungsweise 205 Unit-/Integrationstests, jeweils
+10 Tooling-Tests). Über den GitHub-Connector wurden die Commit-Bäume exakt
+mit den lokalen Bäumen verglichen; GitHub CI und CodeQL für den zweiten
+Commit meldeten Erfolg. Über Sites wurde daraus Version 5 mit dem serverseitigen
+MiMo-Free-Laufzeitwert veröffentlicht, die aktive Custom Domain wurde geprüft.
+Ein produktiver Login oder Live-Modellaufruf bleibt ungetestet.

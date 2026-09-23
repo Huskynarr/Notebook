@@ -203,3 +203,22 @@ Produktionsbuild, **205** Unit-/Integrationstests und **10** Tooling-Tests.
 Die Worker-Tests nutzen einen SQLite-kompatiblen Testadapter und modellieren
 den HTTP-Anbieteraufruf. GitHub CI, gehosteter Login, echte D1/R2-Operationen
 und ein echter MiMo-Aufruf sind für diesen neuen Stand noch nicht geprüft.
+
+## 2026-09-23 · GitHub-CI und Sites-Version 5 erfolgreich
+
+Die getrennten lokalen Commits `1156a8a` (MiMo) und `97f37db` (Everlast)
+wurden mit identischen Git-Dateibäumen in PR #9 übertragen. Für den zweiten
+Commit bestanden [GitHub CI 35841271644](https://github.com/Huskynarr/Notebook/actions/runs/35841271644)
+und [CodeQL 35841271468](https://github.com/Huskynarr/Notebook/actions/runs/35841271468).
+Der Sites-Build und seine Binding-/Artefaktprüfung bestanden. Sites-Version 5
+wurde aus dem lokal geprüften Commit `97f37db` mit Laufzeitrevision 3
+erfolgreich veröffentlicht: `LLM_MODEL=mimo-v2.6-flash-free`,
+`LLM_BASE_URL=https://opencode.ai/inference/openai/v1`, übrige Zugangswerte
+beibehalten. Sites meldet `notebook.sebastianselinger.de` und TLS als aktiv.
+
+Der Header zeigt laut Code den Modellwert aus `/v1/health`; die gehostete
+Darstellung hinter dem Login, eine Anmeldung, die Migration des bestehenden
+D1-Beispiels und eine echte MiMo-Antwort samt Belegen wurden nicht live
+getestet. Ein direkter Abruf von `/v1/health` war mit dem verfügbaren
+Web-Abrufwerkzeug nicht möglich. Die Tests prüfen die erwartete API-Antwort;
+der UI-Code liest das Health-Feld. Eine produktive Sitzung ist nicht geprüft.
