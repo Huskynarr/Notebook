@@ -122,5 +122,6 @@ deutsche und englische Fassung beschreiben nun die serverseitige Speicherung
 im Onlinebetrieb. Der gehostete Login/Import wurde dabei nicht geprüft.
 `notebook.sebastianselinger.de` ist beim Sites-Dienst registriert, aber DNS-
 und Zertifikatsprüfung stehen noch aus. Ohne Anbieterschlüssel bleibt das
-sichtbar gekennzeichnete KI-Stubprofil aktiv. Die Textkorrektur benötigt eine
-eigene CI-Abnahme und ein neues Sites-Deployment.
+sichtbar gekennzeichnete KI-Stubprofil aktiv. Die Textkorrektur wurde als
+Sites-Version 2 aus Commit `0a837f5` veröffentlicht und im Browser angezeigt;
+GitHub CI 35834237603 und CodeQL 35834237634 bestanden für diesen Stand.

@@ -263,3 +263,6 @@ Der Browserfund eines inhaltlich falschen Datenschutzhinweises führte zu einer
 Korrektur in beiden Sprachfassungen. GitHub CI und CodeQL für den vorherigen
 Stand waren erfolgreich; ein gehosteter Login oder Live-Modellaufruf wurde
 nicht als geprüft ausgegeben.
+Die korrigierte Fassung wurde als Sites-Version 2 erneut veröffentlicht,
+im Browser angezeigt und durch GitHub CI 35834237603 und CodeQL 35834237634
+für genau diesen Produktstand bestätigt.
