@@ -134,6 +134,9 @@ export const de = {
   'chat.noSourceBody':
     'Wähle links mindestens eine Quelle aus. Ohne Quelle wird nicht geantwortet.',
   'chat.errorTitle': 'Die Frage konnte nicht beantwortet werden',
+  'chat.modelBlockedTitle': 'KI-Anfragen vorübergehend gesperrt',
+  'chat.modelBlockedBody':
+    'OpenCode hat externe Anfragen an das kostenlose MiMo-Modell abgewiesen. Quellen und Notizen bleiben nutzbar; eine KI-Antwort ist derzeit nicht verfügbar.',
   'chat.simulatedTitle': 'Simulierte Antwort — kein Modell verbunden',
   'chat.simulatedBody':
     'Es ist kein Sprachmodell angebunden. Gezeigt werden die gefundenen Textstellen; formuliert wurde nichts.',

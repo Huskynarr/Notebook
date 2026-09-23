@@ -87,15 +87,19 @@ describe('OpenAI-kompatibler HTTP-Vertrag', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('sendet auch versehentlich konfigurierte Schlüssel nie im kostenlosen MiMo-Profil', async () => {
+  it('sendet einen konfigurierten Console-Service-Key nur im Header der freien Modell-ID', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(completion());
     vi.stubGlobal('fetch', fetchMock);
-    await new OpenAiCompatibleProvider({
+    const result = await new OpenAiCompatibleProvider({
       ...options,
       baseUrl: 'https://opencode.ai/inference/openai/v1',
       model: 'mimo-v2.6-flash-free',
     }).complete(request);
-    expect(fetchMock.mock.calls[0]?.[1]?.headers).not.toHaveProperty('authorization');
+    const [url, init] = fetchMock.mock.calls[0]!;
+    expect(result.model).toBe('mimo-v2.6-flash-free');
+    expect(url).toBe('https://opencode.ai/inference/openai/v1/chat/completions');
+    expect(init?.headers).toMatchObject({ authorization: `Bearer ${options.apiKey}` });
+    expect(init?.body).not.toContain(options.apiKey);
   });
 
   it.each([401, 429, 500])(

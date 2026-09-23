@@ -49,7 +49,7 @@ niemals in Git, `VITE_`-Variablen, `.openai/hosting.json` oder den Client-Build:
 | `AUTH_ADDITIONAL_USERS` | Serverseitige JSON-Liste für `Everlast` und weitere feste Testkonten |
 | `AUTH_SECRET` | Stabiles zufälliges Signaturgeheimnis, mindestens 32 Zeichen |
 | `LLM_PROVIDER` | `stub` (sichtbar markierter Offline-Modus) oder `openai` |
-| `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` | Serverseitiger Modellendpunkt; der schlüssellose MiMo-Free-Versuch wurde extern abgewiesen |
+| `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` | Serverseitiger Modellendpunkt; der schlüssellose MiMo-Free-Versuch wurde extern abgewiesen. Ein Console-Service-Key darf ausschließlich als Backend-Secret gesetzt werden und muss vor Aktivierung geprüft sein |
 | `LLM_ACCESS_STATUS` | Auf Sites derzeit `blocked`: kennzeichnet den bestätigten externen MiMo-Free-Fehler und unterbindet erneute Modellanfragen |
 
 Produktionszugänge haben mindestens 16 Zeichen. Das aus dem Auftrag bekannte
@@ -73,6 +73,12 @@ LLM_MODEL=mimo-v2.6-flash-free
 LLM_API_KEY=
 LLM_ACCESS_STATUS=blocked
 ```
+
+Für den vom Nutzer beschriebenen Console-Service-Key steht der
+[Einmaltest ohne vertrauliche Quellen](providers.md#console-service-key-prufen)
+bereit. Ein bloßes Setzen von `LLM_API_KEY` entsperrt die Site **nicht**:
+erst ein bestätigter externer Test und eine geprüfte Antwort mit Originalbeleg
+erlauben das Entfernen von `LLM_ACCESS_STATUS=blocked`.
 
 OpenCode Go listet `mimo-v2.6-flash` ohne `-free` mit Tokenpreisen; das
 gewählte Free-Modell steht in der Console-Liste. Sein kostenloser Tarif ist nach

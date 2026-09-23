@@ -257,3 +257,21 @@ dieser Arbeitsumgebung; alle 13 E2E-Fälle scheiterten vor dem Start. Die GitHub
 CI installiert Chromium gesondert und bleibt die ausstehende Browser-Prüfung.
 Ein lokaler Installationsversuch lud nur ein beschädigtes 0-MiB-Archiv und
 wurde nach wiederholtem Fehler beendet.
+
+## 2026-09-23 · Rückmeldung zum Console-Service-Key
+
+Sites-Version 8 ist unter der Custom Domain aktiv; GitHub CI einschließlich
+Browser-E2E und CodeQL bestanden. Der Health-Endpoint meldet die MiMo-ID mit
+`accessBlocked: true`. Der Nutzer meldete auf der Domain erneut den älteren
+Wortlaut „Der Modellendpunkt ist nicht erreichbar“ und beschrieb einen Schlüssel
+aus „Keys → Service Account → API“. Ein Console-Service-Key ist für die
+Inference-API dokumentiert, wurde hier aber weder eingesehen noch live geprüft.
+Der Backend-Header für die feste kostenlose MiMo-ID wird vorbereitet und der
+gesperrte Status zusätzlich direkt am Fragefeld angezeigt. Die Site bleibt
+gesperrt, bis ein authentifizierter Einmaltest und ein Belegtest gelingen.
+`pnpm verify` bestand mit 207 Unit-/Integrationstests und 10 Tool-Tests,
+Typecheck, Lint, Formatkontrolle und Build. Ein authentifizierter Live-Test
+mit dem beschriebenen Schlüssel steht weiterhin aus.
+`pnpm check:all` bestand erneut bis zu Playwright; die 13 lokalen E2E-Fälle
+starteten wegen des fehlenden Chromium-Executable nicht. Die GitHub-CI
+installiert Chromium für die ausstehende Browserprüfung.

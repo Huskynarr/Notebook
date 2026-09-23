@@ -660,3 +660,15 @@ einen funktionierenden Anbieter oder eine simulierte KI-Antwort vorzutäuschen.
 Das MiMo-Profil bleibt für später zulässige Anbieterprüfung konfigurierbar;
 ein kostenpflichtiger Wechsel auf Go/Xiaomi wurde verworfen, weil ausdrücklich
 Nullkosten und die Free-Modell-ID vorgegeben wurden.
+
+## D-035 · 2026-09-23 · Console-Service-Key nur für festes Free-Modell vorbereiten
+
+Der vorhandene Schlüssel wurde vom Nutzer als „Keys → Service Account → API“
+beschrieben. OpenCode dokumentiert Service-Account-Keys für die Console-
+Inference-API; ein authentifizierter externer Aufruf der kostenlosen MiMo-ID
+ist damit noch nicht nachgewiesen. Wenn ein Backend-Schlüssel ausdrücklich
+konfiguriert wird, sendet es ihn im Authorization-Header; der Console-Endpunkt
+erlaubt weiterhin ausschließlich `mimo-v2.6-flash-free`. Die Site bleibt mit
+`LLM_ACCESS_STATUS=blocked` gesperrt, bis ein lokaler Einmaltest und danach
+eine echte belegte Antwort den Zugang bestätigen. Ein Schlüssel im Frontend,
+automatischer Wechsel auf Go oder ein ungeprüftes Aktivieren wurden verworfen.

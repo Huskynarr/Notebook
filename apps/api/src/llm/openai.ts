@@ -8,7 +8,7 @@ import {
   type CompletionResult,
   type LlmProvider,
 } from './provider.ts';
-import { FREE_MIMO_MODEL, isFreeMimoConsole, isOpenCodeConsole } from './freeMimo.ts';
+import { FREE_MIMO_MODEL, isOpenCodeConsole } from './freeMimo.ts';
 
 const ChatCompletionSchema = z.object({
   choices: z
@@ -105,10 +105,7 @@ export class OpenAiCompatibleProvider implements LlmProvider {
         redirect: 'error',
         headers: {
           'content-type': 'application/json',
-          ...(this.options.apiKey === '' ||
-          isFreeMimoConsole(this.options.baseUrl, this.options.model)
-            ? {}
-            : { authorization: `Bearer ${this.options.apiKey}` }),
+          ...(this.options.apiKey === '' ? {} : { authorization: `Bearer ${this.options.apiKey}` }),
         },
         body: JSON.stringify({
           model: this.options.model,

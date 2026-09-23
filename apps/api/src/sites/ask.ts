@@ -59,9 +59,7 @@ async function model(
       signal: abort.signal,
       headers: {
         'content-type': 'application/json',
-        ...(env.LLM_API_KEY && !isFreeMimoConsole(base, modelName)
-          ? { authorization: `Bearer ${env.LLM_API_KEY}` }
-          : {}),
+        ...(env.LLM_API_KEY ? { authorization: `Bearer ${env.LLM_API_KEY}` } : {}),
       },
       body: JSON.stringify({
         model: modelName,

@@ -35,8 +35,10 @@ Diese Konfiguration ist als **fehlgeschlagener Integrationsversuch**, nicht als
 funktionsfähige Empfehlung dokumentiert. Auf Sites ist zusätzlich
 `LLM_ACCESS_STATUS=blocked` gesetzt: Health meldet die gesperrte MiMo-ID, und
 Fragen werden ohne wiederholte externe Modellanfrage mit einer klaren
-Fehlermeldung abgewiesen. Das festgelegte Free-Profil übermittelt selbst bei
-einem versehentlich eingetragenen Schlüssel keinen Bearer-Header.
+Fehlermeldung abgewiesen. Ohne Schlüssel bleibt der Aufruf anonym. Mit einem
+ausdrücklich serverseitig gesetzten Console-Service-Key übermittelt das
+Backend diesen nur im Authorization-Header für die festgelegte Free-Modell-ID;
+die gesperrte Site sendet auch dann zunächst **keine** Modellanfrage.
 Zugangsdaten einer späteren anderen Anbindung gehören
 ausschließlich in die Backend-Umgebung, niemals
 in `VITE_`-Variablen. Die HTTP-Modell-ID lautet `mimo-v2.6-flash-free`, ohne `opencode/`-Präfix.
@@ -44,6 +46,49 @@ Die Anwendung wechselt bei Fehlern oder künftig geänderten Preisen nicht auf e
 anderes, möglicherweise kostenpflichtiges Modell. Wer einen OpenCode-Go-Schlüssel
 besitzt, hat damit **keinen nachgewiesenen Zugang** zur externen kostenlosen
 Console-Variante; der Go-Endpunkt hat eine andere Modell-ID und Abrechnung.
+
+### Console-Service-Key prüfen
+
+Der Nutzer beschrieb einen Schlüssel unter **Keys → Service Account → API**.
+Die [OpenCode-Inference-Dokumentation](https://opencode.ai/v2/docs/console/inference/)
+zeigt genau diese Art Schlüssel für `Authorization: Bearer`. Ob der Schlüssel
+das freie Modell von einer fremden Anwendung aus erreichbar macht, ist offen.
+Ein einmaliger Test auf dem eigenen Rechner überträgt nur „Antworte mit OK“;
+er protokolliert weder Schlüssel noch Antworttext:
+
+```bash
+read -rs -p 'Console-Service-Key: ' NOTEBOOK_CONSOLE_SERVICE_KEY; printf '\n'
+export NOTEBOOK_CONSOLE_SERVICE_KEY
+node --input-type=module <<'JS'
+const key = process.env.NOTEBOOK_CONSOLE_SERVICE_KEY;
+if (!key) throw new Error('Kein Schlüssel eingelesen.');
+try {
+  const response = await fetch('https://opencode.ai/inference/openai/v1/chat/completions', {
+    method: 'POST',
+    redirect: 'error',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+    body: JSON.stringify({
+      model: 'mimo-v2.6-flash-free',
+      messages: [{ role: 'user', content: 'Antworte mit OK.' }],
+      max_tokens: 16,
+    }),
+    signal: AbortSignal.timeout(15_000),
+  });
+  console.log(`HTTP ${response.status}`);
+  await response.body?.cancel();
+} catch {
+  console.log('Transportfehler ohne HTTP-Status');
+  process.exitCode = 1;
+}
+JS
+unset NOTEBOOK_CONSOLE_SERVICE_KEY
+```
+
+Nur den **HTTP-Status** zurückmelden, niemals den Schlüssel oder Antworttext.
+HTTP 200 belegt zunächst lediglich die Erreichbarkeit; die Belegprüfung folgt
+gesondert mit dem Everlast-Beispiel. HTTP 403 belegt, dass auch dieser Schlüssel
+die externe Free-Sperre nicht aufhebt. Der produktive Wert
+`LLM_ACCESS_STATUS=blocked` bleibt bis zur erfolgreichen Abnahme gesetzt.
 
 **Kosten- und Datenschutzgrenze:** OpenCode kennzeichnet MiMo-V2.6-Flash Free als
 **nur befristet** kostenlos. Für eine strikte Nullkosten-Grenze in der Console

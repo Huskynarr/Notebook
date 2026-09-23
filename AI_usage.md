@@ -348,3 +348,16 @@ und implementierte einen ausdrücklich gesperrten Modellstatus für Sites.
 Kein API-Schlüssel, Testpasswort oder Sitzungstoken wurde in Git-Dateien oder
 Testausgaben geschrieben; aus diesen Prüfungen folgt kein erfolgreicher
 Live-Modellaufruf und keine geprüfte KI-Belegantwort.
+
+## 2026-09-23 · Console-Key-Pfad und Fehlermeldung im Fragefeld
+
+Codex verglich die erneute Nutzer-Rückmeldung mit dem produktiven Health-Status
+und dem Backend-Fehlerpfad. Die OpenCode-Console-Dokumentation wurde für
+Service-Account-Authentifizierung und die freie Modell-ID erneut gelesen.
+Der Code wurde so angepasst, dass ein ausdrücklich serverseitig konfigurierter
+Schlüssel nur mit dem festen MiMo-Free-Modell gesendet werden kann; der
+produktive Sperrstatus bleibt bestehen. Ein Hinweis am Fragefeld verhindert
+weitere irreführende Fehlversuche. Vertragstests prüfen Modell-ID,
+Authorization-Header und die Abwesenheit des Schlüssels im Request-Body.
+Ein Schlüssel oder eine echte authentifizierte Modellantwort lag Codex dabei
+nicht vor; ein erfolgreicher externer KI-Aufruf wird nicht behauptet.

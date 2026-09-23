@@ -569,6 +569,7 @@ function Arbeitsbereich({
     <ChatPanel
       exchanges={exchanges}
       pending={pending}
+      modelBlocked={health?.llm.accessBlocked === true}
       selectedCount={selected.length}
       activeMarker={activeCitation?.marker ?? null}
       onAsk={ask}

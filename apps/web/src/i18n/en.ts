@@ -117,6 +117,9 @@ export const en: Texte = {
   'chat.noSourceBody':
     'Select at least one source on the left. Without a source there is no answer.',
   'chat.errorTitle': 'The question could not be answered',
+  'chat.modelBlockedTitle': 'AI requests temporarily blocked',
+  'chat.modelBlockedBody':
+    'OpenCode rejected external requests to the free MiMo model. You can still use sources and notes; AI answers are currently unavailable.',
   'chat.simulatedTitle': 'Simulated answer — no model connected',
   'chat.simulatedBody':
     'No language model is connected. The passages that were found are shown; nothing was written.',

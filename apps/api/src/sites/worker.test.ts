@@ -556,7 +556,10 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
       sourceIds: sources.sources.map((source) => source.id),
     });
     expect(retry.status).toBe(200);
-    expect(outgoing.mock.calls[1]?.[1]?.headers).not.toHaveProperty('authorization');
+    expect(outgoing.mock.calls[1]?.[1]?.headers).toMatchObject({
+      authorization: `Bearer ${env.LLM_API_KEY}`,
+    });
+    expect(outgoing.mock.calls[1]?.[1]?.body).not.toContain(env.LLM_API_KEY);
   });
 
   it('marks confirmed external free-tier blocking and refuses repeated provider requests', async () => {
@@ -565,6 +568,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     env.LLM_BASE_URL = 'https://opencode.ai/inference/openai/v1';
     env.LLM_MODEL = 'mimo-v2.6-flash-free';
     env.LLM_ACCESS_STATUS = 'blocked';
+    env.LLM_API_KEY = 'candidate-console-service-key';
     const outgoing = vi.fn<typeof fetch>();
     vi.stubGlobal('fetch', outgoing);
     const health = (await (await call(env, '/v1/health')).json()) as {

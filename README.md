@@ -93,7 +93,11 @@ Nutzung derzeit nur innerhalb von OpenCode. Der anschließende Sites-Test
 lieferte für die Frage HTTP 503. Die gehostete Anwendung kennzeichnet die
 externe MiMo-API deshalb als gesperrt und sendet keine weiteren Modellanfragen;
 sie behauptet keine funktionierende Live-KI. Für einen echten KI-Betrieb wird
-ein nachweislich erlaubter externer Anbieterzugang benötigt.
+ein nachweislich erlaubter externer Anbieterzugang benötigt. Ein optionaler
+Console-Service-Key kann ausschließlich serverseitig und für genau diese
+Free-Modell-ID gesetzt werden; ob er die externe Sperre aufhebt, wird zuerst
+mit einem [Test ohne vertrauliche Daten](docs/providers.md#console-service-key-prufen)
+geprüft. Bis dahin bleibt die Site gesperrt.
 OpenCode Go führt `mimo-v2.6-flash` ohne `-free` mit Tokenpreisen; für die
 gewünschte kostenlose V2.6-Variante ist aktuell kein funktionierender externer
 Endpunkt nachgewiesen. Ein
