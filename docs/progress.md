@@ -188,3 +188,18 @@ Die noch veröffentlichte Sites-Version 4 nutzte `big-pickle`. Ein neuer
 Deploy, ein echter MiMo-Aufruf und eine geprüfte Belegantwort sind zum
 Zeitpunkt dieses Eintrags nicht nachgewiesen. Ergebnisse der nächsten Prüfung
 werden erst nach ihrem tatsächlichen Lauf ergänzt.
+
+## 2026-09-23 · MiMo- und Everlast-Änderung lokal geprüft
+
+Das Backend verwendet nun die exakte MiMo-Free-Modell-ID am schlüssellosen
+Console-Endpunkt. Das neue Startnotebook enthält zwei datierte, als
+Unternehmens-Selbstauskunft markierte Quellen mit einer prüfbaren Beispielfrage.
+Ein zuvor angelegtes Prüfungsbeispiel bleibt auf Sites mit denselben Quellen-
+und Notiz-IDs als Archiv erreichbar; der neue Seed kann nach dem Löschen
+des neuen Notebooks nicht wiederholt werden, solange das Archiv besteht.
+
+`pnpm verify` lief am 23.09.2026 erfolgreich: TypeScript, ESLint, Prettier,
+Produktionsbuild, **205** Unit-/Integrationstests und **10** Tooling-Tests.
+Die Worker-Tests nutzen einen SQLite-kompatiblen Testadapter und modellieren
+den HTTP-Anbieteraufruf. GitHub CI, gehosteter Login, echte D1/R2-Operationen
+und ein echter MiMo-Aufruf sind für diesen neuen Stand noch nicht geprüft.

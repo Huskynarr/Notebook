@@ -49,7 +49,7 @@ am Hauptablauf geprüft; Zeitersparnis und Modellqualität bleiben zu messen.
 | P6 | Überprüfbare Verweise | Marker → abgerufener Abschnitt → Originalposition; ungültige echte Antworten vollständig zurückhalten |
 | P7 | Notizen | Anlegen, bearbeiten, löschen; Referenzen serverseitig prüfen; fehlende Originale kennzeichnen |
 | P8 | Persistenz | Lokal SQLite-Datei auf dem API-Rechner; auf Sites D1 für Metadaten und R2 für Originaltexte |
-| P9 | Sofort nutzbares Beispiel | Fiktives Notebook, Quellen und Beispielfragen; Fundstellen ohne API-Schlüssel erkundbar |
+| P9 | Sofort nutzbares Beispiel | „Everlast AI recherchieren“ mit zwei datierten, als Website-Selbstauskunft gekennzeichneten Quellen; fehlende Register-/Bilanzbelege ausdrücklich offen, Fundstellen ohne API-Schlüssel erkundbar |
 | P10 | Einfacher Zugangsschutz | localhost Huskynarr:admin; zusätzlich Everlast per Backend-Konfiguration; serverseitige Anmeldung, Token und verzögerte Wiederholung |
 | P11 | Landingpage und Themes | Öffentliche Erklärung, Login oben rechts; Everlast, Huskynarr und bestehende Themes |
 | P12 | Reproduzierbare Qualität | Typecheck, Lint, Build, Unit-/Integrationstests, E2E, Git-Hooks und GitHub CI/CD |
@@ -101,3 +101,7 @@ brauchen zusätzlichen Platz. KI-Anfragen: zwei gleichzeitig, zehn pro Minute,
    eine offizielle Corporate-Design-Abnahme liegt nicht vor.
 6. Für den alternativen Plesk-Betrieb bleiben Rechte, vHost, Cloudflare und SSH-
    Deployment unbestätigt. Die Sites-Domain besitzt aktive DNS-/TLS-Anbindung.
+7. Die Everlast-Website nennt Gesellschaft und Vertreter im Impressum sowie
+   Gründer in einer FAQ. Aktuelle Geschäftsführerrolle, Eigentumsstruktur und
+   Finanzzahlen erfordern die Prüfung entsprechender Originaldokumente; ein
+   Unternehmensregister-Treffer allein belegt keinen Bilanzinhalt.

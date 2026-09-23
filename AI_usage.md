@@ -307,3 +307,19 @@ Landingpage. Die bereits veröffentlichte Big-Pickle-Version 4 und ihre
 Prüfergebnisse bleiben als historischer Stand erhalten. Diese Dokumentenprüfung
 und die automatisierten Testdoppel belegen keinen Live-Aufruf des MiMo-Modells
 und keine geprüfte semantische Übereinstimmung von Antwort und Originalquelle.
+
+## 2026-09-23 · Quellenbeispiel Everlast und Sites-Archivierung
+
+Codex und zwei delegierte Agenten prüften Unternehmensimpressum, FAQ und einen
+amtlichen Registertreffer, paraphrasierten die zwei Websitequellen für das
+Startnotebook und schrieben einen konkreten Pfad für die weitere amtliche
+Recherche. Aus dem Suchtreffer wurden keine Bilanzzahlen oder Beteiligungen
+abgeleitet, da der Volltext nicht gelesen werden konnte. Die Tests und
+Beispieltexte wurden auf die belegbare Frage nach Gesellschaft und Vertretung
+ausgerichtet. Codex implementierte eine versionierte Beispiel-ID, damit beim
+Wechsel von der alten fiktiven Prüfungsordnung zu Everlast Quellen- und
+Notizdaten nicht gelöscht werden. Die ausführlichen Prüfergebnisse folgen
+nach dem tatsächlichen Lauf in `docs/progress.md`.
+Der vollständige lokale `pnpm verify`-Lauf bestand mit 205 Unit-/
+Integrationstests und 10 Tooling-Tests; diese automatisierten Testdoppel
+belegen weder einen gehosteten Login noch eine echte Modellantwort.

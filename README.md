@@ -46,6 +46,14 @@ Die öffentliche Landingpage führt über **Anmelden** zum lokalen Demozugang
 Notebooks, Quellen und Notizen in einer lokalen SQLite-Datei. Ohne Modellschlüssel
 liefert sie ausschließlich sichtbar markierte Fundstellen, keine erfundene KI-Antwort.
 
+Das neue Beispiel [„Everlast AI recherchieren“](docs/example-everlast.md) verbindet
+die datierten Selbstauskünfte im Impressum und in der FAQ mit einer prüfbaren Frage
+nach Gesellschaft und Vertretung. Für Geschäftsführung, Gesellschafter und Bilanzen
+führt der Recherchepfad zu amtlichen Dokumenten, die Nutzende selbst hinzufügen;
+ungeprüfte Finanzzahlen erscheinen nicht als Beispielbelege. Ein bestehendes
+Prüfungs-Notebook auf Sites wird beim ersten Zugriff archiviert, seine Notizen
+und Quellen bleiben erhalten. Bestehende lokale Daten werden nicht überschrieben.
+
 Weitere feste Zugänge, beispielsweise `Everlast`, werden ausschließlich im Backend
 über `AUTH_ADDITIONAL_USERS` in `apps/api/.env` konfiguriert (JSON-Liste mit
 `username` und `password`, siehe `.env.example`). Das angeforderte Testpasswort ist

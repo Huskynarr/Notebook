@@ -11,6 +11,12 @@ dem bisherigen Namen `Huskynar` benötigt bei der Umstellung auf `Huskynarr`
 eine eng begrenzte Eigentümerkorrektur. Sie erfolgt idempotent im Worker beim
 ersten authentifizierten Zugriff des korrigierten Kontos, nicht per D1-Schema-
 Migration; Quellen und Notizen bleiben über ihre Notebook-IDs zugeordnet.
+Beim ersten Öffnen der Notebookliste wird ein vorhandenes, noch unverändert
+betiteltes altes Prüfungsbeispiel als Archiv gekennzeichnet und ein neues
+Everlast-Beispiel mit eigener ID ergänzt. Die bisherigen Quellen und Notizen
+bleiben über ihre IDs erreichbar. Ein bereits umbenanntes Notebook wird nicht
+automatisch verändert. Ist die Grenze von 100 Notebooks erreicht, wird kein
+weiteres Beispiel angelegt.
 Die Sites-Daten sind **nicht** die lokale Plesk-Datenbank;
 eine automatische Übernahme bestehender Daten gibt es nicht.
 

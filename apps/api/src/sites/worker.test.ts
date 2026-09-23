@@ -1,7 +1,12 @@
 import { DatabaseSync, type StatementSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { MAX_SOURCE_BYTES, type AskResponse, type SourceContent } from '@notebook/shared';
+import {
+  EXAMPLE_NOTEBOOK_TITLE,
+  MAX_SOURCE_BYTES,
+  type AskResponse,
+  type SourceContent,
+} from '@notebook/shared';
 import { handleApi } from './api.ts';
 import type { Bucket, Database, SiteEnv, Statement } from './db.ts';
 
@@ -123,6 +128,16 @@ async function signIn(
   return body.token;
 }
 
+async function legacyExampleId(username: string): Promise<string> {
+  const digest = new Uint8Array(
+    await crypto.subtle.digest('SHA-256', new TextEncoder().encode(username)),
+  );
+  const key = Array.from(digest.slice(0, 12))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+  return `example_${key}`;
+}
+
 describe('Sites Worker API and durable SQLite-compatible state', () => {
   it('retains notebook and source IDs when both accounts are renamed', async () => {
     const env = setup();
@@ -132,16 +147,35 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     ]);
     const oldPrimaryToken = await signIn(env, 'Huskynar');
     const oldSecondaryToken = await signIn(env, 'everlabs', 'local-second-account-passphrase-only');
-    const primaryList = (await (
-      await call(env, '/v1/notebooks', 'GET', oldPrimaryToken)
-    ).json()) as {
-      notebooks: Array<{ id: string }>;
-    };
-    const secondaryList = (await (
-      await call(env, '/v1/notebooks', 'GET', oldSecondaryToken)
-    ).json()) as { notebooks: Array<{ id: string }> };
-    const firstId = primaryList.notebooks[0]?.id ?? '';
-    const secondId = secondaryList.notebooks[0]?.id ?? '';
+    const firstId = await legacyExampleId('Huskynar');
+    const secondId = await legacyExampleId('everlabs');
+    for (const [id, owner] of [
+      [firstId, 'Huskynar'],
+      [secondId, 'everlabs'],
+    ] as const) {
+      (env.DB as TestDb).raw
+        .prepare('INSERT INTO notebooks(id,owner,title,created_at,updated_at) VALUES(?,?,?,?,?)')
+        .run(id, owner, 'Beispiel: Prüfungsrecht (erfundene Ordnung)', '2026-09-01', '2026-09-01');
+    }
+    const added = await call(env, `/v1/notebooks/${firstId}/sources`, 'POST', oldPrimaryToken, {
+      kind: 'markdown',
+      title: 'Alte Beispielquelle.md',
+      content: '# Alter Inhalt\n\nDiese Quelle soll beim Kontenwechsel erhalten bleiben.',
+    });
+    expect(added.status).toBe(201);
+    const secondarySource = await call(
+      env,
+      `/v1/notebooks/${secondId}/sources`,
+      'POST',
+      oldSecondaryToken,
+      {
+        kind: 'markdown',
+        title: 'Zweite alte Beispielquelle.md',
+        content: '# Alter Inhalt\n\nAuch die Quelle des zweiten Kontos bleibt erhalten.',
+      },
+    );
+    expect(secondarySource.status).toBe(201);
+    const secondarySourceId = ((await secondarySource.json()) as { id: string }).id;
     const oldSources = (await (
       await call(env, `/v1/notebooks/${firstId}/sources`, 'GET', oldPrimaryToken)
     ).json()) as { sources: Array<{ id: string }> };
@@ -158,9 +192,18 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
       [secondaryToken, secondId, 'Everlast'],
     ] as const) {
       const list = (await (await call(env, '/v1/notebooks', 'GET', token)).json()) as {
-        notebooks: Array<{ id: string }>;
+        notebooks: Array<{ id: string; title: string }>;
       };
-      expect(list.notebooks.map((notebook) => notebook.id)).toEqual([notebookId]);
+      expect(list.notebooks).toHaveLength(2);
+      expect(list.notebooks).toContainEqual(
+        expect.objectContaining({
+          id: notebookId,
+          title: 'Archiv: Prüfungsrecht (erfundene Ordnung)',
+        }),
+      );
+      expect(list.notebooks).toContainEqual(
+        expect.objectContaining({ title: EXAMPLE_NOTEBOOK_TITLE }),
+      );
       expect(
         (env.DB as TestDb).raw.prepare('SELECT owner FROM notebooks WHERE id=?').get(notebookId),
       ).toMatchObject({ owner: expectedOwner });
@@ -168,7 +211,53 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     expect(
       (await call(env, `/v1/sources/${oldSources.sources[0]?.id}`, 'GET', primaryToken)).status,
     ).toBe(200);
+    expect(
+      (await call(env, `/v1/sources/${secondarySourceId}`, 'GET', secondaryToken)).status,
+    ).toBe(200);
     expect((await call(env, `/v1/notebooks/${firstId}`, 'GET', secondaryToken)).status).toBe(404);
+  });
+
+  it('does not recreate the new example after deletion and keeps archived sources', async () => {
+    const env = setup();
+    const token = await signIn(env);
+    const legacyId = await legacyExampleId('Huskynarr');
+    (env.DB as TestDb).raw
+      .prepare('INSERT INTO notebooks(id,owner,title,created_at,updated_at) VALUES(?,?,?,?,?)')
+      .run(
+        legacyId,
+        'Huskynarr',
+        'Beispiel: Prüfungsrecht (erfundene Ordnung)',
+        '2026-09-01',
+        '2026-09-01',
+      );
+    const sourceResponse = await call(env, `/v1/notebooks/${legacyId}/sources`, 'POST', token, {
+      kind: 'markdown',
+      title: 'Archivquelle.md',
+      content:
+        '# Bestehender Beleg\n\nDer archivierte Originaltext bleibt nach dem Wechsel verfügbar.',
+    });
+    expect(sourceResponse.status).toBe(201);
+    const archivedSource = (await sourceResponse.json()) as { id: string };
+    const readBooks = async (): Promise<Array<{ id: string; title: string }>> => {
+      const response = await call(env, '/v1/notebooks', 'GET', token);
+      expect(response.status).toBe(200);
+      const result = (await response.json()) as {
+        notebooks: Array<{ id: string; title: string }>;
+      };
+      return result.notebooks;
+    };
+    const first = await readBooks();
+    expect(first).toHaveLength(2);
+    const created = first.find((book) => book.title === EXAMPLE_NOTEBOOK_TITLE);
+    expect(created?.id).toMatch(/^example_everlast_/);
+    expect((await call(env, `/v1/notebooks/${created?.id}`, 'DELETE', token)).status).toBe(204);
+    expect(await readBooks()).toEqual([
+      expect.objectContaining({
+        id: legacyId,
+        title: 'Archiv: Prüfungsrecht (erfundene Ordnung)',
+      }),
+    ]);
+    expect((await call(env, `/v1/sources/${archivedSource.id}`, 'GET', token)).status).toBe(200);
   });
 
   it('does not move notebooks while the former account still exists', async () => {
@@ -265,7 +354,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     ).json()) as { sources: Array<{ id: string }> };
     const selected = sources.sources.map((source) => source.id);
     const response = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
-      question: 'Wie lang ist die Widerspruchsfrist?',
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
       sourceIds: selected,
       language: 'de',
     });
@@ -282,10 +371,10 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
       firstCitation?.excerpt,
     );
     const noteData = {
-      title: 'Frist',
+      title: 'Angaben zur Vertretung',
       body: 'Nachprüfbarer Auszug',
       citations: answer.citations,
-      question: 'Widerspruchsfrist?',
+      question: 'Wer wird im Impressum als Vertretung genannt?',
     };
     const stored = await call(env, `/v1/notebooks/${bookId}/notes`, 'POST', token, noteData);
     expect(stored.status).toBe(201);
@@ -377,7 +466,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
                   message: {
                     content: JSON.stringify({
                       grounded: true,
-                      answer: 'Vierzehn Tage [1].',
+                      answer: 'Unbelegte Aussage über die Geschäftsführung [1].',
                       quotes: { '1': 'erfundenes Zitat ohne Quelle' },
                     }),
                   },
@@ -399,7 +488,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
       await call(env, `/v1/notebooks/${bookId}/sources`, 'GET', token)
     ).json()) as { sources: Array<{ id: string }> };
     const response = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
-      question: 'Wie lang ist die Widerspruchsfrist?',
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
       sourceIds: sources.sources.map((s) => s.id),
     });
     expect(response.status).toBe(200);
@@ -415,21 +504,23 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     env.LLM_PROVIDER = 'openai';
     env.LLM_BASE_URL = 'https://opencode.ai/inference/openai/v1';
     env.LLM_MODEL = 'mimo-v2.6-flash-free';
-    const outgoing = vi.fn<typeof fetch>().mockResolvedValue(
-      Response.json({
-        choices: [
-          {
-            message: {
-              content: JSON.stringify({
-                grounded: true,
-                answer: 'Unbelegte Aussage [1].',
-                quotes: { '1': 'erfundenes Zitat' },
-              }),
+    const outgoing = vi.fn<typeof fetch>().mockImplementation(() =>
+      Promise.resolve(
+        Response.json({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  grounded: true,
+                  answer: 'Unbelegte Aussage [1].',
+                  quotes: { '1': 'erfundenes Zitat' },
+                }),
+              },
+              finish_reason: 'stop',
             },
-            finish_reason: 'stop',
-          },
-        ],
-      }),
+          ],
+        }),
+      ),
     );
     vi.stubGlobal('fetch', outgoing);
     const health = (await (await call(env, '/v1/health')).json()) as {
@@ -445,7 +536,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
       await call(env, `/v1/notebooks/${bookId}/sources`, 'GET', token)
     ).json()) as { sources: Array<{ id: string }> };
     const response = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
-      question: 'Wie lang ist die Widerspruchsfrist?',
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
       sourceIds: sources.sources.map((source) => source.id),
     });
     expect(response.status).toBe(200);
@@ -459,6 +550,13 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     const body = JSON.parse(options.body) as unknown;
     expect(body).toMatchObject({ model: 'mimo-v2.6-flash-free' });
     expect(body).not.toHaveProperty('response_format');
+    env.LLM_API_KEY = 'test-key-must-not-leave-worker';
+    const retry = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: sources.sources.map((source) => source.id),
+    });
+    expect(retry.status).toBe(200);
+    expect(outgoing.mock.calls[1]?.[1]?.headers).not.toHaveProperty('authorization');
   });
 
   it('rejects a different Console model before any provider call', async () => {
@@ -481,7 +579,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
       await call(env, `/v1/notebooks/${bookId}/sources`, 'GET', token)
     ).json()) as { sources: Array<{ id: string }> };
     const response = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
-      question: 'Wie lang ist die Widerspruchsfrist?',
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
       sourceIds: sources.sources.map((source) => source.id),
     });
     expect(response.status).toBe(503);

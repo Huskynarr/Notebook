@@ -104,8 +104,8 @@ test('Einführung fragt beim ersten Start nach Sprache und Design und erscheint 
 test('Beispiel-Notebook ist nach dem Start sofort nutzbar', async ({ page }) => {
   await login(page);
   await selectAllSources(page);
-  await expect(page.getByText('Prüfungsordnung (Beispiel).md')).toBeVisible();
-  await expect(page.getByText('Merkblatt Prüfungsamt.md')).toBeVisible();
+  await expect(page.getByText('Everlast Consulting GmbH – Impressum.md')).toBeVisible();
+  await expect(page.getByText('Everlast AI – Selbstauskunft.md')).toBeVisible();
   await expect(page.getByText('2 von 2 ausgewählt')).toBeVisible();
 });
 
@@ -114,7 +114,7 @@ test('ohne Modell wird die Antwort sichtbar als simuliert gekennzeichnet', async
   await selectAllSources(page);
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
-    .fill('Wie lange ist die Widerspruchsfrist?');
+    .fill('Wer vertritt die Everlast Consulting GmbH laut Impressum?');
   await page.getByRole('button', { name: 'Fragen' }).click();
   await expect(page.getByText('Simulierte Antwort — kein Modell verbunden')).toBeVisible();
 });
@@ -125,7 +125,7 @@ test('ein Beleg fuehrt zur hervorgehobenen Stelle im Original', async ({ page })
   await selectAllSources(page);
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
-    .fill('Wie lange ist die Widerspruchsfrist?');
+    .fill('Wer vertritt die Everlast Consulting GmbH laut Impressum?');
   await page.getByRole('button', { name: 'Fragen' }).click();
 
   const marker = page.locator('button[aria-label^="Beleg"]').first();
@@ -157,27 +157,29 @@ test('ein Beleg fuehrt zur hervorgehobenen Stelle im Original', async ({ page })
 test('abgewaehlte Quellen werden nicht beruecksichtigt', async ({ page }) => {
   await login(page);
   await selectAllSources(page);
-  await page.getByLabel('Merkblatt Prüfungsamt.md für Fragen berücksichtigen').uncheck();
+  await page.getByLabel('Everlast AI – Selbstauskunft.md für Fragen berücksichtigen').uncheck();
   await expect(page.getByText('1 von 2 ausgewählt')).toBeVisible();
 
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
-    .fill('Was steht zur Einsicht in die Prüfungsakte?');
+    .fill('Welche Gründer nennt die Everlast-Website?');
   await page.getByRole('button', { name: 'Fragen' }).click();
   await expect(page.getByText('1 Quellen berücksichtigt')).toBeVisible();
-  await expect(page.getByText('Merkblatt Prüfungsamt.md · Merkblatt')).toHaveCount(0);
+  await expect(page.getByText(/Everlast AI – Selbstauskunft\.md ·/)).toHaveCount(0);
 });
 
 test('ohne ausgewaehlte Quelle wird nicht geantwortet', async ({ page }) => {
   await login(page);
   await selectAllSources(page);
-  await page.getByLabel('Prüfungsordnung (Beispiel).md für Fragen berücksichtigen').uncheck();
-  await page.getByLabel('Merkblatt Prüfungsamt.md für Fragen berücksichtigen').uncheck();
+  await page
+    .getByLabel('Everlast Consulting GmbH – Impressum.md für Fragen berücksichtigen')
+    .uncheck();
+  await page.getByLabel('Everlast AI – Selbstauskunft.md für Fragen berücksichtigen').uncheck();
   await expect(page.getByText('Keine Quelle ausgewählt')).toBeVisible();
 
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
-    .fill('Wie lange ist die Widerspruchsfrist?');
+    .fill('Wer vertritt die Everlast Consulting GmbH laut Impressum?');
   await page.getByRole('button', { name: 'Fragen' }).click();
   await expect(page.getByText('Es ist keine Quelle ausgewählt')).toBeVisible();
 });

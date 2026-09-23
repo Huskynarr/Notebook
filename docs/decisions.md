@@ -627,3 +627,18 @@ Inhalten gelten auch für MiMo-V2.6-Flash Free. Ein echter Modellaufruf mit
 belegter Antwort ist noch nicht nachgewiesen; die historische Sites-Version 4
 und ihre Big-Pickle-Konfiguration bleiben als tatsächlich veröffentlichter
 Zwischenstand dokumentiert.
+
+## D-033 · 2026-09-23 · Everlast-Recherchebeispiel mit gekennzeichneten Websitequellen
+
+Die fiktive Prüfungsordnung als Startbeispiel wird durch ein Notebook zur
+Everlast Consulting GmbH ersetzt. Zwei kurze paraphrasierte Quellen verlinken
+das Impressum und die FAQ der Unternehmenswebsite mit Abrufdatum und
+Selbstauskunft-Kennzeichnung. Die Webseite nennt einen Vertreter und Gründer,
+aber keine geprüfte aktuelle Gesellschafterliste oder Bilanzzahlen. Der
+Recherchepfad in `docs/example-everlast.md` führt zu manuellen Importen
+amtlicher Originaldokumente; North Data dient höchstens als Gegenvergleich.
+Webseiten-Crawling und erfundene Finanzwerte wurden verworfen. Bestehende
+Sites-Beispielnotebooks werden bei unverändertem altem Titel nur als Archiv
+markiert, mit sämtlichen Quellen und Notizen erhalten; ein neues Beispiel
+erhält eine versionierte ID. Diese Markierung verhindert ein erneutes Anlegen
+nach bewusstem Löschen des neuen Beispiels, solange das Archiv vorhanden ist.

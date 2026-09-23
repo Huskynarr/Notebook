@@ -76,7 +76,7 @@ describe('DemoClient', () => {
     const quellen = await client.listSources(notebook!.id);
     const antwort = await client.ask(
       notebook!.id,
-      'Wie lange ist die Widerspruchsfrist?',
+      'Wer vertritt die Everlast Consulting GmbH laut Impressum?',
       quellen.map((q) => q.id),
       'de',
     );

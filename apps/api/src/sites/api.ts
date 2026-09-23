@@ -50,13 +50,18 @@ function count(row: Record<string, unknown> | null): number {
   return z.number().int().nonnegative().parse(row?.['count']);
 }
 
-/** An example is created once per account, isolated from other account data. */
-async function seedExample(env: SiteEnv, owner: string): Promise<void> {
+const LEGACY_EXAMPLE_TITLE = 'Beispiel: Prüfungsrecht (erfundene Ordnung)';
+const ARCHIVED_EXAMPLE_TITLE = 'Archiv: Prüfungsrecht (erfundene Ordnung)';
+
+async function exampleKey(owner: string): Promise<string> {
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(owner)));
-  const key = Array.from(digest.slice(0, 12))
+  return Array.from(digest.slice(0, 12))
     .map((byte) => byte.toString(16).padStart(2, '0'))
     .join('');
-  const bookId = `example_${key}`;
+}
+
+/** Use a versioned ID so a previous example and its edited sources remain intact. */
+async function seedExample(env: SiteEnv, owner: string, bookId: string): Promise<void> {
   const time = now();
   const result = await env.DB.prepare(
     `INSERT OR IGNORE INTO notebooks(id,owner,title,created_at,updated_at)
@@ -65,7 +70,12 @@ async function seedExample(env: SiteEnv, owner: string): Promise<void> {
     .bind(bookId, owner, EXAMPLE_NOTEBOOK_TITLE, time, time)
     .run();
   if (result.meta.changes === 0) return;
-  for (const sample of EXAMPLE_SOURCES) await createSource(env, bookId, sample);
+  try {
+    for (const sample of EXAMPLE_SOURCES) await createSource(env, bookId, sample);
+  } catch (error) {
+    await removeNotebookSources(env, owner, bookId);
+    throw error;
+  }
 }
 
 function clientIp(request: Request): string {
@@ -151,8 +161,26 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
         .prepare(`${notebookSelect} WHERE n.owner=? ORDER BY n.updated_at DESC`)
         .bind(owner)
         .all();
-      if (rows.results.length === 0) {
-        await seedExample(env, owner);
+      const key = await exampleKey(owner);
+      const previous =
+        owner === 'Huskynarr' ? 'Huskynar' : owner === 'Everlast' ? 'everlabs' : null;
+      const legacyIds = [
+        `example_${key}`,
+        ...(previous === null ? [] : [`example_${await exampleKey(previous)}`]),
+      ];
+      const newId = `example_everlast_${key}`;
+      const legacy = rows.results
+        .map(notebook)
+        .find((book) => legacyIds.includes(book.id) && book.title === LEGACY_EXAMPLE_TITLE);
+      if (rows.results.length < 100 && (rows.results.length === 0 || legacy)) {
+        await seedExample(env, owner, newId);
+        if (legacy) {
+          // Mark only the untouched demo title. The old source and note IDs are preserved.
+          await db
+            .prepare('UPDATE notebooks SET title=? WHERE id=? AND owner=? AND title=?')
+            .bind(ARCHIVED_EXAMPLE_TITLE, legacy.id, owner, LEGACY_EXAMPLE_TITLE)
+            .run();
+        }
         rows = await db
           .prepare(`${notebookSelect} WHERE n.owner=? ORDER BY n.updated_at DESC`)
           .bind(owner)
