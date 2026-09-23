@@ -361,3 +361,11 @@ weitere irreführende Fehlversuche. Vertragstests prüfen Modell-ID,
 Authorization-Header und die Abwesenheit des Schlüssels im Request-Body.
 Ein Schlüssel oder eine echte authentifizierte Modellantwort lag Codex dabei
 nicht vor; ein erfolgreicher externer KI-Aufruf wird nicht behauptet.
+
+## 2026-09-23 · Muse-Spark-Adapter
+
+Codex prüfte den offiziellen OpenCode-Modellkatalog und die Inference-Dokumentation
+für die freie Muse-ID, den Responses-Endpunkt, die Preise und die mögliche
+Trainingsnutzung. Der Vorschlag wurde als streng begrenzter Backend-Adapter
+übernommen; kontrollierte Tests prüfen Auth-Header, Modell-ID, Antwortschema und
+Belegablehnung. Ein echter erfolgreicher Modellaufruf wurde nicht behauptet.

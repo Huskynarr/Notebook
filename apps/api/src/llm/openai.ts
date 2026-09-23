@@ -9,6 +9,8 @@ import {
   type LlmProvider,
 } from './provider.ts';
 import { FREE_MIMO_MODEL, isOpenCodeConsole } from './freeMimo.ts';
+import { FREE_MUSE_MODEL, isAllowedConsoleModel } from './freeMuse.ts';
+import { parseMuseAnswer } from './museResponse.ts';
 
 const ChatCompletionSchema = z.object({
   choices: z
@@ -86,10 +88,11 @@ export class OpenAiCompatibleProvider implements LlmProvider {
   }
 
   async complete(request: CompletionRequest): Promise<CompletionResult> {
-    if (isOpenCodeConsole(this.options.baseUrl) && this.options.model !== FREE_MIMO_MODEL) {
-      throw new LlmUnavailableError(
-        'Für OpenCode Console ist nur MiMo V2.6 Flash Free freigegeben.',
-      );
+    if (
+      isOpenCodeConsole(this.options.baseUrl) &&
+      !isAllowedConsoleModel(this.options.baseUrl, this.options.model)
+    ) {
+      throw new LlmUnavailableError('Dieses OpenCode-Console-Modell ist nicht freigegeben.');
     }
     if (request.system.length + request.user.length > MAX_PROVIDER_PROMPT_CHARS) {
       throw new LlmUnavailableError('Die ausgewählten Textstellen sind für eine Anfrage zu groß.');
@@ -100,27 +103,43 @@ export class OpenAiCompatibleProvider implements LlmProvider {
     }, this.options.timeoutMs);
 
     try {
-      const response = await fetch(`${this.options.baseUrl.replace(/\/$/, '')}/chat/completions`, {
-        method: 'POST',
-        redirect: 'error',
-        headers: {
-          'content-type': 'application/json',
-          ...(this.options.apiKey === '' ? {} : { authorization: `Bearer ${this.options.apiKey}` }),
+      const muse =
+        this.options.model === FREE_MUSE_MODEL && isOpenCodeConsole(this.options.baseUrl);
+      const response = await fetch(
+        `${this.options.baseUrl.replace(/\/$/, '')}/${muse ? 'responses' : 'chat/completions'}`,
+        {
+          method: 'POST',
+          redirect: 'error',
+          headers: {
+            'content-type': 'application/json',
+            ...(this.options.apiKey === ''
+              ? {}
+              : { authorization: `Bearer ${this.options.apiKey}` }),
+          },
+          body: JSON.stringify(
+            muse
+              ? {
+                  model: FREE_MUSE_MODEL,
+                  max_output_tokens: 4096,
+                  instructions: request.system,
+                  input: request.user,
+                }
+              : {
+                  model: this.options.model,
+                  temperature: this.options.temperature,
+                  max_tokens: 4096,
+                  ...(this.options.model === FREE_MIMO_MODEL
+                    ? {}
+                    : { response_format: { type: 'json_object' } }),
+                  messages: [
+                    { role: 'system', content: request.system },
+                    { role: 'user', content: request.user },
+                  ],
+                },
+          ),
+          signal: controller.signal,
         },
-        body: JSON.stringify({
-          model: this.options.model,
-          temperature: this.options.temperature,
-          max_tokens: 4096,
-          ...(this.options.model === FREE_MIMO_MODEL
-            ? {}
-            : { response_format: { type: 'json_object' } }),
-          messages: [
-            { role: 'system', content: request.system },
-            { role: 'user', content: request.user },
-          ],
-        }),
-        signal: controller.signal,
-      });
+      );
 
       if (!response.ok) {
         // Der Antwortkoerper koennte die Anfrage samt Schluessel spiegeln und
@@ -131,7 +150,10 @@ export class OpenAiCompatibleProvider implements LlmProvider {
         );
       }
 
-      const parsed = ChatCompletionSchema.safeParse(await readLimitedJson(response));
+      const json = await readLimitedJson(response);
+      if (muse)
+        return { answer: parseMuseAnswer(json), model: this.options.model, simulated: false };
+      const parsed = ChatCompletionSchema.safeParse(json);
       if (!parsed.success) {
         throw new LlmUnavailableError(
           'Die Antwort des Endpunkts entspricht nicht dem erwarteten Format.',

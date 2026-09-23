@@ -24,7 +24,8 @@ import {
   verify,
 } from './auth.ts';
 import { askSites, LlmUnavailableError } from './ask.ts';
-import { FREE_MIMO_MODEL, isFreeMimoConsole, isOpenCodeConsole } from '../llm/freeMimo.ts';
+import { isOpenCodeConsole } from '../llm/freeMimo.ts';
+import { isAllowedConsoleModel, isBlockedConsoleModel } from '../llm/freeMuse.ts';
 import {
   canonicalCitations,
   getNote,
@@ -115,8 +116,7 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
   if (entity === 'health' && parts.length === 2 && method === 'GET') {
     const accessBlocked =
       env.LLM_PROVIDER === 'openai' &&
-      env.LLM_ACCESS_STATUS === 'blocked' &&
-      isFreeMimoConsole(env.LLM_BASE_URL ?? '', env.LLM_MODEL ?? '');
+      isBlockedConsoleModel(env.LLM_BASE_URL ?? '', env.LLM_MODEL ?? '', env.LLM_ACCESS_STATUS);
     return json({
       status: 'ok',
       version: '0.1.0',
@@ -127,7 +127,7 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
           !!env.LLM_BASE_URL &&
           !!env.LLM_MODEL &&
           (isOpenCodeConsole(env.LLM_BASE_URL)
-            ? env.LLM_MODEL === FREE_MIMO_MODEL
+            ? isAllowedConsoleModel(env.LLM_BASE_URL, env.LLM_MODEL)
             : !!env.LLM_API_KEY),
         provider: env.LLM_PROVIDER === 'openai' ? 'openai' : 'stub',
         model: env.LLM_PROVIDER === 'openai' ? (env.LLM_MODEL ?? '') : 'kein Modell verbunden',

@@ -560,6 +560,39 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
       authorization: `Bearer ${env.LLM_API_KEY}`,
     });
     expect(outgoing.mock.calls[1]?.[1]?.body).not.toContain(env.LLM_API_KEY);
+    env.LLM_MODEL = 'muse-spark-1.3-contributor-free';
+    outgoing.mockResolvedValueOnce(
+      Response.json({
+        status: 'completed',
+        output: [
+          {
+            type: 'message',
+            role: 'assistant',
+            content: [
+              {
+                type: 'output_text',
+                text: JSON.stringify({
+                  grounded: true,
+                  answer: 'Unbelegte Aussage [1].',
+                  quotes: { '1': 'erfundenes Zitat' },
+                }),
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    const muse = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: sources.sources.map((source) => source.id),
+    });
+    expect(muse.status).toBe(200);
+    expect((await muse.json()) as AskResponse).toMatchObject({
+      simulated: false,
+      grounded: false,
+      citations: [],
+    });
+    expect(outgoing.mock.calls[2]?.[0]).toBe('https://opencode.ai/inference/openai/v1/responses');
   });
 
   it('marks confirmed external free-tier blocking and refuses repeated provider requests', async () => {
@@ -594,7 +627,14 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     expect(response.status).toBe(503);
     const body = (await response.json()) as { error: { code: string; message: string } };
     expect(body.error.code).toBe('llm_unavailable');
-    expect(body.error.message).toContain('externe Anfragen');
+    expect(body.error.message).toContain('noch nicht erfolgreich geprüft');
+    expect(outgoing).not.toHaveBeenCalled();
+    env.LLM_MODEL = 'muse-spark-1.3-contributor-free';
+    const blockedMuse = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: sources.sources.map((source) => source.id),
+    });
+    expect(blockedMuse.status).toBe(503);
     expect(outgoing).not.toHaveBeenCalled();
   });
 

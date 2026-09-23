@@ -672,3 +672,13 @@ erlaubt weiterhin ausschließlich `mimo-v2.6-flash-free`. Die Site bleibt mit
 `LLM_ACCESS_STATUS=blocked` gesperrt, bis ein lokaler Einmaltest und danach
 eine echte belegte Antwort den Zugang bestätigen. Ein Schlüssel im Frontend,
 automatischer Wechsel auf Go oder ein ungeprüftes Aktivieren wurden verworfen.
+
+## 2026-09-23 · Muse Spark als zweite fest freigegebene Console-Option
+
+Die kostenlose ID `muse-spark-1.3-contributor-free` wird ausschließlich am
+OpenCode-Console-Endpunkt über die Responses-API unterstützt. Der getrennte
+Chat-Completions-Adapter für MiMo bleibt bestehen; andere Console-IDs bleiben
+gesperrt, damit kein versehentlich kostenpflichtiges Modell gewählt wird.
+Der vorhandene serverseitige Sperrstatus gilt auch für Muse, bis ein echter
+Modellaufruf samt Quellenbelegen erfolgreich geprüft ist. Verworfen: allein die
+Modell-ID austauschen; Muse benötigt ein anderes Request- und Antwortformat.

@@ -275,3 +275,20 @@ mit dem beschriebenen Schlüssel steht weiterhin aus.
 `pnpm check:all` bestand erneut bis zu Playwright; die 13 lokalen E2E-Fälle
 starteten wegen des fehlenden Chromium-Executable nicht. Die GitHub-CI
 installiert Chromium für die ausstehende Browserprüfung.
+
+## 2026-09-23 · Muse-Spark-Alternative
+
+Der Console-Katalog führt `muse-spark-1.3-contributor-free` als befristet
+kostenloses Responses-Modell. Der Backend-Adapter unterstützt das Format mit
+strikter Prüfung auf vollständige Textantwort und dieselbe Quellenvalidierung
+wie bisher. Die externen Provider-Antworten werden nicht als Tests simuliert:
+Automatisierte Tests verwenden kontrollierte Fetch-Doubles. Ein echter
+Muse-Aufruf mit dem vorhandenen Site-Secret und ein bestätigter Belegtest
+stehen noch aus; die Site bleibt bis dahin mit `LLM_ACCESS_STATUS=blocked`
+gesperrt. OpenCode nennt mögliche Nutzung der Eingaben und Ausgaben zur
+Verbesserung des Modells; daher nur freigegebene öffentliche Demo-Quellen.
+Der geprüfte Muse-Adapter bestand `pnpm verify`: 208 Unit-/Integrationstests,
+10 Tool-Tests sowie Typecheck, Lint, Formatkontrolle und Build. `pnpm check:all`
+wiederholte die Prüfungen; alle 13 lokalen Browserfälle konnten nicht starten,
+weil in dieser Umgebung das Playwright-Chromium-Executable fehlt. Das ist
+keine erfolgreiche E2E-Prüfung; GitHub CI muss sie gesondert ausführen.

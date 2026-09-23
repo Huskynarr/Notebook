@@ -83,8 +83,43 @@ describe('OpenAI-kompatibler HTTP-Vertrag', () => {
         baseUrl: 'https://opencode.ai/inference/openai/v1',
         model: 'paid-model',
       }).complete(request),
-    ).rejects.toThrow('nur MiMo V2.6 Flash Free');
+    ).rejects.toThrow('nicht freigegeben');
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('nutzt für Muse Free ausschließlich Responses und prüft die Antwortstruktur', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      Response.json({
+        status: 'completed',
+        output: [
+          {
+            type: 'message',
+            role: 'assistant',
+            content: [{ type: 'output_text', text: JSON.stringify(modelAnswer) }],
+          },
+        ],
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const muse = new OpenAiCompatibleProvider({
+      ...options,
+      baseUrl: 'https://opencode.ai/inference/openai/v1',
+      model: 'muse-spark-1.3-contributor-free',
+    });
+    expect((await muse.complete(request)).answer).toEqual(modelAnswer);
+    const [url, init] = fetchMock.mock.calls[0]!;
+    expect(url).toBe('https://opencode.ai/inference/openai/v1/responses');
+    expect(init?.headers).toMatchObject({ authorization: `Bearer ${options.apiKey}` });
+    if (typeof init?.body !== 'string') throw new Error('JSON-Request-Body erwartet');
+    const body = JSON.parse(init.body) as Record<string, unknown>;
+    expect(body).toMatchObject({
+      model: 'muse-spark-1.3-contributor-free',
+      instructions: request.system,
+      input: request.user,
+    });
+    expect(body).not.toHaveProperty('response_format');
+    fetchMock.mockResolvedValueOnce(Response.json({ status: 'incomplete', output: [] }));
+    await expect(muse.complete(request)).rejects.toThrow('keine vollständige Antwort');
   });
 
   it('sendet einen konfigurierten Console-Service-Key nur im Header der freien Modell-ID', async () => {

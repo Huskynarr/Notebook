@@ -13,6 +13,8 @@ import {
 import { extractJson, LlmUnavailableError, ModelAnswerSchema } from '../llm/provider.ts';
 import { StubProvider } from '../llm/stub.ts';
 import { FREE_MIMO_MODEL, isFreeMimoConsole, isOpenCodeConsole } from '../llm/freeMimo.ts';
+import { FREE_MUSE_MODEL, isAllowedConsoleModel, isBlockedConsoleModel } from '../llm/freeMuse.ts';
+import { parseMuseAnswer } from '../llm/museResponse.ts';
 import { retrieved, type SiteEnv } from './db.ts';
 
 const ChatCompletion = z.object({
@@ -38,14 +40,20 @@ async function model(
 }> {
   const base = env.LLM_BASE_URL,
     modelName = env.LLM_MODEL;
-  if (env.LLM_ACCESS_STATUS === 'blocked' && isFreeMimoConsole(base ?? '', modelName ?? ''))
+  if (isBlockedConsoleModel(base ?? '', modelName ?? '', env.LLM_ACCESS_STATUS))
     throw new LlmUnavailableError(
-      'OpenCode weist externe Anfragen an das kostenlose MiMo-Modell derzeit ab.',
+      'Der externe Zugriff auf das kostenlose Modell wurde noch nicht erfolgreich geprüft.',
     );
-  if (!base || !modelName || (!env.LLM_API_KEY && !isFreeMimoConsole(base, modelName)))
+  if (
+    !base ||
+    !modelName ||
+    (!env.LLM_API_KEY &&
+      !isFreeMimoConsole(base, modelName) &&
+      !isAllowedConsoleModel(base, modelName))
+  )
     throw new LlmUnavailableError('Kein Modell verbunden.');
-  if (isOpenCodeConsole(base) && modelName !== FREE_MIMO_MODEL)
-    throw new LlmUnavailableError('Für OpenCode Console ist nur MiMo V2.6 Flash Free freigegeben.');
+  if (isOpenCodeConsole(base) && !isAllowedConsoleModel(base, modelName))
+    throw new LlmUnavailableError('Dieses OpenCode-Console-Modell ist nicht freigegeben.');
   if (system.length + user.length > 100_000)
     throw new LlmUnavailableError('Die Textstellen sind für eine Anfrage zu groß.');
   const abort = new AbortController();
@@ -53,25 +61,40 @@ async function model(
     abort.abort();
   }, 120_000);
   try {
-    const response = await fetch(`${base.replace(/\/$/, '')}/chat/completions`, {
-      method: 'POST',
-      redirect: 'error',
-      signal: abort.signal,
-      headers: {
-        'content-type': 'application/json',
-        ...(env.LLM_API_KEY ? { authorization: `Bearer ${env.LLM_API_KEY}` } : {}),
+    const muse = isAllowedConsoleModel(base, modelName) && modelName === FREE_MUSE_MODEL;
+    const response = await fetch(
+      `${base.replace(/\/$/, '')}/${muse ? 'responses' : 'chat/completions'}`,
+      {
+        method: 'POST',
+        redirect: 'error',
+        signal: abort.signal,
+        headers: {
+          'content-type': 'application/json',
+          ...(env.LLM_API_KEY ? { authorization: `Bearer ${env.LLM_API_KEY}` } : {}),
+        },
+        body: JSON.stringify(
+          muse
+            ? {
+                model: FREE_MUSE_MODEL,
+                max_output_tokens: 4096,
+                instructions: system,
+                input: user,
+              }
+            : {
+                model: modelName,
+                temperature: 0,
+                max_tokens: 4096,
+                ...(modelName === FREE_MIMO_MODEL
+                  ? {}
+                  : { response_format: { type: 'json_object' } }),
+                messages: [
+                  { role: 'system', content: system },
+                  { role: 'user', content: user },
+                ],
+              },
+        ),
       },
-      body: JSON.stringify({
-        model: modelName,
-        temperature: 0,
-        max_tokens: 4096,
-        ...(modelName === FREE_MIMO_MODEL ? {} : { response_format: { type: 'json_object' } }),
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: user },
-        ],
-      }),
-    });
+    );
     if (!response.ok) {
       await response.body?.cancel();
       throw new LlmUnavailableError(`Das Modell antwortete mit HTTP ${response.status}.`);
@@ -96,7 +119,9 @@ async function model(
       body += text.decode(item.value, { stream: true });
     }
     body += text.decode();
-    const completion = ChatCompletion.safeParse(JSON.parse(body) as unknown);
+    const json = JSON.parse(body) as unknown;
+    if (muse) return { answer: parseMuseAnswer(json), model: modelName, simulated: false };
+    const completion = ChatCompletion.safeParse(json);
     const choice = completion.success ? completion.data.choices[0] : undefined;
     if (!choice || choice.finish_reason === 'length' || choice.finish_reason === 'content_filter')
       throw new LlmUnavailableError('Das Modell lieferte keine vollständige Antwort.');

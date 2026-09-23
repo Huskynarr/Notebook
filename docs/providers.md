@@ -137,3 +137,17 @@ Die automatisierten Provider-Tests verwenden ausdrücklich Testdoppel. Sie prüf
 Protokoll, Begrenzungen und Fehlerbehandlung, keine Qualität des MiMo-Modells.
 Ein wiedergefundenes Zitat beweist seine Existenz; ob die formulierte Aussage daraus
 inhaltlich folgt, bleibt eine fachliche Prüfung.
+
+## Alternative: Muse Spark 1.3 Contributor Free
+
+OpenCode listet `muse-spark-1.3-contributor-free` als befristet kostenlos unter
+https://opencode.ai/v2/docs/console/models/ . Anders als MiMo verwendet Muse
+die OpenAI-Responses-API `/inference/openai/v1/responses`; ein Wechsel nur der
+`LLM_MODEL`-Variable am bisherigen Chat-Completions-Adapter funktioniert nicht.
+Der Backend-Adapter unterstützt nun beide Formate. Für eine kontrollierte
+Muse-Prüfung: `LLM_BASE_URL=https://opencode.ai/inference/openai/v1`,
+`LLM_MODEL=muse-spark-1.3-contributor-free`, `LLM_API_KEY` nur als Backend-Secret.
+`LLM_ACCESS_STATUS=blocked` bleibt gesetzt, bis die externe Erreichbarkeit und
+die Belegprüfung anhand öffentlicher Demo-Quellen belegt sind. Laut Anbieter
+können Eingaben und Ausgaben des Contributor-Modells für Training verwendet
+werden; keine vertraulichen Universitätsdaten in der Demo eingeben.
