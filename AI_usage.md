@@ -285,3 +285,25 @@ Die generierte Implementierung wurde anschließend mit `pnpm verify` geprüft:
 203 Unit-/Integrationstests und 10 Tooling-Tests bestanden. Der HTTP-Test für
 Big Pickle benutzt einen Testserver-Ersatz; er belegt keinen erfolgreichen
 Anbieteraufruf oder die Qualität der Modellantwort.
+Codex glich den GitHub-Dateibaum der veröffentlichten Änderung mit dem lokalen
+Commit ab, prüfte die erfolgreiche GitHub-CI und CodeQL, veröffentlichte die
+Sites-Version 4 mit korrigierten serverseitigen Zugangsnamen und Big-Pickle-
+Konfiguration und las die produktive D1 nur lesend. Dort ist der alte
+Notebook-Eigentümer noch vorhanden; ein Login und echter Modellaufruf wurden
+nicht ausgeführt und werden nicht als Abnahme gewertet.
+
+## 2026-09-23 · Modellpräzisierung MiMo-V2.6-Flash Free
+
+Auf die spätere Nutzervorgabe hin prüfte Codex erneut die offiziellen OpenCode-
+Dokumente zu [Console-Modellen](https://opencode.ai/v2/docs/console/models/),
+[Inference](https://opencode.ai/v2/docs/console/inference/),
+[Zen](https://opencode.ai/docs/zen/) und [Go](https://opencode.ai/docs/go/).
+Die exakte Modell-ID `mimo-v2.6-flash-free`, der OpenAI-kompatible
+Chat-Completions-Endpunkt, die befristete Kostenfreiheit und die Ausnahmen zur
+Modellverbesserung stammen aus diesen Quellen. Go bietet stattdessen
+`mimo-v2.6-flash` ohne `-free` mit Tokenpreisen. Codex änderte die
+Konfigurationsbeispiele und die deutschen und englischen Hinweise der
+Landingpage. Die bereits veröffentlichte Big-Pickle-Version 4 und ihre
+Prüfergebnisse bleiben als historischer Stand erhalten. Diese Dokumentenprüfung
+und die automatisierten Testdoppel belegen keinen Live-Aufruf des MiMo-Modells
+und keine geprüfte semantische Übereinstimmung von Antwort und Originalquelle.

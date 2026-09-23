@@ -56,14 +56,14 @@ describe('OpenAI-kompatibler HTTP-Vertrag', () => {
     expect(fetchMock.mock.calls[0]?.[1]?.headers).not.toHaveProperty('authorization');
   });
 
-  it('ruft Big Pickle an der Console ohne Schlüssel und ohne ungeprüftes response_format auf', async () => {
+  it('ruft MiMo V2.6 Flash Free an der Console ohne Schlüssel und ohne ungeprüftes response_format auf', async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(completion());
     vi.stubGlobal('fetch', fetchMock);
     await new OpenAiCompatibleProvider({
       ...options,
       baseUrl: 'https://opencode.ai/inference/openai/v1',
       apiKey: '',
-      model: 'big-pickle',
+      model: 'mimo-v2.6-flash-free',
     }).complete(request);
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(url).toBe('https://opencode.ai/inference/openai/v1/chat/completions');
@@ -71,7 +71,7 @@ describe('OpenAI-kompatibler HTTP-Vertrag', () => {
     if (typeof init?.body !== 'string') throw new Error('JSON-Request-Body erwartet');
     const body = JSON.parse(init.body) as unknown;
     expect(body).not.toHaveProperty('response_format');
-    expect(body).toMatchObject({ model: 'big-pickle' });
+    expect(body).toMatchObject({ model: 'mimo-v2.6-flash-free' });
   });
 
   it('sperrt andere Console-Modelle auch bei gesetztem Schlüssel', async () => {
@@ -83,8 +83,19 @@ describe('OpenAI-kompatibler HTTP-Vertrag', () => {
         baseUrl: 'https://opencode.ai/inference/openai/v1',
         model: 'paid-model',
       }).complete(request),
-    ).rejects.toThrow('nur Big Pickle');
+    ).rejects.toThrow('nur MiMo V2.6 Flash Free');
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('sendet auch versehentlich konfigurierte Schlüssel nie im kostenlosen MiMo-Profil', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(completion());
+    vi.stubGlobal('fetch', fetchMock);
+    await new OpenAiCompatibleProvider({
+      ...options,
+      baseUrl: 'https://opencode.ai/inference/openai/v1',
+      model: 'mimo-v2.6-flash-free',
+    }).complete(request);
+    expect(fetchMock.mock.calls[0]?.[1]?.headers).not.toHaveProperty('authorization');
   });
 
   it.each([401, 429, 500])(

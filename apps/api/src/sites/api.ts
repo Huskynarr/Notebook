@@ -24,7 +24,7 @@ import {
   verify,
 } from './auth.ts';
 import { askSites, LlmUnavailableError } from './ask.ts';
-import { isOpenCodeConsole } from '../llm/bigPickle.ts';
+import { FREE_MIMO_MODEL, isOpenCodeConsole } from '../llm/freeMimo.ts';
 import {
   canonicalCitations,
   getNote,
@@ -112,7 +112,7 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
           !!env.LLM_BASE_URL &&
           !!env.LLM_MODEL &&
           (isOpenCodeConsole(env.LLM_BASE_URL)
-            ? env.LLM_MODEL === 'big-pickle'
+            ? env.LLM_MODEL === FREE_MIMO_MODEL
             : !!env.LLM_API_KEY),
         provider: env.LLM_PROVIDER === 'openai' ? 'openai' : 'stub',
         model: env.LLM_PROVIDER === 'openai' ? (env.LLM_MODEL ?? '') : 'kein Modell verbunden',

@@ -65,25 +65,26 @@ verwendet denselben Ursprung, ohne Angabe gilt lokal `http://localhost:8787`.
 cp apps/api/.env.example apps/api/.env
 ```
 
-Für die gewünschte kostenlose Demo mit **ausschließlich Big Pickle** wird der
+Für die gewünschte Demo mit **ausschließlich `mimo-v2.6-flash-free`** wird der
 OpenCode-Console-Inference-Endpunkt im Backend konfiguriert:
 
 ```ini
 LLM_PROVIDER=openai
 LLM_BASE_URL=https://opencode.ai/inference/openai/v1
-LLM_MODEL=big-pickle
+LLM_MODEL=mimo-v2.6-flash-free
 LLM_API_KEY=
 ```
 
 Diese Werte gehören in `apps/api/.env` oder die Sites-Umgebung, niemals ins
 Frontend. Die [Console-Dokumentation](https://opencode.ai/v2/docs/console/inference/)
-erlaubt schlüssellose Anfragen an kostenlose Chatmodelle. Big Pickle ist in der
+erlaubt schlüssellose Anfragen an kostenlose Chatmodelle. MiMo-V2.6-Flash Free ist in der
 [Modellliste](https://opencode.ai/v2/docs/console/models/) derzeit nur **befristet**
 kostenlos; der konkrete Antwortpfad dieses Produkts wurde noch nicht live geprüft.
-OpenCode Go enthält Big Pickle nicht in seiner dokumentierten Modellliste. Ein
+OpenCode Go führt `mimo-v2.6-flash` ohne `-free` mit Tokenpreisen; für die
+gewünschte kostenlose Variante gilt die Console-Konfiguration. Ein
 Anbieterfehler schaltet nicht heimlich auf ein anderes Modell um. Eingereichte Fragen
 und Quellenausschnitte verlassen den Server und werden in den USA verarbeitet;
-laut Anbieter können Daten des kostenlosen Big-Pickle-Betriebs zur Modellverbesserung
+laut Anbieter können Daten des kostenlosen MiMo-V2.6-Flash-Free-Betriebs zur Modellverbesserung
 genutzt werden. Vertrauliche Universitätsdaten benötigen vor Nutzung eine
 ausdrückliche Freigabe. [Einrichtung, Grenzen und weitere Anbieter](docs/providers.md).
 

@@ -45,7 +45,7 @@ am Hauptablauf geprüft; Zeitersparnis und Modellqualität bleiben zu messen.
 | P2 | Text-/Markdown-Import | Einfügen und Datei, Originaltext unverändert, höchstens 10 MiB UTF-8 |
 | P3 | Text-/Markdown-Export | Vollständige Quellen, Notizen, Belegauszüge und Positionen in Markdown |
 | P4 | Quellenwahl | Abgewählte oder notebookfremde Quellen gelangen nicht in den Modellkontext |
-| P5 | Echte KI-Antworten | Serverseitig konfigurierte Chat-Completions-API; für die Sites-Demo nur OpenCode Console/`big-pickle`, Live-Abnahme gesondert erforderlich |
+| P5 | Echte KI-Antworten | Serverseitig konfigurierte Chat-Completions-API; für die Sites-Demo nur OpenCode Console/`mimo-v2.6-flash-free`, Live-Abnahme gesondert erforderlich |
 | P6 | Überprüfbare Verweise | Marker → abgerufener Abschnitt → Originalposition; ungültige echte Antworten vollständig zurückhalten |
 | P7 | Notizen | Anlegen, bearbeiten, löschen; Referenzen serverseitig prüfen; fehlende Originale kennzeichnen |
 | P8 | Persistenz | Lokal SQLite-Datei auf dem API-Rechner; auf Sites D1 für Metadaten und R2 für Originaltexte |
@@ -87,11 +87,11 @@ brauchen zusätzlichen Platz. KI-Anfragen: zwei gleichzeitig, zehn pro Minute,
 
 1. Absatz-Chunking und lexikalischer FTS5/BM25-Abruf reichen für deutsche Fachtexte;
    Synonyme, Komposita, Tabellen und Formeln sind nur begrenzt abgedeckt.
-2. Die OpenCode-Console-Inference-Schnittstelle liefert für `big-pickle` ohne Schlüssel
+2. Die OpenCode-Console-Inference-Schnittstelle liefert für `mimo-v2.6-flash-free` ohne Schlüssel
    nutzbare Antworten im geforderten Belegformat. Ihre kostenlose Verfügbarkeit ist
-   laut Anbieter befristet; Go enthält Big Pickle nicht in seiner Modellliste.
+   laut Anbieter befristet; Go führt `mimo-v2.6-flash` ohne `-free` mit Tokenpreisen.
    Vor Verwendung vertraulicher Quellen ist die Freigabe der Universität nötig:
-   OpenCode hostet in den USA und kann Big-Pickle-Daten zur Modellverbesserung nutzen.
+   OpenCode hostet in den USA und kann MiMo-V2.6-Flash-Free-Daten zur Modellverbesserung nutzen.
 3. Modellantworten halten das strenge JSON-/Belegformat zuverlässig ein. Die Testdoppel
    belegen den Softwarevertrag, nicht die Qualität eines laufenden Modells.
 4. Die festen Zugänge mit lokaler gemeinsamer Datenbank und Sites-Kontentrennung reichen

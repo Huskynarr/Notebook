@@ -154,3 +154,37 @@ Big-Pickle-HTTP-Vertrag sind implementiert. `pnpm verify` bestand mit 203
 Unit-/Integrationstests und 10 Tooling-Tests einschließlich Typprüfung,
 Lint, Format und Build. Die Modelltests verwenden kontrollierte HTTP-Antworten;
 ein Live-Aufruf und eine Überprüfung echter Modellbelege stehen noch aus.
+
+## 2026-09-23 · Sites-Version 4 veröffentlicht
+
+Die geprüfte Änderung `97541ba` wurde als Sites-Version 4 mit Laufzeitrevision 2
+erfolgreich veröffentlicht. Die produktiven Zugangsnamen sind `Huskynarr` und
+`Everlast`; die vorhandenen Passwörter und das Signaturgeheimnis blieben erhalten.
+Nur serverseitig gesetzt: OpenCode Console, Modell `big-pickle`, ohne API-Schlüssel.
+Sites meldet die Domain `notebook.sebastianselinger.de` samt TLS weiterhin als aktiv.
+GitHub-CI [35838502491](https://github.com/Huskynarr/Notebook/actions/runs/35838502491)
+und [CodeQL 35838502505](https://github.com/Huskynarr/Notebook/actions/runs/35838502505)
+sind für den übertragenen identischen Dateibaum erfolgreich abgeschlossen.
+
+Die produktive D1 zeigt noch das ursprüngliche Beispiel-Notebook unter `Huskynar`;
+die getestete Datenkorrektur läuft erst beim ersten authentifizierten Zugriff von
+`Huskynarr`. Ein gehosteter Login, die Übernahme in der produktiven D1 und eine
+echte Big-Pickle-Antwort samt Beleg wurden nicht live geprüft. Das Backend gibt
+bei Anbieterfehlern eine Fehlermeldung zurück und wählt kein Ersatzmodell.
+
+## 2026-09-23 · Modellwahl auf MiMo-V2.6-Flash Free präzisiert
+
+Nach der veröffentlichten Sites-Version 4 änderte sich die gewünschte Modell-ID
+von `big-pickle` auf `mimo-v2.6-flash-free`. OpenCodes [Console-Modellkatalog](https://opencode.ai/v2/docs/console/models/)
+führt die exakte ID als kostenloses Chatmodell, jedoch nur befristet. Die
+[Inference-API](https://opencode.ai/v2/docs/console/inference/) erlaubt
+Anfragen an kostenlose Chatmodelle ohne Bearer-Schlüssel. Die Variante
+`mimo-v2.6-flash` im Go-Abonnement hat laut [Go-Dokumentation](https://opencode.ai/docs/go/)
+Tokenpreise. Aktuelle Produkttexte und Konfigurationsbeispiele enthalten
+deshalb ausschließlich die Console-ID mit `-free`; die Hinweise zu US-Hosting,
+möglicher Modellverbesserung und Console-Auto-Reload bleiben erhalten.
+
+Die noch veröffentlichte Sites-Version 4 nutzte `big-pickle`. Ein neuer
+Deploy, ein echter MiMo-Aufruf und eine geprüfte Belegantwort sind zum
+Zeitpunkt dieses Eintrags nicht nachgewiesen. Ergebnisse der nächsten Prüfung
+werden erst nach ihrem tatsächlichen Lauf ergänzt.

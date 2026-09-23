@@ -610,3 +610,20 @@ Auto-Reload muss bei Nullkosten-Ziel im Console-Konto deaktiviert werden.
 US-Hosting und mögliche Modellverbesserung mit kostenlosen Big-Pickle-Daten
 erfordern die Freigabe vor Übertragung vertraulicher Universitätsquellen.
 Eine echte Modellantwort samt validiertem Quellenbeleg ist noch nicht geprüft.
+
+## D-032 · 2026-09-23 · MiMo-V2.6-Flash Free ersetzt Big Pickle als Modellwahl
+
+Die spätere Modellpräzisierung ersetzt D-031 für die nächste Veröffentlichung:
+Console Inference mit `LLM_MODEL=mimo-v2.6-flash-free` und
+`LLM_BASE_URL=https://opencode.ai/inference/openai/v1`. Der aktuelle
+[Console-Modellkatalog](https://opencode.ai/v2/docs/console/models/) nennt die
+exakte ID, Chat-Completions-Kompatibilität und kostenlose Tokenpreise; die
+[Inference-Dokumentation](https://opencode.ai/v2/docs/console/inference/) erlaubt
+kostenlose Chatmodelle ohne Schlüssel. OpenCode Go listet dagegen
+`mimo-v2.6-flash` ohne `-free` zu Tokenpreisen. Kein automatischer Wechsel auf
+dieses oder ein anderes kostenpflichtiges Modell. Die kostenlose Verfügbarkeit
+ist befristet. US-Hosting und mögliche Modellverbesserung mit übertragenen
+Inhalten gelten auch für MiMo-V2.6-Flash Free. Ein echter Modellaufruf mit
+belegter Antwort ist noch nicht nachgewiesen; die historische Sites-Version 4
+und ihre Big-Pickle-Konfiguration bleiben als tatsächlich veröffentlichter
+Zwischenstand dokumentiert.

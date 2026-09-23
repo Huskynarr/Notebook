@@ -8,7 +8,7 @@ import {
   type CompletionResult,
   type LlmProvider,
 } from './provider.ts';
-import { isOpenCodeConsole } from './bigPickle.ts';
+import { FREE_MIMO_MODEL, isFreeMimoConsole, isOpenCodeConsole } from './freeMimo.ts';
 
 const ChatCompletionSchema = z.object({
   choices: z
@@ -86,8 +86,10 @@ export class OpenAiCompatibleProvider implements LlmProvider {
   }
 
   async complete(request: CompletionRequest): Promise<CompletionResult> {
-    if (isOpenCodeConsole(this.options.baseUrl) && this.options.model !== 'big-pickle') {
-      throw new LlmUnavailableError('Für OpenCode Console ist nur Big Pickle freigegeben.');
+    if (isOpenCodeConsole(this.options.baseUrl) && this.options.model !== FREE_MIMO_MODEL) {
+      throw new LlmUnavailableError(
+        'Für OpenCode Console ist nur MiMo V2.6 Flash Free freigegeben.',
+      );
     }
     if (request.system.length + request.user.length > MAX_PROVIDER_PROMPT_CHARS) {
       throw new LlmUnavailableError('Die ausgewählten Textstellen sind für eine Anfrage zu groß.');
@@ -103,13 +105,16 @@ export class OpenAiCompatibleProvider implements LlmProvider {
         redirect: 'error',
         headers: {
           'content-type': 'application/json',
-          ...(this.options.apiKey === '' ? {} : { authorization: `Bearer ${this.options.apiKey}` }),
+          ...(this.options.apiKey === '' ||
+          isFreeMimoConsole(this.options.baseUrl, this.options.model)
+            ? {}
+            : { authorization: `Bearer ${this.options.apiKey}` }),
         },
         body: JSON.stringify({
           model: this.options.model,
           temperature: this.options.temperature,
           max_tokens: 4096,
-          ...(this.options.model === 'big-pickle'
+          ...(this.options.model === FREE_MIMO_MODEL
             ? {}
             : { response_format: { type: 'json_object' } }),
           messages: [

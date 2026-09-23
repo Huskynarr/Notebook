@@ -12,7 +12,7 @@ import {
 } from '../domain/prompt.ts';
 import { extractJson, LlmUnavailableError, ModelAnswerSchema } from '../llm/provider.ts';
 import { StubProvider } from '../llm/stub.ts';
-import { isBigPickleConsole, isOpenCodeConsole } from '../llm/bigPickle.ts';
+import { FREE_MIMO_MODEL, isFreeMimoConsole, isOpenCodeConsole } from '../llm/freeMimo.ts';
 import { retrieved, type SiteEnv } from './db.ts';
 
 const ChatCompletion = z.object({
@@ -38,10 +38,10 @@ async function model(
 }> {
   const base = env.LLM_BASE_URL,
     modelName = env.LLM_MODEL;
-  if (!base || !modelName || (!env.LLM_API_KEY && !isBigPickleConsole(base, modelName)))
+  if (!base || !modelName || (!env.LLM_API_KEY && !isFreeMimoConsole(base, modelName)))
     throw new LlmUnavailableError('Kein Modell verbunden.');
-  if (isOpenCodeConsole(base) && modelName !== 'big-pickle')
-    throw new LlmUnavailableError('Für OpenCode Console ist nur Big Pickle freigegeben.');
+  if (isOpenCodeConsole(base) && modelName !== FREE_MIMO_MODEL)
+    throw new LlmUnavailableError('Für OpenCode Console ist nur MiMo V2.6 Flash Free freigegeben.');
   if (system.length + user.length > 100_000)
     throw new LlmUnavailableError('Die Textstellen sind für eine Anfrage zu groß.');
   const abort = new AbortController();
@@ -55,13 +55,15 @@ async function model(
       signal: abort.signal,
       headers: {
         'content-type': 'application/json',
-        ...(env.LLM_API_KEY ? { authorization: `Bearer ${env.LLM_API_KEY}` } : {}),
+        ...(env.LLM_API_KEY && !isFreeMimoConsole(base, modelName)
+          ? { authorization: `Bearer ${env.LLM_API_KEY}` }
+          : {}),
       },
       body: JSON.stringify({
         model: modelName,
         temperature: 0,
         max_tokens: 4096,
-        ...(modelName === 'big-pickle' ? {} : { response_format: { type: 'json_object' } }),
+        ...(modelName === FREE_MIMO_MODEL ? {} : { response_format: { type: 'json_object' } }),
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user },

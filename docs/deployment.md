@@ -57,10 +57,10 @@ mit `username` und `password` eingerichtet, etwa für den gewünschten Namen `Ev
 auch deren Passwörter müssen in Produktion mindestens 16 Zeichen haben. Das lokale
 Testpasswort gehört nur in die ignorierte Backend-Umgebung, nicht ins Frontend oder Git.
 Ein zufälliges Geheimnis kann mit `openssl rand -hex 32` erzeugt werden; nicht ins Git
-übernehmen. Für OpenCode Console/Big Pickle serverseitig `LLM_PROVIDER=openai`,
-`LLM_BASE_URL=https://opencode.ai/inference/openai/v1`, `LLM_MODEL=big-pickle` und
+übernehmen. Für OpenCode Console/MiMo-V2.6-Flash Free serverseitig `LLM_PROVIDER=openai`,
+`LLM_BASE_URL=https://opencode.ai/inference/openai/v1`, `LLM_MODEL=mimo-v2.6-flash-free` und
 ein leeres `LLM_API_KEY` konfigurieren; [Kosten-, Datenschutz- und Abnahmegrenzen](providers.md)
-beachten. Go ist dafür nicht der dokumentierte Big-Pickle-Endpunkt.
+beachten. OpenCode Go bietet die Variante `mimo-v2.6-flash` ohne `-free` mit Tokenpreisen.
 
 Das Frontend wird für den gleichen Ursprung mit `VITE_API_BASE_URL=` gebaut. Für lokale
 Entwicklung ist die Vorgabe `http://localhost:8787`; ein abweichender API-Ursprung ist

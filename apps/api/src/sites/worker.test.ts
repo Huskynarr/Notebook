@@ -410,11 +410,11 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     expect(answer.answer).toContain('keine Antwort freigegeben');
   });
 
-  it('calls only Big Pickle at the keyless Console endpoint and checks the citations', async () => {
+  it('calls only free MiMo at the keyless Console endpoint and checks the citations', async () => {
     const env = setup();
     env.LLM_PROVIDER = 'openai';
     env.LLM_BASE_URL = 'https://opencode.ai/inference/openai/v1';
-    env.LLM_MODEL = 'big-pickle';
+    env.LLM_MODEL = 'mimo-v2.6-flash-free';
     const outgoing = vi.fn<typeof fetch>().mockResolvedValue(
       Response.json({
         choices: [
@@ -435,7 +435,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     const health = (await (await call(env, '/v1/health')).json()) as {
       llm: { configured: boolean; model: string };
     };
-    expect(health.llm).toMatchObject({ configured: true, model: 'big-pickle' });
+    expect(health.llm).toMatchObject({ configured: true, model: 'mimo-v2.6-flash-free' });
     const token = await signIn(env);
     const list = (await (await call(env, '/v1/notebooks', 'GET', token)).json()) as {
       notebooks: Array<{ id: string }>;
@@ -457,7 +457,7 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     expect(options?.headers).not.toHaveProperty('authorization');
     if (typeof options?.body !== 'string') throw new Error('JSON-Request-Body erwartet');
     const body = JSON.parse(options.body) as unknown;
-    expect(body).toMatchObject({ model: 'big-pickle' });
+    expect(body).toMatchObject({ model: 'mimo-v2.6-flash-free' });
     expect(body).not.toHaveProperty('response_format');
   });
 
