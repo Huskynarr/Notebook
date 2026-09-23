@@ -38,6 +38,10 @@ async function model(
 }> {
   const base = env.LLM_BASE_URL,
     modelName = env.LLM_MODEL;
+  if (env.LLM_ACCESS_STATUS === 'blocked' && isFreeMimoConsole(base ?? '', modelName ?? ''))
+    throw new LlmUnavailableError(
+      'OpenCode weist externe Anfragen an das kostenlose MiMo-Modell derzeit ab.',
+    );
   if (!base || !modelName || (!env.LLM_API_KEY && !isFreeMimoConsole(base, modelName)))
     throw new LlmUnavailableError('Kein Modell verbunden.');
   if (isOpenCodeConsole(base) && modelName !== FREE_MIMO_MODEL)

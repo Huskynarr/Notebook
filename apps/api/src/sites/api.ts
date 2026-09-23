@@ -24,7 +24,7 @@ import {
   verify,
 } from './auth.ts';
 import { askSites, LlmUnavailableError } from './ask.ts';
-import { FREE_MIMO_MODEL, isOpenCodeConsole } from '../llm/freeMimo.ts';
+import { FREE_MIMO_MODEL, isFreeMimoConsole, isOpenCodeConsole } from '../llm/freeMimo.ts';
 import {
   canonicalCitations,
   getNote,
@@ -113,11 +113,16 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
   const [version, entity, key, action] = parts;
   if (version !== 'v1') missing('API-Pfad');
   if (entity === 'health' && parts.length === 2 && method === 'GET') {
+    const accessBlocked =
+      env.LLM_PROVIDER === 'openai' &&
+      env.LLM_ACCESS_STATUS === 'blocked' &&
+      isFreeMimoConsole(env.LLM_BASE_URL ?? '', env.LLM_MODEL ?? '');
     return json({
       status: 'ok',
       version: '0.1.0',
       llm: {
         configured:
+          !accessBlocked &&
           env.LLM_PROVIDER === 'openai' &&
           !!env.LLM_BASE_URL &&
           !!env.LLM_MODEL &&
@@ -126,6 +131,7 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
             : !!env.LLM_API_KEY),
         provider: env.LLM_PROVIDER === 'openai' ? 'openai' : 'stub',
         model: env.LLM_PROVIDER === 'openai' ? (env.LLM_MODEL ?? '') : 'kein Modell verbunden',
+        accessBlocked,
       },
     });
   }

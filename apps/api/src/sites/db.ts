@@ -42,6 +42,8 @@ export interface SiteEnv {
   LLM_BASE_URL?: string;
   LLM_API_KEY?: string;
   LLM_MODEL?: string;
+  /** Operator-confirmed provider restriction; prevents repeated external calls. */
+  LLM_ACCESS_STATUS?: string;
 }
 
 export const notebookSelect = `SELECT n.id,n.title,n.created_at,n.updated_at,

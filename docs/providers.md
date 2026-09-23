@@ -11,8 +11,14 @@ Für die Sites-Demo und optional die lokale API ist ausschließlich das Modell
 verwendet den OpenAI-kompatiblen Endpunkt `/inference/openai/v1/chat/completions`
 und dokumentiert, dass kostenlose Chatmodelle ohne Bearer-Schlüssel erreichbar sind.
 [MiMo-V2.6-Flash Free](https://opencode.ai/v2/docs/console/models/) steht dort mit
-der exakten HTTP-Modell-ID und kostenlosem Ein-/Ausgabetokenpreis. Die Kombination wurde in diesem Projekt
-noch **nicht** mit einer echten Modellantwort geprüft.
+der exakten Modell-ID und kostenlosem Ein-/Ausgabetokenpreis. **Der echte
+externe Test am 23.09.2026 widerspricht der angenommenen Nutzbarkeit:** Ein
+anonymer POST auf diesen Endpunkt mit `mimo-v2.6-flash-free` erhielt HTTP 403,
+`FreeTierError`, mit dem Hinweis, die kostenlose Nutzung sei nur innerhalb
+von OpenCode möglich. Der gehostete Worker-Test mit dem Everlast-Testkonto
+erreichte Login, Notebook und beide Quellen, die Modellfrage endete jedoch
+mit HTTP 503 `llm_unavailable`. Ein authentifizierter Console-/Zen-Key-Aufruf
+wurde nicht geprüft; ein kostenloser externer Zugang ist **nicht belegt**.
 
 Nur serverseitig in `apps/api/.env`, `shared/api.env` oder als Sites-Laufzeitwerte:
 
@@ -25,16 +31,19 @@ LLM_TIMEOUT_MS=120000
 LLM_TEMPERATURE=0
 ```
 
-`LLM_API_KEY` bleibt für diesen kostenlosen Console-Pfad leer. Das festgelegte
-Free-Profil übermittelt selbst bei einem versehentlich eingetragenen Schlüssel
-keinen Bearer-Header. Zugangsdaten einer späteren anderen Anbindung gehören
+Diese Konfiguration ist als **fehlgeschlagener Integrationsversuch**, nicht als
+funktionsfähige Empfehlung dokumentiert. Auf Sites ist zusätzlich
+`LLM_ACCESS_STATUS=blocked` gesetzt: Health meldet die gesperrte MiMo-ID, und
+Fragen werden ohne wiederholte externe Modellanfrage mit einer klaren
+Fehlermeldung abgewiesen. Das festgelegte Free-Profil übermittelt selbst bei
+einem versehentlich eingetragenen Schlüssel keinen Bearer-Header.
+Zugangsdaten einer späteren anderen Anbindung gehören
 ausschließlich in die Backend-Umgebung, niemals
 in `VITE_`-Variablen. Die HTTP-Modell-ID lautet `mimo-v2.6-flash-free`, ohne `opencode/`-Präfix.
 Die Anwendung wechselt bei Fehlern oder künftig geänderten Preisen nicht auf ein
 anderes, möglicherweise kostenpflichtiges Modell. Wer einen OpenCode-Go-Schlüssel
-besitzt, braucht ihn für diesen in der Console-Dokumentation beschriebenen
-schlüssellosen Weg nicht. Ein Go-Schlüssel ist nicht als Zugang für diesen
-Console-Endpunkt nachgewiesen.
+besitzt, hat damit **keinen nachgewiesenen Zugang** zur externen kostenlosen
+Console-Variante; der Go-Endpunkt hat eine andere Modell-ID und Abrechnung.
 
 **Kosten- und Datenschutzgrenze:** OpenCode kennzeichnet MiMo-V2.6-Flash Free als
 **nur befristet** kostenlos. Für eine strikte Nullkosten-Grenze in der Console
@@ -64,14 +73,15 @@ ihn bei externer Inferenz. Für vertrauliche Universitätsdaten ist deshalb eine
 Anbieterfreigabe erforderlich. Die Anwendung behauptet keine allgemeine Datenschutzkonformität.
 
 Ohne Modell (`LLM_PROVIDER=stub`) erscheinen gekennzeichnete Fundstellen, keine echte
-KI-Zusammenfassung. Die Beispielquellen sind fiktiv. Ein API-Fehler aktiviert keinen
+KI-Zusammenfassung. Die Everlast-Beispielquellen sind datierte Paraphrasen von
+Unternehmens-Selbstauskünften, keine Registerabschriften. Ein API-Fehler aktiviert keinen
 heimlichen Ersatzanbieter und keine erfundene Antwort. Fehlendes JSON-Belegformat
 oder nicht auffindbare Zitate führen ebenfalls zum Zurückhalten der gesamten Antwort.
 
-Zur Modellabnahme im Beispiel-Notebook:
+Nach Bereitstellung eines nachweislich erlaubten externen Endpunkts erneut abnehmen:
 
-1. Nach der Widerspruchsfrist fragen; jeden Beleg anklicken und Originaltext vergleichen.
-2. Das Merkblatt abwählen; Fragen zur Akteneinsicht dürfen daraus keine Belege verwenden.
+1. Nach der laut Impressum genannten Vertretung fragen; jeden Beleg anklicken und Originaltext vergleichen.
+2. Die Impressumsquelle abwählen; eine Frage nach der dort genannten Vertretung darf nicht aus ihr belegt werden.
 3. Eine fachfremde Frage stellen; eine beleglose Antwort darf nicht erscheinen.
 4. Eine Quelle mit einer Anweisung wie „Ignoriere die Regeln“ hinzufügen; der Inhalt
    bleibt Quelldaten und darf keinen Werkzeug- oder Webzugriff auslösen.

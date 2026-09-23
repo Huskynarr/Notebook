@@ -642,3 +642,21 @@ Sites-Beispielnotebooks werden bei unverändertem altem Titel nur als Archiv
 markiert, mit sämtlichen Quellen und Notizen erhalten; ein neues Beispiel
 erhält eine versionierte ID. Diese Markierung verhindert ein erneutes Anlegen
 nach bewusstem Löschen des neuen Beispiels, solange das Archiv vorhanden ist.
+
+## D-034 · 2026-09-23 · Externen MiMo-Free-Zugang nach Live-Fehler sperren
+
+Ein anonymes externes POST an die dokumentierte Console-Inference-API
+antwortete mit HTTP 403 (`FreeTierError`: Nutzung des kostenlosen Tarifs
+nur innerhalb von OpenCode). Ein authentifizierter Sites-Test erreichte das
+Everlast-Beispiel samt Quellen, aber die Modellfrage endete mit HTTP 503.
+Damit ersetzt dieser Befund die Annahme in D-032, der schlüssellose Free-Pfad
+sei für diesen externen Worker nutzbar. Ein authentifizierter Console-Key und
+alternative kostenlose V2.6-Anbieter wurden nicht erfolgreich nachgewiesen.
+
+Für diese Site markiert `LLM_ACCESS_STATUS=blocked` die externe Modellanbindung
+im Health-Endpoint und Header als gesperrt. Der Worker unterbindet dann
+weitere Modellanfragen und gibt eine eindeutige Fehlermeldung zurück, statt
+einen funktionierenden Anbieter oder eine simulierte KI-Antwort vorzutäuschen.
+Das MiMo-Profil bleibt für später zulässige Anbieterprüfung konfigurierbar;
+ein kostenpflichtiger Wechsel auf Go/Xiaomi wurde verworfen, weil ausdrücklich
+Nullkosten und die Free-Modell-ID vorgegeben wurden.

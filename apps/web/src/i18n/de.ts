@@ -55,6 +55,7 @@ export const de = {
   'header.chooseNotebook': 'Notebook wählen',
   'header.share': 'Teilen',
   'header.noModel': 'kein Modell verbunden',
+  'header.externalApiBlocked': 'externe API gesperrt',
 
   'notebook.new.title': 'Neues Notebook',
   'notebook.new.description':

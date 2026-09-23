@@ -58,6 +58,8 @@ const COPY = {
       'Mit verbundenem KI-Anbieter entstehen echte Modellantworten. Ohne Modell ist jede simulierte Antwort sichtbar gekennzeichnet. Ausgewählte Textausschnitte werden bei einem KI-Aufruf an den konfigurierten Anbieter übermittelt.',
     privacyNotice:
       'Bei Nutzung von MiMo-V2.6-Flash Free gehen Frage und relevante Textausschnitte an OpenCode (USA). Während der kostenlosen Phase können diese Daten zur Verbesserung des Modells verwendet werden. Für diese Demo nur nicht vertrauliche Beispieldaten verwenden.',
+    modelBlocked:
+      'Im gehosteten Testbetrieb werden kostenlose MiMo-Anfragen derzeit vom externen Anbieter abgewiesen. Eine Live-KI-Antwort steht dort aktuell nicht zur Verfügung.',
     footer: 'Eigenständiges Hochschulprojekt · keine Verbindung zu Google NotebookLM',
     demo: 'Browser-Demo: ohne Zugangsschutz, ohne KI-Modell. Nur Beispieldaten verwenden.',
     theme: 'Design & Sprache',
@@ -115,6 +117,8 @@ const COPY = {
       'A connected AI provider generates real model responses. Without a model, every simulated answer is visibly labelled. When calling an AI model, selected text passages are sent to the configured provider.',
     privacyNotice:
       'When using MiMo-V2.6-Flash Free, your question and relevant passages go to OpenCode (US). During its free period, this data may be used to improve the model. For this demo, use non-confidential sample data only.',
+    modelBlocked:
+      'In the hosted test environment, the external provider currently rejects free MiMo requests. Live AI answers are not available there at present.',
     footer: 'Independent university project · not affiliated with Google NotebookLM',
     demo: 'Browser demo: no access protection, no AI model. Use sample data only.',
     theme: 'Design & language',
@@ -144,10 +148,12 @@ export function NotebookMark(): ReactElement {
 
 export function LandingPage({
   demo,
+  modelBlocked,
   onLogin,
   onOpenSettings,
 }: {
   demo: boolean;
+  modelBlocked: boolean;
   onLogin: () => void;
   onOpenSettings: () => void;
 }): ReactElement {
@@ -355,6 +361,14 @@ export function LandingPage({
             <p className="bg-warning-surface text-warning mt-5 rounded-md p-4 text-sm leading-6">
               {copy.privacyNotice}
             </p>
+            {modelBlocked && (
+              <p
+                className="bg-warning-surface text-warning mt-3 rounded-md p-4 text-sm leading-6"
+                role="status"
+              >
+                {copy.modelBlocked}
+              </p>
+            )}
             <Button variant="secondary" className="rounded-full! mt-7" onClick={onLogin}>
               {copy.start}
               <span aria-hidden="true">↗</span>

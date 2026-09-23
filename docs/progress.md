@@ -228,3 +228,32 @@ Laufzeitrevision 3 und weiterhin aktiver Custom Domain samt TLS.
 [GitHub CI 35841728179](https://github.com/Huskynarr/Notebook/actions/runs/35841728179)
 und [CodeQL 35841728198](https://github.com/Huskynarr/Notebook/actions/runs/35841728198)
 bestanden auch für diesen Dokumentationscommit.
+
+## 2026-09-23 · Live-Inferenztest zeigt OpenCode-Sperre
+
+Der HTTP-Test auf der Custom Domain meldete zuerst das erwartete Health-Modell.
+Mit dem vorhandenen `Everlast`-Testzugang gelangen anschließend die Anmeldung
+(HTTP 200), die Notebookliste und das neue Beispiel mit **zwei** Quellen
+(je HTTP 200). Die Frage an beide Quellen endete mit HTTP 503
+`llm_unavailable`. Ein separater direkter POST mit einem nicht vertraulichen
+„OK“-Prompt an `https://opencode.ai/inference/openai/v1/chat/completions`
+mit `mimo-v2.6-flash-free` ohne Schlüssel erhielt HTTP 403 `FreeTierError`:
+der kostenlose Tarif sei nur innerhalb von OpenCode nutzbar. Die OpenCode-
+Dokumentation über schlüssellose kostenlose Chatmodelle reichte hier nicht
+als Funktionsnachweis. Ein authentifizierter Console- oder Go-Key wurde
+nicht getestet; ein kostenloser externer V2.6-Zugang bleibt offen.
+
+Der Worker und die Oberfläche kennzeichnen die beobachtete externe Sperre
+explizit über den Laufzeitwert `LLM_ACCESS_STATUS=blocked`. In diesem Zustand
+wird keine erneute Anbieteranfrage und keine fiktive Modellantwort erzeugt.
+Ein späterer realer Modellvertrag braucht einen rechtmäßig nutzbaren externen
+Endpunkt und einen erneut geprüften Belegworkflow. `pnpm verify` bestand für
+diesen Stand einschließlich 207 Unit-/Integrationstests und 10 Tool-Tests,
+Typecheck, Lint, Formatkontrolle und Build. Das Deployment folgt nach Commit
+und CI-Prüfung.
+`pnpm check:all` wiederholte den erfolgreichen Prüflauf, erreichte lokal aber
+keinen Browser-Test: Das von Playwright erwartete Chromium-Executable fehlt in
+dieser Arbeitsumgebung; alle 13 E2E-Fälle scheiterten vor dem Start. Die GitHub-
+CI installiert Chromium gesondert und bleibt die ausstehende Browser-Prüfung.
+Ein lokaler Installationsversuch lud nur ein beschädigtes 0-MiB-Archiv und
+wurde nach wiederholtem Fehler beendet.

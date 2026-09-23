@@ -73,8 +73,8 @@ verwendet denselben Ursprung, ohne Angabe gilt lokal `http://localhost:8787`.
 cp apps/api/.env.example apps/api/.env
 ```
 
-Für die gewünschte Demo mit **ausschließlich `mimo-v2.6-flash-free`** wird der
-OpenCode-Console-Inference-Endpunkt im Backend konfiguriert:
+Die gewählte Modell-ID bleibt **`mimo-v2.6-flash-free`**. Die ursprünglich
+vorgesehene Backend-Konfiguration lautete:
 
 ```ini
 LLM_PROVIDER=openai
@@ -87,9 +87,16 @@ Diese Werte gehören in `apps/api/.env` oder die Sites-Umgebung, niemals ins
 Frontend. Die [Console-Dokumentation](https://opencode.ai/v2/docs/console/inference/)
 erlaubt schlüssellose Anfragen an kostenlose Chatmodelle. MiMo-V2.6-Flash Free ist in der
 [Modellliste](https://opencode.ai/v2/docs/console/models/) derzeit nur **befristet**
-kostenlos; der konkrete Antwortpfad dieses Produkts wurde noch nicht live geprüft.
+kostenlos. Der tatsächliche externe POST am 23.09.2026 wurde jedoch mit
+**HTTP 403 / FreeTierError** abgewiesen: OpenCode erlaubt diese kostenlose
+Nutzung derzeit nur innerhalb von OpenCode. Der anschließende Sites-Test
+lieferte für die Frage HTTP 503. Die gehostete Anwendung kennzeichnet die
+externe MiMo-API deshalb als gesperrt und sendet keine weiteren Modellanfragen;
+sie behauptet keine funktionierende Live-KI. Für einen echten KI-Betrieb wird
+ein nachweislich erlaubter externer Anbieterzugang benötigt.
 OpenCode Go führt `mimo-v2.6-flash` ohne `-free` mit Tokenpreisen; für die
-gewünschte kostenlose Variante gilt die Console-Konfiguration. Ein
+gewünschte kostenlose V2.6-Variante ist aktuell kein funktionierender externer
+Endpunkt nachgewiesen. Ein
 Anbieterfehler schaltet nicht heimlich auf ein anderes Modell um. Eingereichte Fragen
 und Quellenausschnitte verlassen den Server und werden in den USA verarbeitet;
 laut Anbieter können Daten des kostenlosen MiMo-V2.6-Flash-Free-Betriebs zur Modellverbesserung

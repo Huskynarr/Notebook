@@ -63,3 +63,41 @@ describe('API login rejection contract', () => {
     });
   });
 });
+
+describe('API health contract', () => {
+  it('shows an explicitly blocked model while accepting older health responses', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          status: 'ok',
+          version: '0.1.0',
+          llm: {
+            configured: false,
+            provider: 'openai',
+            model: 'mimo-v2.6-flash-free',
+            accessBlocked: true,
+          },
+        }),
+        { status: 200 },
+      ),
+    );
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          status: 'ok',
+          version: '0.1.0',
+          llm: { configured: true, provider: 'openai', model: 'local-model' },
+        }),
+        { status: 200 },
+      ),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(client.health()).resolves.toMatchObject({
+      llm: { accessBlocked: true, model: 'mimo-v2.6-flash-free' },
+    });
+    await expect(client.health()).resolves.toMatchObject({
+      llm: { configured: true, model: 'local-model' },
+    });
+  });
+});

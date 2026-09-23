@@ -160,6 +160,8 @@ export const HealthResponseSchema = z.object({
     configured: z.boolean(),
     provider: z.string(),
     model: z.string(),
+    /** Externer Anbieter hat die Modellanfragen in diesem Betrieb abgewiesen. */
+    accessBlocked: z.boolean().optional(),
   }),
 });
 export type HealthResponse = z.infer<typeof HealthResponseSchema>;

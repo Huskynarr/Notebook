@@ -476,6 +476,7 @@ function Arbeitsbereich({
         ) : (
           <LandingPage
             demo={DEMO_MODE}
+            modelBlocked={health?.llm.accessBlocked === true}
             onLogin={() => {
               window.location.hash = 'login';
             }}
@@ -650,8 +651,12 @@ function Arbeitsbereich({
 
         <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-1 xl:shrink-0 xl:gap-3">
           {health !== null && (
-            <Badge tone={health.llm.configured ? 'info' : 'warning'}>
-              {health.llm.configured ? health.llm.model : t('header.noModel')}
+            <Badge tone={health.llm.accessBlocked || !health.llm.configured ? 'warning' : 'info'}>
+              {health.llm.accessBlocked
+                ? `${health.llm.model} · ${t('header.externalApiBlocked')}`
+                : health.llm.configured
+                  ? health.llm.model
+                  : t('header.noModel')}
             </Badge>
           )}
           <ShareMenu scope="notebook" actions={notebookTeilen} />

@@ -45,7 +45,7 @@ am Hauptablauf geprüft; Zeitersparnis und Modellqualität bleiben zu messen.
 | P2 | Text-/Markdown-Import | Einfügen und Datei, Originaltext unverändert, höchstens 10 MiB UTF-8 |
 | P3 | Text-/Markdown-Export | Vollständige Quellen, Notizen, Belegauszüge und Positionen in Markdown |
 | P4 | Quellenwahl | Abgewählte oder notebookfremde Quellen gelangen nicht in den Modellkontext |
-| P5 | Echte KI-Antworten | Serverseitig konfigurierte Chat-Completions-API; für die Sites-Demo nur OpenCode Console/`mimo-v2.6-flash-free`, Live-Abnahme gesondert erforderlich |
+| P5 | Echte KI-Antworten | Serverseitig konfigurierbare Chat-Completions-API mit überprüften Zitaten; der gewünschte externe MiMo-Free-Zugang wurde im Live-Test abgewiesen und bleibt für Sites gesperrt, bis ein zulässiger Endpunkt nachgewiesen ist |
 | P6 | Überprüfbare Verweise | Marker → abgerufener Abschnitt → Originalposition; ungültige echte Antworten vollständig zurückhalten |
 | P7 | Notizen | Anlegen, bearbeiten, löschen; Referenzen serverseitig prüfen; fehlende Originale kennzeichnen |
 | P8 | Persistenz | Lokal SQLite-Datei auf dem API-Rechner; auf Sites D1 für Metadaten und R2 für Originaltexte |
@@ -87,9 +87,10 @@ brauchen zusätzlichen Platz. KI-Anfragen: zwei gleichzeitig, zehn pro Minute,
 
 1. Absatz-Chunking und lexikalischer FTS5/BM25-Abruf reichen für deutsche Fachtexte;
    Synonyme, Komposita, Tabellen und Formeln sind nur begrenzt abgedeckt.
-2. Die OpenCode-Console-Inference-Schnittstelle liefert für `mimo-v2.6-flash-free` ohne Schlüssel
-   nutzbare Antworten im geforderten Belegformat. Ihre kostenlose Verfügbarkeit ist
-   laut Anbieter befristet; Go führt `mimo-v2.6-flash` ohne `-free` mit Tokenpreisen.
+2. Die Dokumentation der OpenCode-Console-Inference-Schnittstelle erlaubt zwar kostenlose
+   Chatmodelle ohne Schlüssel; der konkrete externe POST für `mimo-v2.6-flash-free`
+   erhielt am 23.09.2026 HTTP 403. Ein nutzbarer kostenloser externer V2.6-Zugang
+   ist damit offen. Go führt `mimo-v2.6-flash` ohne `-free` mit Tokenpreisen.
    Vor Verwendung vertraulicher Quellen ist die Freigabe der Universität nötig:
    OpenCode hostet in den USA und kann MiMo-V2.6-Flash-Free-Daten zur Modellverbesserung nutzen.
 3. Modellantworten halten das strenge JSON-/Belegformat zuverlässig ein. Die Testdoppel

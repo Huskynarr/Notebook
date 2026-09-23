@@ -334,3 +334,17 @@ Ein produktiver Login oder Live-Modellaufruf bleibt ungetestet.
 Sites-Version 6 wurde aus dem nachgeführten Dokumentationscommit veröffentlicht.
 Ein direkter HTTPS-Abruf des produktiven Health-Endpunkts bestätigte die
 MiMo-Free-Modell-ID; das ist noch kein Test einer echten KI-Antwort.
+
+## 2026-09-23 · Live-Fehleranalyse für externes MiMo-Free-Profil
+
+Codex prüfte die produktive Health-Antwort, meldete sich mit dem vorhandenen
+Everlast-Testzugang an, las das neue Beispiel samt zwei Quellen und stellte
+eine nicht vertrauliche Frage. Die Antwort war HTTP 503; ein unabhängiger
+anonymer POST an OpenCodes Inference-API ergab HTTP 403 `FreeTierError`.
+Ein delegierter Rechercheagent verglich die offiziellen Anbieterangaben zu
+Console, Go und Xiaomi; keine kostenlose externe V2.6-API konnte dadurch
+bestätigt werden. Codex übernahm diese Einschränkung in die Dokumentation
+und implementierte einen ausdrücklich gesperrten Modellstatus für Sites.
+Kein API-Schlüssel, Testpasswort oder Sitzungstoken wurde in Git-Dateien oder
+Testausgaben geschrieben; aus diesen Prüfungen folgt kein erfolgreicher
+Live-Modellaufruf und keine geprüfte KI-Belegantwort.

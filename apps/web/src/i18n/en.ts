@@ -44,6 +44,7 @@ export const en: Texte = {
   'header.chooseNotebook': 'Choose notebook',
   'header.share': 'Share',
   'header.noModel': 'no model connected',
+  'header.externalApiBlocked': 'external API blocked',
 
   'notebook.new.title': 'New notebook',
   'notebook.new.description':

@@ -559,6 +559,41 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     expect(outgoing.mock.calls[1]?.[1]?.headers).not.toHaveProperty('authorization');
   });
 
+  it('marks confirmed external free-tier blocking and refuses repeated provider requests', async () => {
+    const env = setup();
+    env.LLM_PROVIDER = 'openai';
+    env.LLM_BASE_URL = 'https://opencode.ai/inference/openai/v1';
+    env.LLM_MODEL = 'mimo-v2.6-flash-free';
+    env.LLM_ACCESS_STATUS = 'blocked';
+    const outgoing = vi.fn<typeof fetch>();
+    vi.stubGlobal('fetch', outgoing);
+    const health = (await (await call(env, '/v1/health')).json()) as {
+      llm: { configured: boolean; accessBlocked: boolean; model: string };
+    };
+    expect(health.llm).toMatchObject({
+      configured: false,
+      accessBlocked: true,
+      model: 'mimo-v2.6-flash-free',
+    });
+    const token = await signIn(env);
+    const list = (await (await call(env, '/v1/notebooks', 'GET', token)).json()) as {
+      notebooks: Array<{ id: string }>;
+    };
+    const bookId = list.notebooks[0]?.id ?? '';
+    const sources = (await (
+      await call(env, `/v1/notebooks/${bookId}/sources`, 'GET', token)
+    ).json()) as { sources: Array<{ id: string }> };
+    const response = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: sources.sources.map((source) => source.id),
+    });
+    expect(response.status).toBe(503);
+    const body = (await response.json()) as { error: { code: string; message: string } };
+    expect(body.error.code).toBe('llm_unavailable');
+    expect(body.error.message).toContain('externe Anfragen');
+    expect(outgoing).not.toHaveBeenCalled();
+  });
+
   it('rejects a different Console model before any provider call', async () => {
     const env = setup();
     env.LLM_PROVIDER = 'openai';

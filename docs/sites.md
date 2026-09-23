@@ -49,7 +49,8 @@ niemals in Git, `VITE_`-Variablen, `.openai/hosting.json` oder den Client-Build:
 | `AUTH_ADDITIONAL_USERS` | Serverseitige JSON-Liste für `Everlast` und weitere feste Testkonten |
 | `AUTH_SECRET` | Stabiles zufälliges Signaturgeheimnis, mindestens 32 Zeichen |
 | `LLM_PROVIDER` | `stub` (sichtbar markierter Offline-Modus) oder `openai` |
-| `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` | Serverseitiger Modellendpunkt; für das kostenlose MiMo-V2.6-Flash-Free-Console-Profil bleibt der Schlüssel leer |
+| `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` | Serverseitiger Modellendpunkt; der schlüssellose MiMo-Free-Versuch wurde extern abgewiesen |
+| `LLM_ACCESS_STATUS` | Auf Sites derzeit `blocked`: kennzeichnet den bestätigten externen MiMo-Free-Fehler und unterbindet erneute Modellanfragen |
 
 Produktionszugänge haben mindestens 16 Zeichen. Das aus dem Auftrag bekannte
 `Everlast`-Testpasswort ist für einen öffentlichen Testzugang verwendbar, aber
@@ -57,8 +58,10 @@ keine Schutzmaßnahme für vertrauliche Daten. Der Worker trennt die Notebook-
 Daten nach Konto. Für echte Universitätsquellen muss der Testzugang deaktiviert
 oder mit einem neuen geheimen Passwort versehen werden. Ohne Modellschlüssel
 ist der kostenlose Console-Endpunkt gemäß Anbieter-Dokumentation für kostenlose
-Chatmodelle vorgesehen; ob MiMo-V2.6-Flash Free hier tatsächlich antwortet, muss ein
-Live-Aufruf zeigen. `LLM_PROVIDER=stub` bleibt sichtbar als Simulation markiert.
+Chatmodelle vorgesehen. Der tatsächliche externe POST erhielt jedoch HTTP 403,
+der Sites-Aufruf HTTP 503. Die Site markiert diesen Modellzugang daher als
+gesperrt und beantwortet Fragen nicht mit einem Ersatzmodell.
+`LLM_PROVIDER=stub` bleibt sichtbar als Simulation markiert.
 
 Für die gewünschte Modellwahl ausschließlich folgende Sites-Laufzeitwerte
 serverseitig setzen; keine `VITE_`-Variablen und keine automatische Ausweichroute:
@@ -68,6 +71,7 @@ LLM_PROVIDER=openai
 LLM_BASE_URL=https://opencode.ai/inference/openai/v1
 LLM_MODEL=mimo-v2.6-flash-free
 LLM_API_KEY=
+LLM_ACCESS_STATUS=blocked
 ```
 
 OpenCode Go listet `mimo-v2.6-flash` ohne `-free` mit Tokenpreisen; das
@@ -76,7 +80,7 @@ gewählte Free-Modell steht in der Console-Liste. Sein kostenloser Tarif ist nac
 befristet; Console-Auto-Reload deaktivieren und vertrauliche Universitätsquellen
 bis zur Freigabe nicht übertragen. Der Anbieter hostet in den USA und kann
 MiMo-V2.6-Flash-Free-Daten in der kostenlosen Phase zur Modellverbesserung nutzen.
-[Details und Abnahme](providers.md).
+[Details und fehlgeschlagene Live-Abnahme](providers.md).
 
 ## Öffentlichkeit und Domain
 
