@@ -369,3 +369,8 @@ für die freie Muse-ID, den Responses-Endpunkt, die Preise und die mögliche
 Trainingsnutzung. Der Vorschlag wurde als streng begrenzter Backend-Adapter
 übernommen; kontrollierte Tests prüfen Auth-Header, Modell-ID, Antwortschema und
 Belegablehnung. Ein echter erfolgreicher Modellaufruf wurde nicht behauptet.
+
+Codex testete dieselbe öffentliche Demo-Frage über die veröffentlichte Site
+mit Muse und dem vorhandenen serverseitigen Secret: HTTP 503 ohne Anbieterantwort.
+Die Site wurde danach erneut gesperrt; die erfolgreiche Antwort oder eine
+Anbieterautorisierung wird nicht behauptet.

@@ -292,3 +292,13 @@ Der geprüfte Muse-Adapter bestand `pnpm verify`: 208 Unit-/Integrationstests,
 wiederholte die Prüfungen; alle 13 lokalen Browserfälle konnten nicht starten,
 weil in dieser Umgebung das Playwright-Chromium-Executable fehlt. Das ist
 keine erfolgreiche E2E-Prüfung; GitHub CI muss sie gesondert ausführen.
+
+Die veröffentlichte Sites-Version 10 benutzt serverseitig Muse Spark Free.
+Ein zeitlich begrenzter Live-Test mit dem bereits als Secret gespeicherten
+Schlüssel und dem Everlast-Beispiel erreichte Health, Login und Quellen; die
+Frage endete mit HTTP 503 `llm_unavailable` („Der Modellendpunkt ist nicht
+erreichbar“), also ohne auswertbare HTTP-Antwort des Anbieters und ohne Belege.
+Das beweist weder die Annahme noch die Ablehnung des Schlüssels durch OpenCode.
+`LLM_ACCESS_STATUS=blocked` wurde wieder aktiviert und mit Sites-Version 10
+neu veröffentlicht; Health meldet das Muse-Modell, `configured:false` und
+`accessBlocked:true`. GitHub CI und CodeQL zum Spiegelcommit stehen noch aus.

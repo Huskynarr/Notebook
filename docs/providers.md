@@ -151,3 +151,11 @@ Muse-Prüfung: `LLM_BASE_URL=https://opencode.ai/inference/openai/v1`,
 die Belegprüfung anhand öffentlicher Demo-Quellen belegt sind. Laut Anbieter
 können Eingaben und Ausgaben des Contributor-Modells für Training verwendet
 werden; keine vertraulichen Universitätsdaten in der Demo eingeben.
+
+**Live-Status am 23.09.2026:** Auch mit gespeichertem Backend-Secret und Muse
+lieferte der Site-Worker bei der Everlast-Frage HTTP 503 vor einer auswertbaren
+Anbieterantwort. Die konkrete Ursache der Worker-Transportstörung ist offen;
+weitere Modellwechsel beheben sie nicht nachweislich. Die veröffentlichte Site
+ist wieder `blocked`. Ein direkter Test vom vorgesehenen Plesk-Backend mit dem
+Console-Service-Key und einer nicht vertraulichen Testfrage muss HTTP-Status
+und Modellantwort bestätigen, bevor die Modellfunktion freigegeben wird.
