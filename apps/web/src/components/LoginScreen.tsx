@@ -11,7 +11,6 @@ import {
 import { NotebookMark } from './LandingPage.tsx';
 import { Button } from './ui/Button.tsx';
 import { TextField } from './ui/Field.tsx';
-import { InlineNote } from './ui/Status.tsx';
 
 export function LoginScreen({
   apiBaseUrl,
@@ -161,12 +160,10 @@ export function LoginScreen({
             {demo ? t('login.demoOpen') : t('login.submit')} <span aria-hidden="true">↗</span>
           </Button>
         </div>
-        {!demo && (
-          <div className="mt-6">
-            <InlineNote tone="info" title={t('login.security')}>
-              {t('login.cooldownHint')}
-            </InlineNote>
-          </div>
+        {!demo && cooldown.failures > 0 && (
+          <p className="text-content-muted mt-6 text-sm" role="status">
+            {t('login.cooldownHint')}
+          </p>
         )}
         <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
           <p className="text-meta text-content-subtle max-w-full break-all font-mono">

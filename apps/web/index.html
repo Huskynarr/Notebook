@@ -4,7 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <title>Notebook · Quellenbasiertes Arbeiten</title>
+    <title>Notebook · Quellenbasiertes Arbeiten mit überprüfbaren Belegen</title>
+    <meta
+      name="description"
+      content="Eigene Text- und Markdown-Quellen im Notebook auswählen, Fragen stellen und Belege im Original prüfen. Eigenständiges Hochschulprojekt mit transparentem KI-Betrieb."
+    />
+    <link rel="canonical" href="https://notebook.sebastianselinger.de/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_DE" />
+    <meta
+      property="og:title"
+      content="Notebook · Quellenbasiertes Arbeiten mit überprüfbaren Belegen"
+    />
+    <meta
+      property="og:description"
+      content="Eigene Quellen wählen, Fragen stellen, Originalbelege prüfen und Ergebnisse als Notizen speichern."
+    />
+    <meta property="og:url" content="https://notebook.sebastianselinger.de/" />
     <!-- Inline, damit keine zusaetzliche Anfrage noetig ist und die Anwendung
          ohne fremde Ressourcen laeuft. -->
     <link
@@ -17,7 +33,68 @@
     <script src="%BASE_URL%appearance.js"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Die öffentliche Kernaussage ist bereits ohne JavaScript lesbar. React ersetzt
+         diesen inhaltlich deckungsgleichen Einstieg beim Start; keine Kontodaten
+         und keine privaten Quellen dürfen je in dieses HTML geraten. -->
+    <div id="root">
+      <div class="bg-surface-sunken text-content min-h-screen">
+        <header
+          class="max-w-page mx-auto flex items-center justify-between gap-4 px-5 py-6 sm:px-8"
+        >
+          <a
+            href="/"
+            class="text-content-strong text-xl font-semibold"
+            aria-label="Notebook Startseite"
+            >notebook<span class="text-action">.</span></a
+          >
+          <a href="#login" class="bg-action text-action-contrast rounded-full px-5 py-3 text-sm"
+            >Anmelden</a
+          >
+        </header>
+        <main class="max-w-page mx-auto px-5 pb-20 pt-12 sm:px-8 sm:pt-20">
+          <p class="text-action mb-6 text-xs font-medium tracking-widest">
+            DER ARBEITSRAUM FÜR QUELLENBASIERTES WISSEN
+          </p>
+          <h1 class="text-hero text-content-strong font-display">
+            Gute Antworten.<br /><span class="text-action">Prüfbare Belege.</span>
+          </h1>
+          <p class="text-content-muted mt-7 max-w-xl text-lg leading-relaxed">
+            Unterlagen verstehen, Zusammenhänge finden und jede Antwort am Original prüfen. Ein
+            Notebook für konzentriertes Arbeiten in Studium, Forschung und Lehre.
+          </p>
+          <a href="#login" class="text-action mt-9 inline-block font-medium underline"
+            >Arbeitsbereich öffnen</a
+          >
+          <section class="mt-16 max-w-3xl" aria-labelledby="ablauf-voransicht">
+            <h2 id="ablauf-voransicht" class="text-section text-content-strong font-semibold">
+              Der Gedankengang bleibt prüfbar.
+            </h2>
+            <ol class="text-content-muted mt-5 list-inside list-decimal space-y-3 leading-relaxed">
+              <li>
+                Notebook öffnen, eigene Texte oder Markdown-Dateien hinzufügen und relevante Quellen
+                auswählen.
+              </li>
+              <li>
+                Fragen an ausgewählte Unterlagen richten. Der KI-Workflow ruft passende
+                Textabschnitte ab.
+              </li>
+              <li>
+                Verweise führen zur Textstelle im Original. Ergebnisse als Notiz speichern und
+                exportieren.
+              </li>
+            </ol>
+            <p class="text-content-muted mt-8 leading-relaxed">
+              Mit verbundenem KI-Anbieter entstehen echte Modellantworten. Die gehostete Demo erhält
+              derzeit keine Live-KI-Antworten: Der externe Anbieter weist kostenlose Modellanfragen
+              ab. Für die Demo nur nicht vertrauliche Beispieldaten verwenden.
+            </p>
+            <p class="text-content-muted mt-5 text-sm">
+              Eigenständiges Hochschulprojekt · keine Verbindung zu Google NotebookLM
+            </p>
+          </section>
+        </main>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

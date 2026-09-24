@@ -208,7 +208,6 @@ export const en: Texte = {
     'Unprotected browser demo. No real authentication or AI connection. Use sample data only.',
   'login.back': 'Back to home',
   'login.protected': 'Protected workspace',
-  'login.security': 'The server verifies access and limits failed sign-in attempts.',
   'addSource.tooLarge': 'Maximum 10 MiB (10,485,760 bytes) per source in this test environment.',
   'addSource.invalidFile': 'Only UTF-8 text files in .txt or .md format are supported.',
   'addSource.unsupportedUrl':

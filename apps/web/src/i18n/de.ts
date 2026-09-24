@@ -50,7 +50,6 @@ export const de = {
     'Ungeschützte Browser-Demo. Keine echte Anmeldung, keine KI-Verbindung. Nur Beispieldaten verwenden.',
   'login.back': 'Zur Startseite',
   'login.protected': 'Geschützter Arbeitsbereich',
-  'login.security': 'Der Server prüft den Zugang und begrenzt fehlgeschlagene Anmeldungen.',
 
   'header.chooseNotebook': 'Notebook wählen',
   'header.share': 'Teilen',
