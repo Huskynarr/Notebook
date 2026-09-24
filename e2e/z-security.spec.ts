@@ -24,6 +24,18 @@ test('öffentliche Landingpage, nachvollziehbare Illustration und mobile Breite'
   }
 });
 
+test('öffentliche Einstiegsinhalte stehen ohne JavaScript im HTML', async ({ request }) => {
+  const response = await request.get('/');
+  expect(response.status()).toBe(200);
+  const html = await response.text();
+  expect(html).toContain('rel="canonical" href="https://notebook.sebastianselinger.de/"');
+  expect(html).toContain('Der Gedankengang bleibt prüfbar.');
+  expect(html).toMatch(/Fragen an ausgewählte Unterlagen richten/);
+  expect(html).not.toContain('AgenticCoding123!');
+  expect((await request.get('/robots.txt')).status()).toBe(200);
+  expect((await request.get('/sitemap.xml')).status()).toBe(200);
+});
+
 test('Login-Sperre bleibt nach Neuladen sichtbar und die API schützt den Arbeitsbereich', async ({
   page,
   request,
@@ -31,11 +43,14 @@ test('Login-Sperre bleibt nach Neuladen sichtbar und die API schützt den Arbeit
   expect((await request.get('http://127.0.0.1:8787/v1/notebooks')).status()).toBe(401);
   await page.goto('/#login');
   await page.getByRole('button', { name: 'Nur notwendige' }).click();
+  await expect(page.getByText('Nach drei fehlgeschlagenen Anmeldungen')).toHaveCount(0);
   await page.getByLabel('Passwort').fill('incorrect-test-password');
   for (let attempt = 0; attempt < 3; attempt += 1) {
     const reply = page.waitForResponse((response) => response.url().endsWith('/v1/auth/login'));
     await page.getByRole('button', { name: 'Anmelden', exact: true }).click();
     expect((await reply).status()).toBe(attempt === 2 ? 429 : 401);
+    if (attempt === 0)
+      await expect(page.getByText('Nach drei fehlgeschlagenen Anmeldungen')).toBeVisible();
   }
   await expect(page.getByRole('button', { name: 'Anmelden', exact: true })).toBeDisabled();
   await expect(page.getByText(/Erneute Anmeldung in \d+ Sekunden/)).toBeVisible();

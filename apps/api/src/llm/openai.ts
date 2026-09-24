@@ -11,6 +11,7 @@ import {
 import { isOpenCodeConsole } from './freeMimo.ts';
 import { FREE_MUSE_MODEL, GLM_FLASH_MODEL, isAllowedConsoleModel } from './freeMuse.ts';
 import { parseMuseAnswer } from './museResponse.ts';
+import { isAllowedOpenRouterModel, isOpenRouter } from './openrouter.ts';
 
 const ChatCompletionSchema = z.object({
   choices: z
@@ -88,6 +89,14 @@ export class OpenAiCompatibleProvider implements LlmProvider {
   }
 
   async complete(request: CompletionRequest): Promise<CompletionResult> {
+    if (isOpenRouter(this.options.baseUrl)) {
+      if (!isAllowedOpenRouterModel(this.options.baseUrl, this.options.model))
+        throw new LlmUnavailableError(
+          'Dieses OpenRouter-Modell ist nicht für die kostenlose Demo freigegeben.',
+        );
+      if (!this.options.apiKey)
+        throw new LlmUnavailableError('Der OpenRouter-Schlüssel fehlt im Backend.');
+    }
     if (
       isOpenCodeConsole(this.options.baseUrl) &&
       !isAllowedConsoleModel(this.options.baseUrl, this.options.model)
@@ -136,7 +145,9 @@ export class OpenAiCompatibleProvider implements LlmProvider {
                   model: this.options.model,
                   temperature: this.options.temperature,
                   max_tokens: 4096,
-                  ...(isOpenCodeConsole(this.options.baseUrl)
+                  ...(isOpenCodeConsole(this.options.baseUrl) ||
+                  (isOpenRouter(this.options.baseUrl) &&
+                    this.options.model === 'qwen/qwen3.8-27b:free')
                     ? {}
                     : { response_format: { type: 'json_object' } }),
                   messages: [

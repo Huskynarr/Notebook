@@ -58,6 +58,8 @@ const COPY = {
       'Mit verbundenem KI-Anbieter entstehen echte Modellantworten. Ohne Modell ist jede simulierte Antwort sichtbar gekennzeichnet. Ausgewählte Textausschnitte werden bei einem KI-Aufruf an den konfigurierten Anbieter übermittelt.',
     privacyNotice:
       'Bei Nutzung von MiMo-V2.6-Flash Free gehen Frage und relevante Textausschnitte an OpenCode (USA). Während der kostenlosen Phase können diese Daten zur Verbesserung des Modells verwendet werden. Für diese Demo nur nicht vertrauliche Beispieldaten verwenden.',
+    openRouterNotice:
+      'Bei Nutzung des kostenlosen Qwen-Modells gehen Frage und relevante Textausschnitte an OpenRouter und den Modellanbieter. Für diese Demo nur öffentliche, nicht vertrauliche Beispieldaten verwenden.',
     embeddingNotice:
       'Semantische Quellensuche ist aktiviert: Frage und ausgewählte Textstellen gehen an OpenRouter/NVIDIA. Der kostenlose Endpunkt protokolliert Eingaben für die Produktverbesserung. Nur öffentliche, unkritische Testdaten verwenden.',
     modelBlocked:
@@ -119,6 +121,8 @@ const COPY = {
       'A connected AI provider generates real model responses. Without a model, every simulated answer is visibly labelled. When calling an AI model, selected text passages are sent to the configured provider.',
     privacyNotice:
       'When using MiMo-V2.6-Flash Free, your question and relevant passages go to OpenCode (US). During its free period, this data may be used to improve the model. For this demo, use non-confidential sample data only.',
+    openRouterNotice:
+      'When using the free Qwen model, your question and relevant excerpts go to OpenRouter and the model provider. Use only public, non-sensitive sample data in this demo.',
     embeddingNotice:
       'Semantic source search is enabled: the question and selected excerpts go to OpenRouter/NVIDIA. The free endpoint logs inputs for product improvement. Use only public, non-sensitive test data.',
     modelBlocked:
@@ -154,12 +158,14 @@ export function LandingPage({
   demo,
   modelBlocked,
   embeddingsEnabled,
+  openRouterChat,
   onLogin,
   onOpenSettings,
 }: {
   demo: boolean;
   modelBlocked: boolean;
   embeddingsEnabled: boolean;
+  openRouterChat: boolean;
   onLogin: () => void;
   onOpenSettings: () => void;
 }): ReactElement {
@@ -365,7 +371,7 @@ export function LandingPage({
             </h2>
             <p className="text-content-muted mt-5 text-sm leading-7">{copy.modelBody}</p>
             <p className="bg-warning-surface text-warning mt-5 rounded-md p-4 text-sm leading-6">
-              {copy.privacyNotice}
+              {openRouterChat ? copy.openRouterNotice : copy.privacyNotice}
             </p>
             {embeddingsEnabled && (
               <p className="bg-warning-surface text-warning mt-3 rounded-md p-4 text-sm leading-6">

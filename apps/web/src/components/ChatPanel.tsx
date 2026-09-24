@@ -19,6 +19,7 @@ export function ChatPanel({
   exchanges,
   pending,
   modelBlocked,
+  openRouterChat,
   selectedCount,
   activeMarker,
   onAsk,
@@ -29,6 +30,7 @@ export function ChatPanel({
   exchanges: readonly Exchange[];
   pending: boolean;
   modelBlocked: boolean;
+  openRouterChat: boolean;
   selectedCount: number;
   activeMarker: number | null;
   onAsk: (question: string) => void;
@@ -139,6 +141,11 @@ export function ChatPanel({
       </div>
 
       <div className="border-border-subtle bg-surface no-print border-t px-6 py-3">
+        {openRouterChat && (
+          <p className="text-meta text-warning mb-2" role="status">
+            {t('chat.openRouterPrivacy')}
+          </p>
+        )}
         {modelBlocked && (
           <div className="mb-3">
             <InlineNote tone="warning" title={t('chat.modelBlockedTitle')}>

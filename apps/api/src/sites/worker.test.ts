@@ -9,6 +9,11 @@ import {
 } from '@notebook/shared';
 import { handleApi } from './api.ts';
 import type { Bucket, Database, SiteEnv, Statement } from './db.ts';
+import {
+  OPENROUTER_BASE_URL,
+  OPENROUTER_FREE_ALTERNATIVE,
+  OPENROUTER_FREE_CHAT_MODEL,
+} from '../llm/openrouter.ts';
 
 type Value = string | number | null;
 class TestStatement implements Statement {
@@ -430,6 +435,101 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     expect((await (await call(env, '/v1/health')).json()) as unknown).toMatchObject({
       embeddings: { configured: true, model: 'nvidia/llama-nemotron-embed-vl-1b-v2:free' },
     });
+  });
+
+  it('uses the server-only OpenRouter key for the free chat model and validates original citations', async () => {
+    const env = setup();
+    env.LLM_PROVIDER = 'openai';
+    env.LLM_BASE_URL = OPENROUTER_BASE_URL;
+    env.LLM_MODEL = OPENROUTER_FREE_CHAT_MODEL;
+    env.OPENROUTER_EMBEDDING_KEY = 'server-only-openrouter-key';
+    env.LLM_API_KEY = 'wrong-provider-key';
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(() =>
+      Promise.resolve(
+        Response.json({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  grounded: true,
+                  answer: 'Das Impressum nennt Viktor Schöck unter „Vertreten durch“ [1].',
+                  quotes: { '1': 'Unter „Vertreten durch“ nennt das Impressum Viktor Schöck.' },
+                }),
+              },
+              finish_reason: 'stop',
+            },
+          ],
+        }),
+      ),
+    );
+    vi.stubGlobal('fetch', fetcher);
+    const token = await signIn(env);
+    const list = (await (await call(env, '/v1/notebooks', 'GET', token)).json()) as {
+      notebooks: Array<{ id: string }>;
+    };
+    const bookId = list.notebooks[0]?.id ?? '';
+    const sources = (await (
+      await call(env, `/v1/notebooks/${bookId}/sources`, 'GET', token)
+    ).json()) as { sources: Array<{ id: string; title: string }> };
+    const legalNotice = sources.sources.find((source) => source.title.includes('Impressum'));
+    expect(legalNotice).toBeDefined();
+    const response = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: [legalNotice?.id],
+    });
+    expect(response.status).toBe(200);
+    const result = (await response.json()) as AskResponse;
+    expect(result).toMatchObject({
+      simulated: false,
+      grounded: true,
+      model: OPENROUTER_FREE_CHAT_MODEL,
+      citations: [{ precision: 'exact', sourceId: legalNotice?.id }],
+    });
+    const [url, init] = fetcher.mock.calls[0]!;
+    expect(url).toBe(`${OPENROUTER_BASE_URL}/chat/completions`);
+    expect(init?.headers).toMatchObject({ authorization: 'Bearer server-only-openrouter-key' });
+    expect(init?.body).not.toContain('server-only-openrouter-key');
+    expect(init?.body).not.toContain('wrong-provider-key');
+    const qwenBody = JSON.parse(typeof init?.body === 'string' ? init.body : '{}') as {
+      response_format?: unknown;
+    };
+    expect(qwenBody.response_format).toBeUndefined();
+    expect((await (await call(env, '/v1/health')).json()) as unknown).toMatchObject({
+      llm: { configured: true, model: OPENROUTER_FREE_CHAT_MODEL },
+    });
+    env.LLM_MODEL = 'qwen/qwen3.8-27b'; // A paid variant must never be a silent fallback.
+    const rejected = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: [legalNotice?.id],
+    });
+    expect(rejected.status).toBe(503);
+    expect(fetcher).toHaveBeenCalledOnce();
+    env.LLM_MODEL = OPENROUTER_FREE_ALTERNATIVE;
+    const alternative = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: [legalNotice?.id],
+    });
+    expect(alternative.status).toBe(200);
+    expect((await alternative.json()) as AskResponse).toMatchObject({
+      simulated: false,
+      model: OPENROUTER_FREE_ALTERNATIVE,
+    });
+    const rawAlternativeBody = fetcher.mock.calls[1]?.[1]?.body;
+    expect(typeof rawAlternativeBody).toBe('string');
+    const alternativeBody = JSON.parse(
+      typeof rawAlternativeBody === 'string' ? rawAlternativeBody : '{}',
+    ) as { model: string; response_format?: unknown };
+    expect(alternativeBody.model).toBe(OPENROUTER_FREE_ALTERNATIVE);
+    expect(alternativeBody.response_format).toEqual({ type: 'json_object' });
+    fetcher.mockImplementationOnce(() =>
+      Promise.resolve(new Response('{"error":"limit"}', { status: 429 })),
+    );
+    const limited = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: [legalNotice?.id],
+    });
+    expect(limited.status).toBe(503);
+    expect(await limited.text()).toContain('OpenRouter begrenzt derzeit kostenlose Anfragen');
   });
 
   it('limits decoded source bytes, preserving a source beyond D1 single-cell capacity', async () => {

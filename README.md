@@ -73,8 +73,8 @@ verwendet denselben Ursprung, ohne Angabe gilt lokal `http://localhost:8787`.
 cp apps/api/.env.example apps/api/.env
 ```
 
-Für formulierte Antworten bleibt **`mimo-v2.6-flash-free`** die bevorzugte
-Modell-ID. Das Backend erwartet dafür folgende Konfiguration:
+MiMo **`mimo-v2.6-flash-free`** bleibt ein Wunschmodell, ist über den
+externen OpenCode-Endpunkt derzeit aber gesperrt. Die bisherige Konfiguration:
 
 ```ini
 LLM_PROVIDER=openai
@@ -109,17 +109,54 @@ Free-Modell-ID gesetzt werden; ob er die externe Sperre aufhebt, wird zuerst
 mit einem [Test ohne vertrauliche Daten](docs/providers.md#console-service-key-prufen)
 geprüft. Bis dahin bleibt die Site gesperrt.
 
+### OpenRouter für echte, beleggeprüfte Antworten
+
+Die [OpenRouter-Chat-API](https://openrouter.ai/docs/quickstart#using-the-openrouter-api)
+spricht denselben OpenAI-kompatiblen Endpunkt wie der bestehende Backend-Adapter.
+Für die Nullkosten-Demo sind nur
+[`qwen/qwen3.8-27b:free`](https://openrouter.ai/qwen/qwen3.8-27b:free) und
+[`google/gemma-4-26b-a4b-it:free`](https://openrouter.ai/google/gemma-4-26b-a4b-it:free)
+freigegeben. Gemma 4 bietet das verwendete JSON-Antwortformat; für Qwen
+fordert der Systemprompt JSON an. Jede Antwort muss
+trotzdem die serverseitige Prüfung von Markern, wörtlichen Zitaten und
+Originaloffsets bestehen. Bezahlmodelle und automatische Modellwechsel sind
+im OpenRouter-Pfad gesperrt. Zur Konfiguration ausschließlich im Backend:
+
+```ini
+LLM_PROVIDER=openai
+LLM_BASE_URL=https://openrouter.ai/api/v1
+LLM_MODEL=google/gemma-4-26b-a4b-it:free
+OPENROUTER_EMBEDDING_KEY=
+EMBEDDING_PROVIDER=none
+```
+
+Der bereits für NVIDIA-Embeddings gespeicherte **OpenRouter-API-Key** kann auch
+den Chat-Endpunkt authentifizieren; die missverständlich spezifische
+Variablenbezeichnung bleibt für diese Demo aus Kompatibilitätsgründen bestehen.
+`LLM_API_KEY` bleibt dem getrennten OpenCode-Zugang vorbehalten. Die
+Embeddings sind für Chatantworten nicht erforderlich. Für eine erfolgreiche
+Live-Abnahme ist ein authentifizierter Test mit der öffentlichen Everlast-Quelle
+und einem tatsächlich anklickbaren Originalbeleg nötig. Die Versuche vom
+24.09.2026 erhielten mit Qwen und Gemma 4 HTTP 429; die kostenlose
+Anbietergrenze verhindert derzeit die Live-Abnahme. Frage und abgerufene
+Ausschnitte werden bei jeder Chat-Anfrage an OpenRouter und den Modellanbieter
+übertragen; in der kostenlosen Demo nur öffentliche, unkritische Daten verwenden.
+
 Die gewünschte NVIDIA-Variante `nvidia/llama-nemotron-embed-vl-1b-v2:free`
 von OpenRouter liefert Suchvektoren, **keine Chatantworten**. Für eine
 optionale Neuordnung von FTS-Treffern auf dem Backend
-`EMBEDDING_PROVIDER=openrouter` und einen **separaten OpenRouter-Key** als
+`EMBEDDING_PROVIDER=openrouter` und einen **OpenRouter-Key** als
 serverseitiges Secret `OPENROUTER_EMBEDDING_KEY` setzen. Ein OpenCode-Key
 funktioniert hier nicht. Ohne Aktivierung bleibt die lexikalische FTS5-Suche
 erhalten. Der kostenlose Endpunkt protokolliert Eingaben: ausschließlich
-öffentliche, unkritische Testdaten verwenden. Der erneute Live-Test am 24.09.2026
-ergab **HTTP 401 von OpenRouter**: Die Authentifizierung mit dem hinterlegten
-Embedding-Key wurde abgewiesen. Die Funktion bleibt auf der
-veröffentlichten Site deaktiviert. Die OpenRouter-Suche hebt eine
+öffentliche, unkritische Testdaten verwenden. Nach Austausch des zunächst
+mit HTTP 401 abgewiesenen Keys gelang am 24.09.2026 ein authentifizierter
+Abruf: Die öffentliche Everlast-Beispielfrage zeigte semantisch sortierte
+Originalstellen mit Belegsprung. Das belegt weder eine Qualitätssteigerung
+noch die Eignung für vertrauliche Daten. Die Funktion bleibt auf der
+veröffentlichten Site deaktiviert, solange eigene Quellen ohne gesonderte
+Freigabe an den protokollierenden Free-Endpunkt gelangen könnten.
+Die OpenRouter-Suche hebt eine
 Sperre des Antwortmodells nicht auf. Einzelheiten und Grenzen stehen in
 [Indexierung](docs/indexing.md#optional-nvidia-suchvektoren-über-openrouter).
 

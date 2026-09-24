@@ -129,6 +129,8 @@ export const de = {
   'chat.inputPlaceholder': 'Frage an die ausgewählten Quellen …',
   'chat.send': 'Fragen',
   'chat.hint': 'Enter sendet, Umschalt+Enter erzeugt einen Zeilenumbruch.',
+  'chat.openRouterPrivacy':
+    'OpenRouter Free: Frage und ausgewählte Textstellen gehen an einen externen Modellanbieter. Nur öffentliche, unkritische Testdaten verwenden.',
   'chat.noSourceTitle': 'Keine Quelle ausgewählt',
   'chat.noSourceBody':
     'Wähle links mindestens eine Quelle aus. Ohne Quelle wird nicht geantwortet.',

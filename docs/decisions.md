@@ -789,3 +789,43 @@ Anbieterantworten, Schlüssel und Quellenausschnitte gelangen nicht in Client od
 Logs. Damit lässt sich ein Berechtigungs-/Limitfehler von einem Transport- oder
 Formatfehler unterscheiden. Verworfen: sämtliche Fehler weiter unter einer
 identischen Meldung verstecken oder Anbieterantworten zur Fehlersuche protokollieren.
+
+## 2026-09-24 · Free-Embeddings nicht global für eigene Quellen aktivieren
+
+Ein echter Abruf mit öffentlichem Beispiel funktioniert nach dem Key-Wechsel.
+Die produktive Suchstufe bleibt dennoch standardmäßig aus: Die Backend-Option
+würde jede ausgewählte eigene Quelle an einen Free-Endpunkt senden, der Eingaben
+protokolliert. Verworfen: globale Aktivierung allein wegen des erfolgreichen
+Tests. Vor breiter Nutzung braucht es eine bewusste Quellenfreigabe auf
+Anfrageebene und eine Datenschutzeinschätzung für Universitätsdaten.
+
+## 2026-09-24 · OpenRouter-Free-Chat als explizite Anbieteroption
+
+OpenCodes MiMo-Free-Endpunkt antwortet auch mit Schlüssel HTTP 403; der
+OpenRouter-Schlüssel erreichte dagegen die Embedding-API. Der vorhandene
+OpenAI-kompatible Chatadapter darf für den exakt festgelegten Endpunkt
+`https://openrouter.ai/api/v1` ausschließlich die Free-ID
+`qwen/qwen3.8-27b:free` mit demselben serverseitigen Schlüssel verwenden.
+OpenRouter dokumentiert für die ID strukturierte Ausgaben; unabhängig davon
+werden Zitate und Satzbelege gegen Originaloffsets geprüft. Verworfen:
+`openrouter/free` mit wechselnden Modellen, bezahlte Varianten und das
+Kopieren des Secrets in Frontend-Variablen. Die aktivierte Chatfrage sendet
+relevante Textstellen extern; eine Warnung steht auch im geschützten Formular.
+
+## 2026-09-24 · Zweites explizit kostenloses OpenRouter-Modell zulassen
+
+Der erste authentifizierte Qwen-Aufruf erhielt HTTP 429. Als eng begrenzte
+Alternative zur vorherigen Entscheidung wird nur die als kostenlos gelistete
+Gemma-ID `google/gemma-3-27b-it:free` zusätzlich zugelassen. Beide Modell-IDs
+bleiben explizit; es gibt weder einen automatischen kostenpflichtigen Fallback
+noch einen stillen Anbieterwechsel. Verworfen: unbeschränkter Modellname oder
+unmarkierte Simulation bei Anbieterlimits.
+
+## 2026-09-24 · Gemma 3 durch gelistetes Gemma 4 ersetzen
+
+Die oben gewählte Gemma-3-Free-ID lieferte HTTP 404 und steht nicht in
+OpenRouters aktueller `/api/v1/models`-Liste. Stattdessen wird nur die dort
+als kostenlos und `response_format`-fähig gelistete ID
+`google/gemma-4-26b-a4b-it:free` zugelassen. Beim Qwen-Free-Modell wird das
+dort nicht gelistete `response_format` entfernt. Verworfen: den 404-Endpunkt
+beibehalten oder ungeprüft auf ein bezahltes Modell ausweichen.

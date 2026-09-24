@@ -113,6 +113,8 @@ export const en: Texte = {
   'chat.inputPlaceholder': 'Ask the selected sources …',
   'chat.send': 'Ask',
   'chat.hint': 'Enter sends, Shift+Enter inserts a line break.',
+  'chat.openRouterPrivacy':
+    'OpenRouter Free: your question and selected excerpts go to an external model provider. Use only public, non-sensitive test data.',
   'chat.noSourceTitle': 'No source selected',
   'chat.noSourceBody':
     'Select at least one source on the left. Without a source there is no answer.',

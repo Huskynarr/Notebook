@@ -478,6 +478,10 @@ function Arbeitsbereich({
             demo={DEMO_MODE}
             modelBlocked={health?.llm.accessBlocked === true}
             embeddingsEnabled={health?.embeddings?.configured === true}
+            openRouterChat={
+              health?.llm.model === 'qwen/qwen3.8-27b:free' ||
+              health?.llm.model === 'google/gemma-4-26b-a4b-it:free'
+            }
             onLogin={() => {
               window.location.hash = 'login';
             }}
@@ -571,6 +575,11 @@ function Arbeitsbereich({
       exchanges={exchanges}
       pending={pending}
       modelBlocked={health?.llm.accessBlocked === true}
+      openRouterChat={
+        health?.llm.configured === true &&
+        (health.llm.model === 'qwen/qwen3.8-27b:free' ||
+          health.llm.model === 'google/gemma-4-26b-a4b-it:free')
+      }
       selectedCount={selected.length}
       activeMarker={activeCitation?.marker ?? null}
       onAsk={ask}

@@ -23,6 +23,7 @@ import {
 import { parseMuseAnswer } from '../llm/museResponse.ts';
 import { retrieved, type SiteEnv } from './db.ts';
 import { rerankNemotron } from '../domain/nemotronEmbeddings.ts';
+import { isAllowedOpenRouterModel, isOpenRouter } from '../llm/openrouter.ts';
 
 const ChatCompletion = z.object({
   choices: z
@@ -47,6 +48,8 @@ async function model(
 }> {
   const base = env.LLM_BASE_URL,
     modelName = env.LLM_MODEL;
+  const openRouter = isOpenRouter(base ?? '');
+  const apiKey = openRouter ? env.OPENROUTER_EMBEDDING_KEY : env.LLM_API_KEY;
   if (isBlockedConsoleModel(base ?? '', modelName ?? '', env.LLM_ACCESS_STATUS))
     throw new LlmUnavailableError(
       'Der externe Zugriff auf das kostenlose Modell wurde noch nicht erfolgreich geprüft.',
@@ -54,7 +57,7 @@ async function model(
   if (
     !base ||
     !modelName ||
-    (!env.LLM_API_KEY &&
+    (!apiKey &&
       !isFreeMimoConsole(base, modelName) &&
       !isFreeMuseConsole(base, modelName) &&
       !isFreeNemotronConsole(base, modelName))
@@ -62,6 +65,10 @@ async function model(
     throw new LlmUnavailableError('Kein Modell verbunden.');
   if (isOpenCodeConsole(base) && !isAllowedConsoleModel(base, modelName))
     throw new LlmUnavailableError('Dieses OpenCode-Console-Modell ist nicht freigegeben.');
+  if (openRouter && !isAllowedOpenRouterModel(base, modelName))
+    throw new LlmUnavailableError(
+      'Dieses OpenRouter-Modell ist nicht für die kostenlose Demo freigegeben.',
+    );
   if (system.length + user.length > 100_000)
     throw new LlmUnavailableError('Die Textstellen sind für eine Anfrage zu groß.');
   const abort = new AbortController();
@@ -78,8 +85,8 @@ async function model(
         signal: abort.signal,
         headers: {
           'content-type': 'application/json',
-          ...(env.LLM_API_KEY && !isFreeNemotronConsole(base, modelName)
-            ? { authorization: `Bearer ${env.LLM_API_KEY}` }
+          ...(apiKey && !isFreeNemotronConsole(base, modelName)
+            ? { authorization: `Bearer ${apiKey}` }
             : {}),
         },
         body: JSON.stringify(
@@ -94,7 +101,9 @@ async function model(
                 model: modelName,
                 temperature: 0,
                 max_tokens: 4096,
-                ...(isOpenCodeConsole(base) ? {} : { response_format: { type: 'json_object' } }),
+                ...(isOpenCodeConsole(base) || (openRouter && modelName === 'qwen/qwen3.8-27b:free')
+                  ? {}
+                  : { response_format: { type: 'json_object' } }),
                 messages: [
                   { role: 'system', content: system },
                   { role: 'user', content: user },
@@ -117,6 +126,10 @@ async function model(
     }
     if (!response.ok) {
       await response.body?.cancel();
+      if (openRouter && response.status === 429)
+        throw new LlmUnavailableError(
+          'OpenRouter begrenzt derzeit kostenlose Anfragen (HTTP 429). Bitte später erneut versuchen.',
+        );
       throw new LlmUnavailableError(`Das Modell antwortete mit HTTP ${response.status}.`);
     }
     if (Number(response.headers.get('content-length') ?? 0) > 262_144) {

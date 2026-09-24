@@ -1,12 +1,47 @@
 # Modellanbieter
 
-Stand der Recherche: 23. September 2026. Der Adapter spricht die OpenAI-kompatible
+Stand der Recherche: 24. September 2026. Der Adapter spricht die OpenAI-kompatible
 Chat-Completions-Schnittstelle. Die Konfiguration wird nur im API-Prozess gelesen.
 Eine konfigurierte Verbindung ist noch kein erfolgreich getestetes Modell.
 
-## Gewählter Anbieter: OpenCode Console, MiMo-V2.6-Flash Free
+## OpenRouter als aktuell vorbereiteter Chat-Anbieter
 
-Für die Sites-Demo und optional die lokale API ist ausschließlich das Modell
+Der [OpenRouter-Quickstart](https://openrouter.ai/docs/quickstart#using-the-openrouter-api)
+beschreibt `POST https://openrouter.ai/api/v1/chat/completions`. Das bereits
+serverseitig gespeicherte OpenRouter-Secret wird für Chat und für optionale
+Embeddings verwendet, jedoch nie an den Browser ausgeliefert. Das Backend
+erlaubt nur die laut aktueller API-Modellliste kostenlosen Modelle
+[`qwen/qwen3.8-27b:free`](https://openrouter.ai/qwen/qwen3.8-27b:free)
+und [`google/gemma-4-26b-a4b-it:free`](https://openrouter.ai/google/gemma-4-26b-a4b-it:free).
+Der erste Live-Aufruf mit Qwen erhielt HTTP 429; der Versuch mit Gemma 3
+HTTP 404, da dessen Free-ID nicht mehr in `/api/v1/models` steht. Gemma 4
+steht dort mit JSON-Antwortformat und wird separat geprüft. Qwens Free-Endpunkt
+listet `response_format` nicht; die JSON-Ausgabe wird nur per Prompt gefordert.
+Es gibt keinen
+automatischen Wechsel auf ein kostenpflichtiges Modell oder den wechselnden
+`openrouter/free`-Router. Der Chat kann ohne Embeddings laufen.
+
+```ini
+LLM_PROVIDER=openai
+LLM_BASE_URL=https://openrouter.ai/api/v1
+LLM_MODEL=google/gemma-4-26b-a4b-it:free
+OPENROUTER_EMBEDDING_KEY=  # serverseitiges Secret; bisheriger Variablenname
+EMBEDDING_PROVIDER=none
+```
+
+Die Live-Abnahme mit einer öffentlichen Everlast-Beispielquelle scheiterte
+für Qwen und Gemma 4 an HTTP 429, für Gemma 3 an HTTP 404. Die erste echte
+Antwort bleibt somit offen. Eine HTTP-200-Antwort allein genügt nicht: Die Anwendung muss einen
+wörtlich auffindbaren Beleg mit Offset zum Original liefern, andernfalls
+behält sie die Modellantwort zurück. Die Chatfrage sendet relevante Abschnitte
+an OpenRouter und den Modellanbieter; das geschützte Formular warnt davor.
+Für Hochschuldaten mit Schutzbedarf ist vor einer Nutzung eine
+Datenschutzeinschätzung erforderlich. Die OpenRouter-Free-Endpunkte haben
+Raten- und Tageslimits, sodass Erreichbarkeit nicht garantiert ist.
+
+## Historischer Anbieter: OpenCode Console, MiMo-V2.6-Flash Free
+
+Ursprünglich war für die Sites-Demo und optional die lokale API ausschließlich
 `mimo-v2.6-flash-free` vorgesehen. Die [Console Inference API](https://opencode.ai/v2/docs/console/inference/)
 verwendet den OpenAI-kompatiblen Endpunkt `/inference/openai/v1/chat/completions`
 und dokumentiert, dass kostenlose Chatmodelle ohne Bearer-Schlüssel erreichbar sind.

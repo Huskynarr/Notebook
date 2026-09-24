@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isAllowedOpenRouterModel, isOpenRouter } from './llm/openrouter.ts';
 import { isIP } from 'node:net';
 
 function validProxy(value: string): boolean {
@@ -91,8 +92,8 @@ const ConfigSchema = z
     LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
     LLM_TEMPERATURE: z.coerce.number().min(0).max(2).default(0),
 
-    /** Opt-in semantic ordering of FTS hits; a separate OpenRouter credential
-     * keeps the chat provider key from being sent to another service. */
+    /** Both OpenRouter APIs use the same server credential. Enabling semantic
+     * retrieval remains an independent opt-in because free calls log excerpts. */
     EMBEDDING_PROVIDER: z.enum(['none', 'openrouter']).default('none'),
     OPENROUTER_EMBEDDING_KEY: z.string().default(''),
 
@@ -107,6 +108,20 @@ const ConfigSchema = z
       .transform((v) => v === 'true'),
   })
   .superRefine((config, ctx) => {
+    if (config.LLM_PROVIDER === 'openai' && isOpenRouter(config.LLM_BASE_URL)) {
+      if (!config.OPENROUTER_EMBEDDING_KEY)
+        ctx.addIssue({
+          code: 'custom',
+          path: ['OPENROUTER_EMBEDDING_KEY'],
+          message: 'OpenRouter-Schlüssel für Chatantworten erforderlich.',
+        });
+      if (!isAllowedOpenRouterModel(config.LLM_BASE_URL, config.LLM_MODEL))
+        ctx.addIssue({
+          code: 'custom',
+          path: ['LLM_MODEL'],
+          message: 'Nur das freigegebene kostenlose OpenRouter-Modell ist zulässig.',
+        });
+    }
     if (config.EMBEDDING_PROVIDER === 'openrouter' && !config.OPENROUTER_EMBEDDING_KEY) {
       ctx.addIssue({
         code: 'custom',
@@ -175,7 +190,11 @@ export function publicLlmInfo(config: Config): {
   model: string;
 } {
   return {
-    configured: config.LLM_PROVIDER === 'openai',
+    configured:
+      config.LLM_PROVIDER === 'openai' &&
+      (!isOpenRouter(config.LLM_BASE_URL) ||
+        (isAllowedOpenRouterModel(config.LLM_BASE_URL, config.LLM_MODEL) &&
+          !!config.OPENROUTER_EMBEDDING_KEY)),
     provider: config.LLM_PROVIDER,
     model: config.LLM_PROVIDER === 'stub' ? 'kein Modell verbunden' : config.LLM_MODEL,
   };

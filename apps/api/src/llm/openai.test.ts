@@ -5,6 +5,7 @@ import {
   OpenAiCompatibleProvider,
 } from './openai.ts';
 import { extractJson, ModelAnswerSchema } from './provider.ts';
+import { OPENROUTER_BASE_URL, OPENROUTER_FREE_CHAT_MODEL } from './openrouter.ts';
 
 const modelAnswer = {
   grounded: true,
@@ -54,6 +55,29 @@ describe('OpenAI-kompatibler HTTP-Vertrag', () => {
     vi.stubGlobal('fetch', fetchMock);
     await new OpenAiCompatibleProvider({ ...options, apiKey: '' }).complete(request);
     expect(fetchMock.mock.calls[0]?.[1]?.headers).not.toHaveProperty('authorization');
+  });
+
+  it('limits OpenRouter to the free chat ID and sends its key only in the header', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(completion());
+    vi.stubGlobal('fetch', fetchMock);
+    const result = await new OpenAiCompatibleProvider({
+      ...options,
+      baseUrl: OPENROUTER_BASE_URL,
+      model: OPENROUTER_FREE_CHAT_MODEL,
+    }).complete(request);
+    expect(result.model).toBe(OPENROUTER_FREE_CHAT_MODEL);
+    const [url, init] = fetchMock.mock.calls[0]!;
+    expect(url).toBe(`${OPENROUTER_BASE_URL}/chat/completions`);
+    expect(init?.headers).toMatchObject({ authorization: `Bearer ${options.apiKey}` });
+    expect(init?.body).not.toContain(options.apiKey);
+    await expect(
+      new OpenAiCompatibleProvider({
+        ...options,
+        baseUrl: OPENROUTER_BASE_URL,
+        model: 'qwen/qwen3.8-27b',
+      }).complete(request),
+    ).rejects.toThrow('nicht für die kostenlose Demo freigegeben');
+    expect(fetchMock).toHaveBeenCalledOnce();
   });
 
   it('ruft MiMo V2.6 Flash Free an der Console ohne Schlüssel und ohne ungeprüftes response_format auf', async () => {

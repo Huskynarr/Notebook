@@ -24,6 +24,7 @@ import {
   verify,
 } from './auth.ts';
 import { askSites, LlmUnavailableError } from './ask.ts';
+import { isAllowedOpenRouterModel, isOpenRouter } from '../llm/openrouter.ts';
 import { isFreeMimoConsole, isOpenCodeConsole } from '../llm/freeMimo.ts';
 import {
   isAllowedConsoleModel,
@@ -131,13 +132,16 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
           env.LLM_PROVIDER === 'openai' &&
           !!env.LLM_BASE_URL &&
           !!env.LLM_MODEL &&
-          (isOpenCodeConsole(env.LLM_BASE_URL)
-            ? isAllowedConsoleModel(env.LLM_BASE_URL, env.LLM_MODEL) &&
-              (isFreeMimoConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
-                isFreeMuseConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
-                isFreeNemotronConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
-                !!env.LLM_API_KEY)
-            : !!env.LLM_API_KEY),
+          (isOpenRouter(env.LLM_BASE_URL)
+            ? isAllowedOpenRouterModel(env.LLM_BASE_URL, env.LLM_MODEL) &&
+              !!env.OPENROUTER_EMBEDDING_KEY
+            : isOpenCodeConsole(env.LLM_BASE_URL)
+              ? isAllowedConsoleModel(env.LLM_BASE_URL, env.LLM_MODEL) &&
+                (isFreeMimoConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
+                  isFreeMuseConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
+                  isFreeNemotronConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
+                  !!env.LLM_API_KEY)
+              : !!env.LLM_API_KEY),
         provider: env.LLM_PROVIDER === 'openai' ? 'openai' : 'stub',
         model: env.LLM_PROVIDER === 'openai' ? (env.LLM_MODEL ?? '') : 'kein Modell verbunden',
         accessBlocked,
