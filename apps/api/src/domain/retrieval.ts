@@ -8,7 +8,8 @@ import { parseRow } from '../db/rows.ts';
  *
  * Bewusst nachvollziehbar: man kann an der erzeugten MATCH-Abfrage ablesen,
  * warum ein Abschnitt gefunden wurde. Das stuetzt den Qualitaetsfokus mehr als
- * ein Aehnlichkeitswert, den niemand nachrechnen kann.
+ * ein Aehnlichkeitswert, den niemand nachrechnen kann. Gewichte und
+ * Fehlertoleranz sind in docs/indexing.md begruendet, nicht als Optimum gemessen.
  */
 
 /** Sehr haeufige deutsche und englische Woerter, die als Suchbegriff nur Rauschen

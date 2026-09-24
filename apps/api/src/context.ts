@@ -1,15 +1,29 @@
 import type { Config } from './config.ts';
 import { Auth } from './auth.ts';
+import { LoginThrottle } from './loginThrottle.ts';
 import { openDatabase, type Db } from './db/database.ts';
 import { NoteRepository, NotebookRepository, SourceRepository } from './db/repositories.ts';
 import { OpenAiCompatibleProvider } from './llm/openai.ts';
 import { StubProvider } from './llm/stub.ts';
 import type { LlmProvider } from './llm/provider.ts';
+import { isOpenRouter } from './llm/openrouter.ts';
+
+/** User-selected free models retain the configured endpoint and server-only key. */
+export function selectedOpenRouterProvider(config: Config, model: string): LlmProvider {
+  return new OpenAiCompatibleProvider({
+    baseUrl: config.LLM_BASE_URL,
+    apiKey: config.OPENROUTER_EMBEDDING_KEY,
+    model,
+    timeoutMs: config.LLM_TIMEOUT_MS,
+    temperature: config.LLM_TEMPERATURE,
+  });
+}
 
 export interface AppContext {
   readonly config: Config;
   readonly db: Db;
   readonly auth: Auth;
+  readonly loginThrottle: LoginThrottle;
   readonly llm: LlmProvider;
   readonly notebooks: NotebookRepository;
   readonly sources: SourceRepository;
@@ -22,11 +36,14 @@ export function createContext(config: Config, db?: Db): AppContext {
     config,
     db: database,
     auth: new Auth(config),
+    loginThrottle: new LoginThrottle(database),
     llm:
       config.LLM_PROVIDER === 'openai'
         ? new OpenAiCompatibleProvider({
             baseUrl: config.LLM_BASE_URL,
-            apiKey: config.LLM_API_KEY,
+            apiKey: isOpenRouter(config.LLM_BASE_URL)
+              ? config.OPENROUTER_EMBEDDING_KEY
+              : config.LLM_API_KEY,
             model: config.LLM_MODEL,
             timeoutMs: config.LLM_TIMEOUT_MS,
             temperature: config.LLM_TEMPERATURE,

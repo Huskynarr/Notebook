@@ -1,0 +1,21 @@
+# Review origin/Cloudflare topology and docs/fail2ban.md before enabling.
+[notebook-auth]
+enabled = false
+filter = notebook-auth
+# journalflags=1 includes user-service journals; the default excludes them.
+backend = systemd[journalflags=1]
+# Replace the UID placeholder with the numeric Plesk subscription user ID.
+journalmatch = _SYSTEMD_USER_UNIT=notebook.service SYSLOG_IDENTIFIER=notebook-api _UID=REPLACE_WITH_SUBSCRIPTION_UID
+usedns = no
+port = http,https
+protocol = tcp
+maxretry = 6
+findtime = 10m
+bantime = 1h
+ignoreip = 127.0.0.0/8 ::1
+# Suitable only where clients reach this origin directly, without a CDN proxy.
+banaction = nftables-multiport
+
+# Alternative raw JSON logfile backend (replace the systemd settings above):
+# backend = polling
+# logpath = /var/log/notebook/api.log

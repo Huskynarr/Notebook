@@ -108,3 +108,307 @@ Gehört hierher, weil es den Wert des Protokolls ausmacht:
 - Jeder Eintrag nennt Datum, Werkzeug, Aufgabe und Prüfung.
 - Generierter Code, der ungeprüft übernommen wurde, wird als solcher eingetragen.
 - Nicht ausgeführte Prüfungen werden als nicht ausgeführt eingetragen, nicht weggelassen.
+
+
+### 2026-09-22 · KI-Einsatz 01
+
+build(ci): vereinheitliche Qualitätsprüfung und lokale Hooks. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 02
+
+fix(api): validiere Zugangskonfiguration und API-Grenzen. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 03
+
+fix(api): sichere Notizbelege und begrenze Dokumentexporte. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 04
+
+fix(api): begrenze Anmeldeversuche und Quellenimporte. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 05
+
+refactor(api): entferne den deaktivierten Websiteabruf. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 06
+
+fix(rag): verweigere unvollständig belegte Modellantworten. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 07
+
+fix(api): begrenze gleichzeitige und tägliche KI-Anfragen. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 08
+
+feat(web): ergänze Everlast-Thema und sichere Themeinitialisierung. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 09
+
+feat(web): ergänze die öffentliche Produktlandingpage. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 10
+
+fix(web): übernehme serverseitige Wartezeiten und Backendkonfiguration. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 11
+
+fix(web): validiere Textimporte und kennzeichne die Browserdemo. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · KI-Einsatz 12
+
+feat(web): verbinde Landingpage und geschützten Quellenarbeitsbereich. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+## 2026-09-22 · Codex, delegierte Entwicklungs- und Prüfaufgaben
+
+Auftrag: vorhandenes Repository zum geschützten Notebook-Prototyp mit Landingpage,
+Themes, Belegvalidierung und Plesk-Auslieferung erweitern. Codex erzeugte und überarbeitete
+Code, Tests, GitHub-Workflows, Deploymentvorlagen und Dokumentation. Delegierte Agenten
+bearbeiteten Authentifizierung, RAG, Oberfläche, Notizintegrität, Pipeline und Fail2ban.
+Übernommen wurden die nach Codeprüfung und tatsächlich ausgeführten Prüfungen validierten
+Änderungen. GitHub-MCP für Repository-Metadaten, Webrecherche in Herstellerdokumentation
+und Browser-Skill für sichtbare Designreferenzen wurden eingesetzt.
+
+Keine proprietären Universitätsquellen und keine Anbieter-Schlüssel wurden an ein
+Live-Modell gesendet. RAG-/Provider-Tests verwenden markierte Testdoppel; Screenshots
+zeigen die tatsächlich gestartete Anwendung im gekennzeichneten Offline-Modus.
+Die abschließenden ausgeführten Befehle/Resultate stehen in docs/progress.md; fehlende
+Live-Anbieter- und Serverabnahme bleiben dort ausdrücklich offen.
+
+Abschließende lokale Prüfung: 176 Unit-/Integrationstests, 10 Tooling-Tests und
+12 Chromium-E2E-Tests bestanden. Die Browserprüfung fand einen fehlenden Offline-
+Belegmarker und mobilen Überlauf; beide wurden korrigiert und erneut geprüft.
+Visuelle Prüfung führte zusätzlich zu bereinigten Screenshots ohne Tooltip/Animation.
+Fail2ban: 5 positive, 7 negative Fälle und 12 Zeitstempel geprüft. Das Release-Paket
+wurde mit reinen Produktionsabhängigkeiten installiert und gestartet (Health 200,
+geschützte Route 401). Ein Review korrigierte die SemVer-Regel vor 1.0 und die Reihenfolge
+der Erstinstallation im Betriebshandbuch. Keine externe Modell- oder Plesk-Abnahme.
+
+
+### 2026-09-22 · Abnahme und Veröffentlichung der Branch
+
+Codex prüfte 13 fachliche Zwischenstände jeweils mit `pnpm verify` in einem isolierten
+Checkout und abschließend den gesamten Browserablauf. Mangels lokaler Git-Push-
+Zugangsdaten wurden die Commits mit GitHub-MCP übertragen; jeder Dateibaum wurde
+gegen den geprüften lokalen Git-Baum abgeglichen. Pull Request #9 wurde geöffnet.
+GitHub CI 35763920968 (Node 22, Chromium, Fail2ban) und CodeQL 35763920983 bestanden
+am Commit 16392b6. Kein Merge und kein Deployment wurden ausgelöst. Diese tatsächlichen
+Resultate wurden in der Fortschrittsdokumentation ergänzt.
+
+
+### 2026-09-22 · Feste Zugänge anpassen
+
+Codex änderte den Standardnamen auf `Huskynar`, ergänzte validierte weitere
+Backend-Zugänge und hinterlegte den angeforderten Zugang `everlabs` ausschließlich
+in der ignorierten lokalen Konfiguration. Ein Agent prüfte und implementierte die
+nutzerbezogene Anmeldedrossel samt Regressionstests. Das vorgegebene Testpasswort
+wurde weder ins Git noch in das Frontend übernommen. Prüfresultate stehen in
+`docs/progress.md`: 190 Unit-/Integrationstests, 10 Tooling-Tests und 13 Browsertests
+bestanden. Beide lokal konfigurierten Zugangspaare wurden zusätzlich gegen die API
+geprüft; der alte Standardname wird abgewiesen. Kein Server-Deployment.
+
+## 2026-09-23 · Sites-Migration
+
+Codex portierte die bestehende API auf einen Sites-Worker mit D1/R2 und
+kontogetrennten Notebooks. Delegierte Agenten untersuchten die Sites-Laufzeit,
+Speichergrenzen, Sicherheitsanforderungen und die vorhandenen CI-/Dokumentations-
+Regeln; sie änderten keine Dateien. Übernommen wurden insbesondere der R2-Pfad
+für 10-MiB-Originaltexte, D1-gestützte Sperren und der Erhalt der bisherigen
+Belegprüfung. Codex schrieb und prüfte die Umsetzung durch TypeScript, ESLint,
+lokale SQLite-kompatible Worker-Tests und einen Worker-Build. Diese Tests sind
+keine externe D1-/R2- oder Live-Modellabnahme. Das bekannte Testpasswort wird
+weder in Quellcode noch in öffentliche Assets eingebaut; Tests verwenden ein
+anderes Passwort.
+
+Codex übertrug die einzeln lokal geprüften Commits in den bestehenden
+GitHub-PR und verglich jeden übertragenen Dateibaum mit dem lokalen Git-Baum.
+Die Sites-Werkzeuge veröffentlichten den daraus gebauten Worker; die
+produktive D1-Tabellenübersicht und die öffentliche Landingpage wurden gelesen.
+Der Browserfund eines inhaltlich falschen Datenschutzhinweises führte zu einer
+Korrektur in beiden Sprachfassungen. GitHub CI und CodeQL für den vorherigen
+Stand waren erfolgreich; ein gehosteter Login oder Live-Modellaufruf wurde
+nicht als geprüft ausgegeben.
+Die korrigierte Fassung wurde als Sites-Version 2 erneut veröffentlicht,
+im Browser angezeigt und durch GitHub CI 35834237603 und CodeQL 35834237634
+für genau diesen Produktstand bestätigt.
+
+## 2026-09-23 · Kontonamen, Anbieterdokumentation und bestehende D1-Daten
+
+Codex überprüfte die OpenCode-Herstellerdokumente für Go, Zen, Console Inference
+und die Modellliste. Übernommen wurden die präzisierten Namen `Huskynarr` und
+`Everlast`, die Big-Pickle-Console-Konfiguration, der Hinweis zur begrenzten
+Kostenfreiheit sowie die Angaben zu US-Hosting und möglicher Modellverbesserung.
+Die Aussagen wurden mit den direkt verlinkten Anbieterseiten abgeglichen.
+Codex prüfte die bestehende D1-Notebook-Eigentümerspalte lesend und schlug
+eine idempotente Korrektur beim ersten authentifizierten Zugriff vor, damit das
+vorhandene Notebook unter dem neuen Namen nicht verschwindet. Diese Recherche
+und Dokumentationsänderung belegen keinen erfolgreichen Live-Modellaufruf,
+keine semantisch korrekte Belegantwort und keine bereits ausgeführte
+Datenkorrektur; die Ergebnisse weiterer Tests und des Deployments stehen
+nach ihrem tatsächlichen Lauf in `docs/progress.md`.
+Die generierte Implementierung wurde anschließend mit `pnpm verify` geprüft:
+203 Unit-/Integrationstests und 10 Tooling-Tests bestanden. Der HTTP-Test für
+Big Pickle benutzt einen Testserver-Ersatz; er belegt keinen erfolgreichen
+Anbieteraufruf oder die Qualität der Modellantwort.
+Codex glich den GitHub-Dateibaum der veröffentlichten Änderung mit dem lokalen
+Commit ab, prüfte die erfolgreiche GitHub-CI und CodeQL, veröffentlichte die
+Sites-Version 4 mit korrigierten serverseitigen Zugangsnamen und Big-Pickle-
+Konfiguration und las die produktive D1 nur lesend. Dort ist der alte
+Notebook-Eigentümer noch vorhanden; ein Login und echter Modellaufruf wurden
+nicht ausgeführt und werden nicht als Abnahme gewertet.
+
+## 2026-09-23 · Modellpräzisierung MiMo-V2.6-Flash Free
+
+Auf die spätere Nutzervorgabe hin prüfte Codex erneut die offiziellen OpenCode-
+Dokumente zu [Console-Modellen](https://opencode.ai/v2/docs/console/models/),
+[Inference](https://opencode.ai/v2/docs/console/inference/),
+[Zen](https://opencode.ai/docs/zen/) und [Go](https://opencode.ai/docs/go/).
+Die exakte Modell-ID `mimo-v2.6-flash-free`, der OpenAI-kompatible
+Chat-Completions-Endpunkt, die befristete Kostenfreiheit und die Ausnahmen zur
+Modellverbesserung stammen aus diesen Quellen. Go bietet stattdessen
+`mimo-v2.6-flash` ohne `-free` mit Tokenpreisen. Codex änderte die
+Konfigurationsbeispiele und die deutschen und englischen Hinweise der
+Landingpage. Die bereits veröffentlichte Big-Pickle-Version 4 und ihre
+Prüfergebnisse bleiben als historischer Stand erhalten. Diese Dokumentenprüfung
+und die automatisierten Testdoppel belegen keinen Live-Aufruf des MiMo-Modells
+und keine geprüfte semantische Übereinstimmung von Antwort und Originalquelle.
+
+## 2026-09-23 · Quellenbeispiel Everlast und Sites-Archivierung
+
+Codex und zwei delegierte Agenten prüften Unternehmensimpressum, FAQ und einen
+amtlichen Registertreffer, paraphrasierten die zwei Websitequellen für das
+Startnotebook und schrieben einen konkreten Pfad für die weitere amtliche
+Recherche. Aus dem Suchtreffer wurden keine Bilanzzahlen oder Beteiligungen
+abgeleitet, da der Volltext nicht gelesen werden konnte. Die Tests und
+Beispieltexte wurden auf die belegbare Frage nach Gesellschaft und Vertretung
+ausgerichtet. Codex implementierte eine versionierte Beispiel-ID, damit beim
+Wechsel von der alten fiktiven Prüfungsordnung zu Everlast Quellen- und
+Notizdaten nicht gelöscht werden. Die ausführlichen Prüfergebnisse folgen
+nach dem tatsächlichen Lauf in `docs/progress.md`.
+Der vollständige lokale `pnpm verify`-Lauf bestand mit 205 Unit-/
+Integrationstests und 10 Tooling-Tests; diese automatisierten Testdoppel
+belegen weder einen gehosteten Login noch eine echte Modellantwort.
+
+Codex trennte Modell- und Beispieländerung in zwei jeweils mit `pnpm verify`
+geprüfte Commits (204 beziehungsweise 205 Unit-/Integrationstests, jeweils
+10 Tooling-Tests). Über den GitHub-Connector wurden die Commit-Bäume exakt
+mit den lokalen Bäumen verglichen; GitHub CI und CodeQL für den zweiten
+Commit meldeten Erfolg. Über Sites wurde daraus Version 5 mit dem serverseitigen
+MiMo-Free-Laufzeitwert veröffentlicht, die aktive Custom Domain wurde geprüft.
+Ein produktiver Login oder Live-Modellaufruf bleibt ungetestet.
+Sites-Version 6 wurde aus dem nachgeführten Dokumentationscommit veröffentlicht.
+Ein direkter HTTPS-Abruf des produktiven Health-Endpunkts bestätigte die
+MiMo-Free-Modell-ID; das ist noch kein Test einer echten KI-Antwort.
+
+## 2026-09-23 · Live-Fehleranalyse für externes MiMo-Free-Profil
+
+Codex prüfte die produktive Health-Antwort, meldete sich mit dem vorhandenen
+Everlast-Testzugang an, las das neue Beispiel samt zwei Quellen und stellte
+eine nicht vertrauliche Frage. Die Antwort war HTTP 503; ein unabhängiger
+anonymer POST an OpenCodes Inference-API ergab HTTP 403 `FreeTierError`.
+Ein delegierter Rechercheagent verglich die offiziellen Anbieterangaben zu
+Console, Go und Xiaomi; keine kostenlose externe V2.6-API konnte dadurch
+bestätigt werden. Codex übernahm diese Einschränkung in die Dokumentation
+und implementierte einen ausdrücklich gesperrten Modellstatus für Sites.
+Kein API-Schlüssel, Testpasswort oder Sitzungstoken wurde in Git-Dateien oder
+Testausgaben geschrieben; aus diesen Prüfungen folgt kein erfolgreicher
+Live-Modellaufruf und keine geprüfte KI-Belegantwort.
+
+## 2026-09-23 · Console-Key-Pfad und Fehlermeldung im Fragefeld
+
+Codex verglich die erneute Nutzer-Rückmeldung mit dem produktiven Health-Status
+und dem Backend-Fehlerpfad. Die OpenCode-Console-Dokumentation wurde für
+Service-Account-Authentifizierung und die freie Modell-ID erneut gelesen.
+Der Code wurde so angepasst, dass ein ausdrücklich serverseitig konfigurierter
+Schlüssel nur mit dem festen MiMo-Free-Modell gesendet werden kann; der
+produktive Sperrstatus bleibt bestehen. Ein Hinweis am Fragefeld verhindert
+weitere irreführende Fehlversuche. Vertragstests prüfen Modell-ID,
+Authorization-Header und die Abwesenheit des Schlüssels im Request-Body.
+Ein Schlüssel oder eine echte authentifizierte Modellantwort lag Codex dabei
+nicht vor; ein erfolgreicher externer KI-Aufruf wird nicht behauptet.
+
+## 2026-09-23 · Muse-Spark-Adapter
+
+Codex prüfte den offiziellen OpenCode-Modellkatalog und die Inference-Dokumentation
+für die freie Muse-ID, den Responses-Endpunkt, die Preise und die mögliche
+Trainingsnutzung. Der Vorschlag wurde als streng begrenzter Backend-Adapter
+übernommen; kontrollierte Tests prüfen Auth-Header, Modell-ID, Antwortschema und
+Belegablehnung. Ein echter erfolgreicher Modellaufruf wurde nicht behauptet.
+
+Codex testete dieselbe öffentliche Demo-Frage über die veröffentlichte Site
+mit Muse und dem vorhandenen serverseitigen Secret: HTTP 503 ohne Anbieterantwort.
+Die Site wurde danach erneut gesperrt; die erfolgreiche Antwort oder eine
+Anbieterautorisierung wird nicht behauptet.
+
+## 2026-09-23 · Diagnose des OpenCode-Transports
+
+Codex verglich die zwei gescheiterten Live-Aufrufe und implementierte eine
+redigierte Diagnose im Site-Worker. Die Einordnung bleibt bis zur Beobachtung
+im Worker-Log eine Arbeitshypothese; keine Modellantwort wird simuliert.
+
+Codex prüfte den bereinigten Worker-Log: `TypeError`, `redirect`. Der Code
+wurde für eine einmalige Zielprüfung auf manuelle Redirectbehandlung gestellt;
+ein automatisches Folgen zu unbekannten Domains wurde nicht übernommen.
+
+Codex prüfte die OpenCode-Console-Preise und den erfolgreichen HTTP-Transport
+bis zu OpenCodes 403-Antwort für Muse Free. Als einzelnen regulären Kandidaten
+für einen echten, begrenzten Live-Test wurde GLM 5.3 Flash ausgewählt; seine
+Verfügbarkeit mit dem gespeicherten Schlüssel ist noch ungeprüft.
+
+Codex testete mit dem vorhandenen Sites-Secret eine einzige Everlast-Frage über
+OpenCode GLM Flash. Der Anbieter antwortete HTTP 401; Muse Free gab HTTP 403.
+Die Site wurde wieder gesperrt. Ein Browser-Zugriff auf ein angemeldetes
+OpenCode-Konto wurde nicht abgeschlossen; weder ein Schlüssel noch eine
+Modellantwort wurden daraus übernommen.
+
+## 2026-09-24 · Angemeldete Console und Nemotron-Testpfad
+
+Codex las im angemeldeten OpenCode-Workspace den aktiven Notebook-Service-
+Account, dessen vorhandenen Schlüsselstatus, die freigegebenen Modelle und
+das Guthaben, ohne den geheimen Schlüssel zu lesen oder auszugeben. Die
+offizielle Inference-Dokumentation wurde mit der Console-Anzeige verglichen.
+Der begrenzte schlüssellose Nemotron-Pfad wurde im Site-Worker implementiert;
+Integrationstests prüfen exakte Modell-ID, Endpoint, unterdrückten
+Authorization-Header trotz vorhandenem Secret und gesperrten Status.
+Eine simulierte Fetch-Antwort ist kein Nachweis für externe Verfügbarkeit.
+
+Codex veröffentlichte den geprüften Nemotron-Pfad, setzte ihn nur für eine
+authentifizierte Frage mit einer öffentlichen Everlast-Quelle testweise
+frei und beobachtete HTTP 403 vom Modellendpunkt. Anschließend wurde der
+produktive Status wieder auf `blocked` veröffentlicht und über Health
+geprüft. Diese reale Prüfung erbrachte keine KI-Antwort oder Belege.

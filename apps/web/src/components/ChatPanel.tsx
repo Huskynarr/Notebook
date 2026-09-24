@@ -11,6 +11,7 @@ export interface Exchange {
   readonly id: string;
   readonly question: string;
   readonly selectedCount: number;
+  readonly model?: string;
   readonly response: AskResponse | null;
   readonly error: string | null;
 }
@@ -18,6 +19,11 @@ export interface Exchange {
 export function ChatPanel({
   exchanges,
   pending,
+  modelBlocked,
+  openRouterChat,
+  models,
+  selectedModel,
+  onModelChange,
   selectedCount,
   activeMarker,
   onAsk,
@@ -27,10 +33,15 @@ export function ChatPanel({
 }: {
   exchanges: readonly Exchange[];
   pending: boolean;
+  modelBlocked: boolean;
+  openRouterChat: boolean;
+  models: readonly { id: string; name: string }[];
+  selectedModel: string | null;
+  onModelChange: (model: string) => void;
   selectedCount: number;
   activeMarker: number | null;
   onAsk: (question: string) => void;
-  onSelectCitation: (citation: Citation) => void;
+  onSelectCitation: (citation: Citation, citations: readonly Citation[]) => void;
   onSaveNote: (exchange: Exchange) => void;
   /** Liefert die Teilen-Aktionen für eine Antwort; `element` ist die Karte
    *  für Bild und Druck. */
@@ -47,7 +58,7 @@ export function ChatPanel({
 
   const submit = (text = question): void => {
     const trimmed = text.trim();
-    if (trimmed === '' || pending) return;
+    if (trimmed === '' || pending || modelBlocked) return;
     onAsk(trimmed);
     setQuestion('');
   };
@@ -72,7 +83,7 @@ export function ChatPanel({
                   <button
                     key={b}
                     type="button"
-                    disabled={selectedCount === 0}
+                    disabled={selectedCount === 0 || modelBlocked}
                     onClick={() => {
                       submit(b);
                     }}
@@ -97,6 +108,7 @@ export function ChatPanel({
                 <p className="text-body text-content">{exchange.question}</p>
                 <p className="text-meta text-content-muted mt-1">
                   {t('chat.considered', { count: exchange.selectedCount })}
+                  {exchange.model === undefined ? '' : ` · ${exchange.model}`}
                 </p>
               </div>
             </div>
@@ -112,7 +124,9 @@ export function ChatPanel({
                 exchange={exchange}
                 response={exchange.response}
                 activeMarker={activeMarker}
-                onSelectCitation={onSelectCitation}
+                onSelectCitation={(citation) => {
+                  onSelectCitation(citation, exchange.response?.citations ?? [citation]);
+                }}
                 onSaveNote={() => {
                   onSaveNote(exchange);
                 }}
@@ -135,6 +149,44 @@ export function ChatPanel({
       </div>
 
       <div className="border-border-subtle bg-surface no-print border-t px-6 py-3">
+        {models.length > 0 && selectedModel !== null && (
+          <div className="mb-3 max-w-sm">
+            <label htmlFor="chat-model" className="text-label text-content mb-1 block">
+              {t('chat.modelLabel')}
+            </label>
+            <select
+              id="chat-model"
+              value={selectedModel}
+              disabled={pending || modelBlocked}
+              onChange={(event) => {
+                onModelChange(event.target.value);
+              }}
+              className={cx(
+                'border-border bg-surface-raised text-body text-content w-full rounded-sm border px-3 py-2',
+                'hover:border-border-strong focus:border-action disabled:cursor-not-allowed',
+              )}
+            >
+              {models.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name}
+                </option>
+              ))}
+            </select>
+            <p className="text-meta text-content-muted mt-1">{t('chat.modelHint')}</p>
+          </div>
+        )}
+        {openRouterChat && (
+          <p className="text-meta text-warning mb-2" role="status">
+            {t('chat.openRouterPrivacy')}
+          </p>
+        )}
+        {modelBlocked && (
+          <div className="mb-3">
+            <InlineNote tone="warning" title={t('chat.modelBlockedTitle')}>
+              {t('chat.modelBlockedBody')}
+            </InlineNote>
+          </div>
+        )}
         {selectedCount === 0 && (
           <div className="mb-3">
             <InlineNote tone="warning" title={t('chat.noSourceTitle')}>
@@ -147,6 +199,7 @@ export function ChatPanel({
             ref={inputRef}
             rows={Math.min(8, Math.max(1, question.split('\n').length))}
             value={question}
+            disabled={modelBlocked}
             aria-label={t('chat.inputLabel')}
             placeholder={t('chat.inputPlaceholder')}
             onChange={(event) => {
@@ -161,12 +214,14 @@ export function ChatPanel({
             className={cx(
               'border-border bg-surface-raised max-h-48 min-h-[42px] flex-1 resize-none rounded-sm border px-3 py-2',
               'text-body text-content placeholder:text-content-subtle hover:border-border-strong focus:border-action',
+              'disabled:bg-surface-inset disabled:cursor-not-allowed',
             )}
           />
           <Button
             variant="primary"
             size="lg"
             loading={pending}
+            disabled={modelBlocked}
             onClick={() => {
               submit();
             }}

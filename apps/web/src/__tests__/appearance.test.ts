@@ -3,30 +3,30 @@ import { describe, expect, it } from 'vitest';
 import { DESIGNS, DESIGN_SCHLUESSEL, MODI, MODUS_SCHLUESSEL } from '../lib/appearance.ts';
 
 /**
- * Das Inline-Skript in index.html setzt Design und Erscheinungsbild, bevor der
+ * Das Bootstrap-Skript in appearance.js setzt Design und Erscheinungsbild, bevor der
  * Browser zeichnet - sonst blitzt beim Laden das Vorgabedesign auf. Es kann die
  * Konstanten aus dem Modul nicht importieren, weil es vor dem Bundle laeuft.
  * Diese Verdopplung ist unvermeidlich; dass sie nicht auseinanderlaeuft, ist es
  * nicht.
  */
-const INDEX_HTML = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
+const BOOTSTRAP = readFileSync(new URL('../../public/appearance.js', import.meta.url), 'utf8');
 
 describe('Erscheinungsbild', () => {
-  it('index.html verwendet dieselben Speicherschluessel wie das Modul', () => {
-    expect(INDEX_HTML).toContain(DESIGN_SCHLUESSEL);
-    expect(INDEX_HTML).toContain(MODUS_SCHLUESSEL);
+  it('appearance.js verwendet dieselben Speicherschluessel wie das Modul', () => {
+    expect(BOOTSTRAP).toContain(DESIGN_SCHLUESSEL);
+    expect(BOOTSTRAP).toContain(MODUS_SCHLUESSEL);
   });
 
-  it('index.html liest wie das Modul beide Speicher (Einwilligung, lib/consent.ts)', () => {
-    expect(INDEX_HTML).toContain('localStorage.getItem');
-    expect(INDEX_HTML).toContain('sessionStorage.getItem');
+  it('appearance.js liest wie das Modul beide Speicher (Einwilligung, lib/consent.ts)', () => {
+    expect(BOOTSTRAP).toContain('localStorage.getItem');
+    expect(BOOTSTRAP).toContain('sessionStorage.getItem');
   });
 
-  it('index.html kennt jedes Design und jeden Modus', () => {
-    for (const design of DESIGNS) expect(INDEX_HTML).toContain(design.id);
+  it('appearance.js kennt jedes Design und jeden Modus', () => {
+    for (const design of DESIGNS) expect(BOOTSTRAP).toContain(design.id);
     for (const modus of MODI) {
       if (modus.id === 'system') continue;
-      expect(INDEX_HTML).toContain(modus.id);
+      expect(BOOTSTRAP).toContain(modus.id);
     }
   });
 

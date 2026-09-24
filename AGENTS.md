@@ -62,7 +62,8 @@ Typen und ihre Wirkung auf die Version (SemVer, MAJOR.MINOR.PATCH):
 - Im Frontend-Bundle steht kein API-Schlüssel, kein Token, kein Passwort — auch nicht in
   `.env`-Dateien, die über `VITE_`-Variablen eingelesen werden. Alles, was mit `VITE_`
   beginnt, landet im Klartext im ausgelieferten JavaScript.
-- Erlaubt im Frontend ist genau eine Konfiguration: `VITE_API_BASE_URL`.
+- Erlaubte öffentliche Build-Konfiguration: `VITE_API_BASE_URL`, `VITE_BASE_PATH` und
+  `VITE_DEMO`. Letzteres ist ausschließlich die klar ungeschützte Browserdemo.
 - LLM-Zugangsdaten leben ausschließlich im Backend-Prozess und verlassen ihn nie — auch
   nicht in Fehlermeldungen, Logs oder API-Antworten.
 - Der Test `apps/web/src/__tests__/no-secrets.test.ts` prüft das gebaute Bundle auf
@@ -107,8 +108,9 @@ Das ist der Produktkern; die Regeln dazu sind strenger als der Rest.
 - Jede inhaltliche Aussage einer KI-Antwort trägt mindestens einen Beleg-Marker.
 - Ein Marker zeigt auf einen Chunk, der in **diesem** Abruf tatsächlich zurückgegeben wurde,
   mit Quell-ID und Zeichen-Offsets in den Originaltext.
-- Marker, die serverseitig nicht gegen die abgerufenen Chunks aufgelöst werden können,
-  werden verworfen, bevor die Antwort das Backend verlässt. Sie erreichen nie das UI.
+- Ungültige Marker, nicht auffindbare Zitate oder unbelegte Sätze führen bei echten
+  Modellantworten zum Zurückhalten der gesamten Antwort. Bloßes Entfernen des Markers
+  genügt nicht. Offline-Fundstellen bleiben als Simulation gekennzeichnet.
 - Trägt keine Quelle die Frage, ist die korrekte Antwort die Auskunft, dass die ausgewählten
   Quellen das nicht hergeben — nicht eine Antwort aus Modellwissen.
 - Änderungen an Chunking, Retrieval oder Zitat-Validierung brauchen einen Test, der den
@@ -134,3 +136,15 @@ Bei jeder inhaltlichen Änderung mitzuführen, knapp und ohne Prosa-Ballast:
 4. `pnpm verify` ausführen und die **echte** Ausgabe ansehen.
 5. Doku nach Regel 9 nachziehen.
 6. Committen nach Regel 2.
+
+## 11. Betrieb und Missbrauchsgrenzen
+
+- Kein öffentliches Deployment mit dem Standardpasswort admin; localhost bleibt die explizite Demo-Ausnahme.
+- Jede Datenroute verlangt ein serverseitig geprüftes Token; Clientprüfungen ergänzen nur.
+- Uploadgröße in UTF-8-Bytes auf beiden Seiten prüfen; Begrenzungen nie nur im UI.
+- Forwarded-Header nur von konfigurierten vertrauenswürdigen Proxys akzeptieren.
+- Kein neuer URL-Abruf, kein Crawling und kein zusätzliches Konto-/Rollenmodell ohne Auftrag.
+- Ein wiedergefundenes Zitat ist kein Beweis für die inhaltliche Richtigkeit einer Aussage.
+- Vor Push `pnpm check:all`; die Hooks sind eine Hilfe, CI bleibt verpflichtend.
+- Deployment nur aus demselben geprüften Commit. Fehlende Modell-/Serverzugänge ehrlich
+  als offen dokumentieren; keine ungetestete Veröffentlichung behaupten.

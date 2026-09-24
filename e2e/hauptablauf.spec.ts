@@ -16,9 +16,10 @@ async function login(page: Page): Promise<void> {
   // Einwilligung und Einfuehrung erscheinen nur beim ersten Start eines
   // Browsers - hier also in jedem Test, weil jeder mit leerem Speicher beginnt.
   await page.getByRole('button', { name: 'Alle akzeptieren' }).click();
-  await page.getByRole('button', { name: 'Überspringen' }).click();
+  await page.getByRole('button', { name: 'Anmelden' }).click();
   await page.getByLabel('Passwort').fill('admin');
   await page.getByRole('button', { name: 'Anmelden' }).click();
+  await page.getByRole('button', { name: 'Überspringen' }).click();
   // Auf ein Element warten, das in jeder Breite sichtbar ist: die
   // Quellenspalte ist auf schmalen Bildschirmen hinter einem Tab.
   await expect(page.getByRole('button', { name: 'Fragen' })).toBeVisible();
@@ -54,7 +55,10 @@ test('Einwilligung kommt vor allem anderen; ohne Zustimmung bleiben Einstellunge
   await banner.getByRole('button', { name: 'Auswahl speichern' }).click();
   await expect(banner).toHaveCount(0);
 
-  // Danach die Einfuehrung: die Sprachwahl darf nicht dauerhaft landen.
+  // Die Einführung startet erst im geschützten Arbeitsbereich.
+  await page.getByRole('button', { name: 'Anmelden' }).click();
+  await page.getByLabel('Passwort').fill('admin');
+  await page.getByRole('button', { name: 'Anmelden' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'English' }).click();
   await page.getByRole('button', { name: 'Skip' }).click();
   const gespeichert = await page.evaluate(() => ({
@@ -74,6 +78,11 @@ test('Einführung fragt beim ersten Start nach Sprache und Design und erscheint 
 }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Alle akzeptieren' }).click();
+  await expect(page.getByRole('heading', { name: /Gute Antworten/ })).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Anmelden' }).click();
+  await page.getByLabel('Passwort').fill('admin');
+  await page.getByRole('button', { name: 'Anmelden' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByText('Schritt 1 von 3')).toBeVisible();
   await dialog.getByRole('button', { name: 'English' }).click();
@@ -84,20 +93,60 @@ test('Einführung fragt beim ersten Start nach Sprache und Design und erscheint 
   await dialog.getByRole('button', { name: 'Next' }).click();
   await dialog.getByRole('button', { name: /Get started|Start/ }).click();
   await expect(dialog).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Ask', exact: true })).toBeVisible();
 
   await page.reload();
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Ask', exact: true })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 });
 
 test('Beispiel-Notebook ist nach dem Start sofort nutzbar', async ({ page }) => {
   await login(page);
   await selectAllSources(page);
-  await expect(page.getByText('Prüfungsordnung (Beispiel).md')).toBeVisible();
-  await expect(page.getByText('Merkblatt Prüfungsamt.md')).toBeVisible();
+  await expect(page.getByText('Everlast Consulting GmbH – Impressum.md')).toBeVisible();
+  await expect(page.getByText('Everlast AI – Selbstauskunft.md')).toBeVisible();
   await expect(page.getByText('2 von 2 ausgewählt')).toBeVisible();
+});
+
+test('Modellauswahl sendet nur die gewählte Free-ID und zeigt das Anbieterlimit', async ({
+  page,
+}) => {
+  await page.route('**/v1/health', async (route) => {
+    await route.fulfill({
+      json: {
+        status: 'ok',
+        version: 'test',
+        llm: {
+          configured: true,
+          provider: 'openai',
+          model: 'google/gemma-4-26b-a4b-it:free',
+          selectableModels: [
+            { id: 'google/gemma-4-26b-a4b-it:free', name: 'Gemma 4 · Free' },
+            { id: 'nvidia/nemotron-3.5-lightning:free', name: 'Nemotron · Free' },
+          ],
+        },
+      },
+    });
+  });
+  let modelSent: string | undefined;
+  await page.route('**/v1/notebooks/*/ask', async (route) => {
+    const input = route.request().postDataJSON() as { model?: string };
+    modelSent = input.model;
+    await route.fulfill({
+      status: 503,
+      json: { error: { code: 'llm_unavailable', message: 'OpenRouter HTTP 429.' } },
+    });
+  });
+  await login(page);
+  await selectAllSources(page);
+  await page
+    .getByRole('combobox', { name: 'KI-Modell' })
+    .selectOption('nvidia/nemotron-3.5-lightning:free');
+  await page.getByLabel('Frage an die ausgewählten Quellen').fill('Wen nennt das Impressum?');
+  await page.getByRole('button', { name: 'Fragen' }).click();
+  await expect(page.getByText('OpenRouter HTTP 429.')).toBeVisible();
+  expect(modelSent).toBe('nvidia/nemotron-3.5-lightning:free');
 });
 
 test('ohne Modell wird die Antwort sichtbar als simuliert gekennzeichnet', async ({ page }) => {
@@ -105,17 +154,18 @@ test('ohne Modell wird die Antwort sichtbar als simuliert gekennzeichnet', async
   await selectAllSources(page);
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
-    .fill('Wie lange ist die Widerspruchsfrist?');
+    .fill('Wer vertritt die Everlast Consulting GmbH laut Impressum?');
   await page.getByRole('button', { name: 'Fragen' }).click();
   await expect(page.getByText('Simulierte Antwort — kein Modell verbunden')).toBeVisible();
 });
 
 test('ein Beleg fuehrt zur hervorgehobenen Stelle im Original', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
   await login(page);
   await selectAllSources(page);
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
-    .fill('Wie lange ist die Widerspruchsfrist?');
+    .fill('Wer vertritt die Everlast Consulting GmbH laut Impressum?');
   await page.getByRole('button', { name: 'Fragen' }).click();
 
   const marker = page.locator('button[aria-label^="Beleg"]').first();
@@ -129,32 +179,47 @@ test('ein Beleg fuehrt zur hervorgehobenen Stelle im Original', async ({ page })
 
   // Die hervorgehobene Stelle muss woertlich im Belegverzeichnis stehen.
   await expect(page.getByText(/Zeichen \d+–\d+/).first()).toBeVisible();
+  if (process.env['UPDATE_SCREENSHOTS'] === '1') {
+    // Citation tooltips must not obscure the original; capture the final
+    // highlight state rather than the temporary citation-flash animation.
+    await page.getByLabel('Frage an die ausgewählten Quellen').focus();
+    await expect(page.getByRole('tooltip')).toHaveCount(0);
+    await page.screenshot({ path: 'docs/bilder/workspace-everlast.png', animations: 'disabled' });
+    await page.getByRole('button', { name: 'Einstellungen', exact: true }).click();
+    await page.getByRole('radio', { name: /huskynarr/ }).check();
+    await page.getByRole('button', { name: 'Fertig', exact: true }).click();
+    await page.getByLabel('Frage an die ausgewählten Quellen').focus();
+    await expect(page.getByRole('tooltip')).toHaveCount(0);
+    await page.screenshot({ path: 'docs/bilder/workspace-huskynarr.png', animations: 'disabled' });
+  }
 });
 
 test('abgewaehlte Quellen werden nicht beruecksichtigt', async ({ page }) => {
   await login(page);
   await selectAllSources(page);
-  await page.getByLabel('Merkblatt Prüfungsamt.md für Fragen berücksichtigen').uncheck();
+  await page.getByLabel('Everlast AI – Selbstauskunft.md für Fragen berücksichtigen').uncheck();
   await expect(page.getByText('1 von 2 ausgewählt')).toBeVisible();
 
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
-    .fill('Was steht zur Einsicht in die Prüfungsakte?');
+    .fill('Welche Gründer nennt die Everlast-Website?');
   await page.getByRole('button', { name: 'Fragen' }).click();
   await expect(page.getByText('1 Quellen berücksichtigt')).toBeVisible();
-  await expect(page.getByText('Merkblatt Prüfungsamt.md · Merkblatt')).toHaveCount(0);
+  await expect(page.getByText(/Everlast AI – Selbstauskunft\.md ·/)).toHaveCount(0);
 });
 
 test('ohne ausgewaehlte Quelle wird nicht geantwortet', async ({ page }) => {
   await login(page);
   await selectAllSources(page);
-  await page.getByLabel('Prüfungsordnung (Beispiel).md für Fragen berücksichtigen').uncheck();
-  await page.getByLabel('Merkblatt Prüfungsamt.md für Fragen berücksichtigen').uncheck();
+  await page
+    .getByLabel('Everlast Consulting GmbH – Impressum.md für Fragen berücksichtigen')
+    .uncheck();
+  await page.getByLabel('Everlast AI – Selbstauskunft.md für Fragen berücksichtigen').uncheck();
   await expect(page.getByText('Keine Quelle ausgewählt')).toBeVisible();
 
   await page
     .getByLabel('Frage an die ausgewählten Quellen')
-    .fill('Wie lange ist die Widerspruchsfrist?');
+    .fill('Wer vertritt die Everlast Consulting GmbH laut Impressum?');
   await page.getByRole('button', { name: 'Fragen' }).click();
   await expect(page.getByText('Es ist keine Quelle ausgewählt')).toBeVisible();
 });
@@ -182,6 +247,12 @@ test('eigene Quelle hinzufuegen und Antwort als Notiz speichern', async ({ page 
     .first()
     .click();
   await expect(page.getByRole('heading', { name: 'Wann endet die Rückmeldefrist?' })).toBeVisible();
+  await page.reload();
+  await page
+    .getByRole('tab', { name: /Notizen/ })
+    .first()
+    .click();
+  await expect(page.getByRole('heading', { name: 'Wann endet die Rückmeldefrist?' })).toBeVisible();
 });
 
 test('die Seite scrollt auf einem schmalen Bildschirm nicht waagerecht', async ({ page }) => {
@@ -191,4 +262,35 @@ test('die Seite scrollt auf einem schmalen Bildschirm nicht waagerecht', async (
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(overflow).toBeLessThanOrEqual(0);
+});
+
+test('Dateiimport begrenzt 10 MiB vor Upload und speichert gültigen UTF-8-Text', async ({
+  page,
+}) => {
+  await login(page);
+  await page.getByRole('button', { name: 'Hinzufügen' }).click();
+  await page.getByRole('tab', { name: 'Datei', exact: true }).click();
+  const fileInput = page.getByLabel('Datei wählen (.txt oder .md)');
+  let uploads = 0;
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && request.url().endsWith('/sources')) uploads += 1;
+  });
+  await fileInput.setInputFiles({
+    name: 'too-big.md',
+    mimeType: 'text/markdown',
+    buffer: Buffer.alloc(10 * 1024 * 1024 + 1, 'x'),
+  });
+  await expect(
+    page.getByText('Maximal 10 MiB (10.485.760 Bytes) pro Quelle in dieser Testumgebung.'),
+  ).toBeVisible();
+  expect(uploads).toBe(0);
+  await fileInput.setInputFiles({
+    name: 'upload-check.md',
+    mimeType: 'text/markdown',
+    buffer: Buffer.from('# Upload\n\nPrüfbarer UTF-8-Text mit Ä, Ö und Ü.'),
+  });
+  await expect(page.getByLabel('Titel', { exact: true })).toHaveValue('upload-check.md');
+  await page.getByRole('button', { name: 'Quelle anlegen' }).click();
+  await expect(page.getByLabel('upload-check.md für Fragen berücksichtigen')).toBeChecked();
+  expect(uploads).toBe(1);
 });

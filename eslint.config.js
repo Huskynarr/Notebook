@@ -58,4 +58,12 @@ export default tseslint.config(
     files: ['**/*.test.ts', '**/*.test.tsx', '**/test/**'],
     rules: { '@typescript-eslint/no-non-null-assertion': 'off' },
   },
+  {
+    ...tseslint.configs.disableTypeChecked,
+    files: ['apps/web/public/appearance.js'],
+    languageOptions: {
+      parserOptions: { projectService: false },
+      globals: { document: 'readonly', localStorage: 'readonly', sessionStorage: 'readonly' },
+    },
+  },
 );

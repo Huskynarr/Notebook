@@ -20,7 +20,7 @@ pnpm verify           # das, was die CI prüft: Typen, Stil, Formatierung, Tests
 pnpm test:e2e         # Hauptablauf im Browser (Playwright, Chromium)
 ```
 
-Node ≥ 20.11 und pnpm 9 (`corepack enable`). Ohne Sprachmodell läuft das Backend mit
+Node ≥ 22.18 und pnpm 9.15.9 (`corepack enable`). Ohne Sprachmodell läuft das Backend mit
 `LLM_PROVIDER=stub` — Antworten sind dann gekennzeichnet simuliert, die Belege echt. Details
 in der [README](README.md#ein-echtes-modell-verbinden).
 
@@ -28,7 +28,7 @@ in der [README](README.md#ein-echtes-modell-verbinden).
 
 1. **Eine Änderung je Commit**, prüfbar für sich. Refactoring und Verhalten getrennt.
 2. **Conventional Commits** (`feat:`, `fix:`, `docs:`, `test:`, `ci:`, `chore:`, `refactor:`,
-   `perf:`; Scope frei, z. B. `feat(web): …`). Ein `!` oder `BREAKING CHANGE:` markiert einen
+   `perf:`; Scopes gemäß AGENTS.md, z. B. `feat(web): …`). Ein `!` oder `BREAKING CHANGE:` markiert einen
    Bruch. Daraus entsteht das Release automatisch — falsche Präfixe ergeben falsche Versionen.
 3. **TypeScript strict, Tailwind über Tokens.** Keine Farb-, Abstands- oder Schriftwerte
    direkt im JSX; alles kommt aus `styles/theme.css` (erzeugt aus `tools/build-theme.py`).
@@ -47,8 +47,7 @@ in der [README](README.md#ein-echtes-modell-verbinden).
 
 1. Fork oder Branch von `main`: `feat/<kurz>`, `fix/<kurz>`, `docs/<kurz>`.
 2. Ändern, `pnpm verify` grün, bei Oberflächenänderungen auch `pnpm test:e2e`.
-3. Pull Request nach der Vorlage. Die CI führt Typen, Stil, Tests, E2E und CodeQL aus und
-   hängt einen Kommentar mit der Bundle-Größe und ein Demo-Artefakt an.
+3. Pull Request nach der Vorlage. Die CI führt Typen, Stil, Tests, E2E und CodeQL aus sowie Fail2ban aus. Demo-Artefakte und Deployments werden gesondert manuell ausgelöst.
 4. Review. Kleine PRs werden schnell gemerged; große werden um Aufteilung gebeten.
 
 ## Releases

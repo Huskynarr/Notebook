@@ -4,9 +4,9 @@ import type { Citation, RetrievedChunk } from '@notebook/shared';
  * Validierung der Belege.
  *
  * Der Kern des Produkts steckt in `validateCitations`: Marker, die sich nicht
- * gegen einen tatsaechlich abgerufenen Abschnitt aufloesen lassen, werden aus
- * dem Antworttext entfernt, bevor die Antwort das Backend verlaesst. Ein Marker,
- * der ins Leere zeigt, darf das UI nie erreichen (AGENTS.md Regel 8).
+ * gegen einen tatsächlich abgerufenen Abschnitt und ein auffindbares Zitat
+ * auflösen lassen, werden verworfen. `ask` verwirft anschließend die gesamte
+ * Modellantwort, sobald ein Beleg fehlt (AGENTS.md Regel 8).
  */
 
 /** Erfasst [1] ebenso wie [2,5] und [3, 7]. */
@@ -17,7 +17,7 @@ export function parseMarkers(text: string): number[] {
   for (const match of text.matchAll(MARKER_RE)) {
     for (const part of (match[1] ?? '').split(',')) {
       const n = Number.parseInt(part.trim(), 10);
-      if (Number.isInteger(n)) found.add(n);
+      if (Number.isSafeInteger(n)) found.add(n);
     }
   }
   return [...found].sort((a, b) => a - b);
@@ -101,13 +101,14 @@ export interface ValidationResult {
   readonly answer: string;
   readonly citations: Citation[];
   readonly droppedMarkers: number[];
+  readonly hasInvalidCitations: boolean;
   readonly unsupportedSentenceCount: number;
 }
 
 /**
  * Prueft alle Marker des Antworttexts gegen die abgerufenen Abschnitte.
- * Marker ausserhalb des Bereichs 1..retrieved.length werden aus dem Text
- * entfernt und in `droppedMarkers` berichtet.
+ * Nur Marker mit einem tatsächlich auffindbaren Zitat sind gültig. Ein
+ * Abschnitts-Fallback ist kein Nachweis für ein vom Modell erfundenes Zitat.
  */
 export function validateCitations(
   rawAnswer: string,
@@ -116,19 +117,26 @@ export function validateCitations(
 ): ValidationResult {
   const dropped = new Set<number>();
   const used = new Map<number, Citation>();
+  let hasInvalidCitations = false;
 
   const answer = rawAnswer.replace(MARKER_RE, (_whole: string, group: string) => {
     const numbers = group.split(',').map((p) => Number.parseInt(p.trim(), 10));
     const valid: number[] = [];
     for (const n of numbers) {
       const chunk = retrieved[n - 1];
-      if (!Number.isInteger(n) || n < 1 || chunk === undefined) {
-        if (Number.isInteger(n)) dropped.add(n);
+      if (!Number.isSafeInteger(n) || n < 1 || chunk === undefined) {
+        hasInvalidCitations = true;
+        if (Number.isSafeInteger(n)) dropped.add(n);
+        continue;
+      }
+      const located = locateQuote(chunk, quotes[String(n)]);
+      if (located.precision !== 'exact') {
+        hasInvalidCitations = true;
+        dropped.add(n);
         continue;
       }
       valid.push(n);
       if (!used.has(n)) {
-        const located = locateQuote(chunk, quotes[String(n)]);
         used.set(n, {
           marker: n,
           sourceId: chunk.sourceId,
@@ -152,12 +160,15 @@ export function validateCitations(
     answer: cleaned,
     citations: [...used.values()].sort((a, b) => a.marker - b.marker),
     droppedMarkers: [...dropped].sort((a, b) => a - b),
+    hasInvalidCitations,
     unsupportedSentenceCount: countUnsupportedSentences(cleaned),
   };
 }
 
-/** Zaehlt Saetze ohne Marker. Sehr kurze Fragmente, Aufzaehlungszeichen und
- *  Ueberschriften zaehlen nicht mit - sie tragen keine belegpflichtige Aussage. */
+/** Konservative Formprüfung, keine semantische Wahrheitsprüfung. Auch kurze
+ * Aussagen und Überschriften können Behauptungen enthalten. Der Marker muss
+ * unmittelbar am Ende stehen; ein Beleg am Anfang deckt späteren Text nicht ab.
+ * Dezimalpunkte werden mangels folgendem Leerraum nicht getrennt. */
 export function countUnsupportedSentences(answer: string): number {
   const sentences = answer
     .split(/(?<=[.!?])\s+|\n+/)
@@ -166,10 +177,8 @@ export function countUnsupportedSentences(answer: string): number {
   let count = 0;
   for (const sentence of sentences) {
     const withoutMarkup = sentence.replace(/^[-*\d.)\s#]+/, '').trim();
-    if (withoutMarkup.length < 25) continue;
-    if (withoutMarkup.endsWith(':')) continue;
-    if (!MARKER_RE.test(sentence)) count += 1;
-    MARKER_RE.lastIndex = 0;
+    if (!/[\p{L}\p{N}]/u.test(withoutMarkup.replace(MARKER_RE, ''))) continue;
+    if (!/\[\d+(?:\s*,\s*\d+)*\][.!?]?\s*$/.test(sentence)) count += 1;
   }
   return count;
 }

@@ -5,7 +5,7 @@
  * Tokens daraus folgen, steht in `styles/theme.css` (erzeugt aus
  * `tools/build-theme.py`).
  *
- * Die Speicherschluessel stehen zusaetzlich im Inline-Skript in `index.html`,
+ * Die Speicherschluessel stehen zusaetzlich im Bootstrap-Skript in `public/appearance.js`,
  * das die Auswahl vor dem ersten Zeichnen setzt - sonst blitzt beim Laden kurz
  * das Vorgabedesign auf. Dass beide Stellen dieselben Schluessel verwenden,
  * prueft `__tests__/appearance.test.ts`.
@@ -17,6 +17,11 @@ export const DESIGN_SCHLUESSEL = 'notebook.design';
 export const MODUS_SCHLUESSEL = 'notebook.mode';
 
 export const DESIGNS = [
+  {
+    id: 'everlast',
+    label: 'Everlast · Research',
+    hinweis: 'Eigenständige Interpretation: Schwarz, Zitronengelb und klare Typografie.',
+  },
   {
     id: 'eigen',
     label: 'Papier und Tinte',
@@ -30,7 +35,7 @@ export const DESIGNS = [
   {
     id: 'huskynarr',
     label: 'huskynarr',
-    hinweis: 'Angenähert an huskynarr.de — belegt ist nur die Grundfarbe #0c0a09.',
+    hinweis: 'Angenähert an huskynarr.de — dunkle Steinfarben, Limettengrün und Inter.',
   },
 ] as const;
 
@@ -49,7 +54,7 @@ export interface Erscheinungsbild {
   readonly modus: ModusId;
 }
 
-export const VORGABE: Erscheinungsbild = { design: 'eigen', modus: 'system' };
+export const VORGABE: Erscheinungsbild = { design: 'everlast', modus: 'dark' };
 
 function istDesign(wert: unknown): wert is DesignId {
   return DESIGNS.some((d) => d.id === wert);

@@ -5,7 +5,8 @@
  *   originalText.slice(chunk.startOffset, chunk.endOffset) === chunk.text
  * Ohne diese Zusage ist jeder Beleg wertlos, denn das UI markiert die Stelle
  * anhand der Offsets im Originaltext. `chunking.test.ts` prueft sie fuer jede
- * Beispieleingabe.
+ * Beispieleingabe. Die Grenzwerte sind heuristisch; Begruendung und Grenzen:
+ * docs/indexing.md.
  */
 
 export interface RawChunk {

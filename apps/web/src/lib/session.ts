@@ -1,8 +1,8 @@
 const STORAGE_KEY = 'notebook.session';
 
 /** Das Sitzungstoken liegt im sessionStorage: es ueberlebt einen Seitenwechsel,
- *  aber nicht das Schliessen des Tabs. Ein Geheimnis ist es nicht - es wird vom
- *  Backend ausgestellt und laeuft ab. */
+ *  aber nicht das Schliessen des Tabs. Es ist ein kurzlebiger Zugangsbeleg,
+ *  wird erst vom Backend ausgestellt und niemals statisch ins Bundle eingebaut. */
 export function readToken(): string | null {
   try {
     return window.sessionStorage.getItem(STORAGE_KEY);

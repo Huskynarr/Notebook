@@ -69,7 +69,7 @@ async function start(ctx: AppContext): Promise<{ app: FastifyInstance; token: st
   const login = await app.inject({
     method: 'POST',
     url: '/v1/auth/login',
-    payload: { username: 'admin', password: 'admin' },
+    payload: { username: 'Huskynarr', password: 'admin' },
   });
   return { app, token: body(LoginResponseSchema, login).token };
 }
@@ -123,7 +123,7 @@ describe('Zugangssicherung', () => {
     const response = await app.inject({
       method: 'POST',
       url: '/v1/auth/login',
-      payload: { username: 'admin', password: 'falsch' },
+      payload: { username: 'Huskynarr', password: 'falsch' },
     });
     expect(response.statusCode).toBe(401);
   });
@@ -211,7 +211,7 @@ describe('Notebooks, Quellen und Notizen', () => {
         payload: { kind: 'url', url: adresse },
       });
       expect(response.statusCode).toBe(422);
-      expect(response.body).toContain('fetch_failed');
+      expect(response.body).toContain('not_supported');
     }
   });
 
@@ -274,8 +274,8 @@ describe('Notebooks, Quellen und Notizen', () => {
       url: `/v1/notebooks/${notebook.id}/notes`,
       headers: auth,
       payload: {
-        title: 'Widerspruchsfrist',
-        body: 'Vierzehn Tage [1].',
+        title: 'Vertretung laut Impressum',
+        body: 'Die Website nennt Viktor Schöck.',
         citations: [],
         question: 'Wie lange?',
       },
@@ -289,8 +289,8 @@ describe('Notebooks, Quellen und Notizen', () => {
     expect(response.statusCode).toBe(200);
     expect(response.headers['content-type']).toContain('text/markdown');
     expect(response.body).toContain('# Exporttest');
-    expect(response.body).toContain('Widerspruchsfrist');
-    expect(response.body).toContain('Widerspruchsfrist beträgt vierzehn Tage');
+    expect(response.body).toContain('Vertretung laut Impressum');
+    expect(response.body).toContain('Unter „Vertreten durch“ nennt das Impressum Viktor Schöck.');
   });
 });
 
@@ -311,7 +311,7 @@ describe('Quellenbasierte Antwort', () => {
         method: 'POST',
         url: '/v1/notebooks',
         headers: auth,
-        payload: { title: 'Prüfungsrecht' },
+        payload: { title: 'Everlast-Unternehmensrecherche' },
       }),
     );
     notebookId = notebook.id;
@@ -346,8 +346,8 @@ describe('Quellenbasierte Antwort', () => {
     // oben landet. Das woertliche Zitat wird dann unter der Nummer angegeben,
     // die dieser Abschnitt im Abruf tatsaechlich bekommen hat.
     await setup(new ScriptedProvider({ grounded: true, answer: 'Platzhalter.', quotes: {} }));
-    const probe = await askQuestion('Wie lange ist die Widerspruchsfrist?');
-    const index = probe.retrieved.findIndex((c) => c.text.includes('vierzehn Tage'));
+    const probe = await askQuestion('Wer vertritt die Everlast Consulting GmbH laut Impressum?');
+    const index = probe.retrieved.findIndex((c) => c.text.includes('Viktor Schöck'));
     expect(index).toBeGreaterThanOrEqual(0);
     const marker = String(index + 1);
     await app.close();
@@ -355,17 +355,17 @@ describe('Quellenbasierte Antwort', () => {
     await setup(
       new ScriptedProvider({
         grounded: true,
-        answer: `Die Widerspruchsfrist beträgt vierzehn Tage ab Bekanntgabe [${marker}].`,
-        quotes: { [marker]: 'beträgt vierzehn Tage ab Bekanntgabe der Bewertung' },
+        answer: `Das Impressum nennt Viktor Schöck unter „Vertreten durch“ [${marker}].`,
+        quotes: { [marker]: 'Unter „Vertreten durch“ nennt das Impressum Viktor Schöck.' },
       }),
     );
-    const result = await askQuestion('Wie lange ist die Widerspruchsfrist?');
+    const result = await askQuestion('Wer vertritt die Everlast Consulting GmbH laut Impressum?');
 
     expect(result.grounded).toBe(true);
     expect(result.citations).toHaveLength(1);
     const citation = result.citations[0]!;
     expect(citation.precision).toBe('exact');
-    expect(citation.excerpt).toContain('vierzehn Tage');
+    expect(citation.excerpt).toContain('Viktor Schöck');
 
     // Die Offsets muessen im Originaltext der Quelle genau den Beleg treffen.
     const source = await app.inject({
@@ -381,11 +381,12 @@ describe('Quellenbasierte Antwort', () => {
     await setup(
       new ScriptedProvider({
         grounded: true,
-        answer: 'Die Frist beträgt vierzehn Tage [1]. Zusaetzlich verfaellt der Anspruch [99].',
-        quotes: { '1': 'vierzehn Tage' },
+        answer:
+          'Die Website nennt eine Vertretung [1]. Zusätzlich gibt es eine erfundene Bilanz [99].',
+        quotes: { '1': 'Viktor Schöck' },
       }),
     );
-    const result = await askQuestion('Wie lange ist die Widerspruchsfrist?');
+    const result = await askQuestion('Wer vertritt die Everlast Consulting GmbH laut Impressum?');
 
     expect(result.answer).not.toContain('[99]');
     expect(result.droppedMarkers).toContain(99);
@@ -398,7 +399,7 @@ describe('Quellenbasierte Antwort', () => {
     const provider = new ScriptedProvider({ grounded: true, answer: 'Antwort [1].', quotes: {} });
     await setup(provider);
     const onlyFirst = sourceIds.slice(0, 1);
-    const result = await askQuestion('Was steht zur Einsicht in die Prüfungsakte?', onlyFirst);
+    const result = await askQuestion('Welche Personen nennt die Website als Gründer?', onlyFirst);
     for (const chunk of result.retrieved) {
       expect(onlyFirst).toContain(chunk.sourceId);
     }
@@ -411,7 +412,10 @@ describe('Quellenbasierte Antwort', () => {
       quotes: {},
     });
     await setup(provider);
-    const result = await askQuestion('Wie lange ist die Widerspruchsfrist?', []);
+    const result = await askQuestion(
+      'Wer vertritt die Everlast Consulting GmbH laut Impressum?',
+      [],
+    );
 
     expect(result.grounded).toBe(false);
     expect(result.citations).toHaveLength(0);
@@ -432,7 +436,7 @@ describe('Quellenbasierte Antwort', () => {
 
   it('kennzeichnet den Offline-Modus als simuliert', async () => {
     await setup();
-    const result = await askQuestion('Wie lange ist die Widerspruchsfrist?');
+    const result = await askQuestion('Wer vertritt die Everlast Consulting GmbH laut Impressum?');
     expect(result.simulated).toBe(true);
     expect(result.grounded).toBe(false);
     expect(result.answer).toContain('kein Sprachmodell verbunden');

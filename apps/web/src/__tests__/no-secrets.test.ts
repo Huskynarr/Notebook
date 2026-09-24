@@ -8,9 +8,8 @@ import { describe, expect, it } from 'vitest';
  *
  * Er prueft zwei Ebenen:
  *   1. den Quelltext - dort darf nur eine einzige VITE_-Variable vorkommen;
- *   2. das gebaute Bundle, falls vorhanden - dort darf kein Geheimnismuster
- *      auftauchen. Ohne Build wird Teil 2 ausdruecklich als nicht ausgefuehrt
- *      gemeldet statt stillschweigend uebersprungen.
+ *   2. das gebaute Bundle, verpflichtend - dort darf kein Geheimnismuster
+ *      auftauchen. Ohne Build schlägt Teil 2 fehl; pnpm test und CI bauen zuvor.
  */
 
 const WEB_ROOT = new URL('../..', import.meta.url).pathname;
@@ -63,15 +62,10 @@ describe('Keine Geheimnisse im Frontend', () => {
   });
 
   it('enthält im gebauten Bundle kein Geheimnismuster', () => {
-    if (!existsSync(DIST)) {
-      // Ehrlich statt gruen: der Build liegt nicht vor, also wurde nichts
-      // geprueft. In der CI laeuft der Build vor den Tests.
-      expect(
-        existsSync(DIST),
-        'apps/web/dist fehlt - dieser Teil wurde NICHT geprueft. Zuerst `pnpm --filter @notebook/web build` ausfuehren.',
-      ).toBe(false);
-      return;
-    }
+    expect(
+      existsSync(DIST),
+      'apps/web/dist fehlt: Bundle-Prüfung ist verpflichtend. Zuerst Frontend bauen.',
+    ).toBe(true);
     const bundles = walk(DIST, (n) => n.endsWith('.js'));
     expect(bundles.length).toBeGreaterThan(0);
     const offenders: string[] = [];
@@ -81,6 +75,7 @@ describe('Keine Geheimnisse im Frontend', () => {
         /\bsk-[A-Za-z0-9]{16,}\b/,
         /LLM_API_KEY/,
         /AUTH_PASSWORD/,
+        /AUTH_ADDITIONAL_USERS/,
         /AUTH_SECRET/,
       ]) {
         if (pattern.test(content)) offenders.push(`${file}: ${pattern.source}`);

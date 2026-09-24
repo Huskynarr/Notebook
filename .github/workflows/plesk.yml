@@ -1,0 +1,89 @@
+name: Plesk-Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Geprüftes Release über SSH veröffentlichen (sonst nur Artefakt)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plesk-production
+  cancel-in-progress: false
+
+jobs:
+  pruefen:
+    uses: ./.github/workflows/ci.yml
+
+  paket:
+    needs: pruefen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Produktionsfrontend für dieselbe Origin bauen
+        env:
+          VITE_API_BASE_URL: ''
+          VITE_DEMO: 'false'
+          VITE_BASE_PATH: '/'
+        run: pnpm build
+      - name: Tatsächlich gepacktes Produktionsbundle prüfen
+        run: pnpm test:unit
+      - run: pnpm package:release
+      - name: Archiv packen
+        run: tar -czf notebook-${GITHUB_SHA}.tar.gz -C build/release .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: notebook-plesk-${{ github.sha }}
+          path: notebook-*.tar.gz
+          retention-days: 30
+          if-no-files-found: error
+
+  ausrollen:
+    if: inputs.deploy && github.ref == 'refs/heads/main'
+    needs: paket
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: plesk-production
+      url: https://notebook.sebastianselinger.de
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: notebook-plesk-${{ github.sha }}
+      - name: SSH-Konfiguration prüfen und gepinnten Host verwenden
+        env:
+          PLESK_HOST: ${{ vars.PLESK_HOST }}
+          PLESK_USER: ${{ vars.PLESK_USER }}
+          PLESK_PORT: ${{ vars.PLESK_PORT || '22' }}
+          PLESK_RELEASE_ROOT: ${{ vars.PLESK_RELEASE_ROOT }}
+          PLESK_SSH_KEY: ${{ secrets.PLESK_SSH_KEY }}
+          PLESK_KNOWN_HOSTS: ${{ secrets.PLESK_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          [[ "$PLESK_HOST" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]+$ ]]
+          [[ "$PLESK_USER" =~ ^[a-zA-Z_][a-zA-Z0-9_-]*$ ]]
+          [[ "$PLESK_PORT" =~ ^[0-9]{1,5}$ ]]
+          [[ "$PLESK_RELEASE_ROOT" =~ ^/[a-zA-Z0-9_./-]+$ && "$PLESK_RELEASE_ROOT" != / ]]
+          [[ -n "$PLESK_SSH_KEY" && -n "$PLESK_KNOWN_HOSTS" ]]
+          umask 077
+          mkdir -p "$RUNNER_TEMP/notebook-ssh"
+          printf '%s\n' "$PLESK_SSH_KEY" > "$RUNNER_TEMP/notebook-ssh/key"
+          printf '%s\n' "$PLESK_KNOWN_HOSTS" > "$RUNNER_TEMP/notebook-ssh/known_hosts"
+          options=(-i "$RUNNER_TEMP/notebook-ssh/key" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/notebook-ssh/known_hosts" -o ConnectTimeout=15)
+          archive="/tmp/notebook-${GITHUB_SHA}.tar.gz"
+          scp "${options[@]}" -P "$PLESK_PORT" "notebook-${GITHUB_SHA}.tar.gz" "$PLESK_USER@$PLESK_HOST:$archive"
+          ssh "${options[@]}" -p "$PLESK_PORT" "$PLESK_USER@$PLESK_HOST" bash -s -- "$PLESK_RELEASE_ROOT" "$GITHUB_SHA" "$archive" < tools/deploy-remote.sh
+      - name: Temporären SSH-Schlüssel entfernen
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/notebook-ssh"

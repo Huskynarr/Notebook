@@ -78,6 +78,7 @@ export function SourceViewer({
               size="sm"
               variant="ghost"
               aria-label={t('citation.prev')}
+              disabled={citationIndex === 0}
               onClick={() => {
                 onStep(-1);
               }}
@@ -91,6 +92,7 @@ export function SourceViewer({
               size="sm"
               variant="ghost"
               aria-label={t('citation.next')}
+              disabled={citationIndex >= citationCount - 1}
               onClick={() => {
                 onStep(1);
               }}

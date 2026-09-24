@@ -26,6 +26,11 @@ export const en: Texte = {
   'common.characters': 'characters',
   'common.closeMessage': 'Dismiss message',
 
+  'notes.editableHint':
+    'Notes can be edited. Citations point to original text; they do not independently verify the note’s claims or AI origin.',
+  'notes.sourceMissing': 'Original source deleted. Saved evidence excerpt:',
+  'demo.singleNotebook':
+    'The browser demo contains one example notebook. Full notebook management requires a backend connection.',
   'login.username': 'Username',
   'login.password': 'Password',
   'login.submit': 'Sign in',
@@ -39,6 +44,7 @@ export const en: Texte = {
   'header.chooseNotebook': 'Choose notebook',
   'header.share': 'Share',
   'header.noModel': 'no model connected',
+  'header.externalApiBlocked': 'external API blocked',
 
   'notebook.new.title': 'New notebook',
   'notebook.new.description':
@@ -74,7 +80,7 @@ export const en: Texte = {
   'addSource.tab.file': 'File',
   'addSource.tab.url': 'URL',
   'addSource.titleLabel': 'Title',
-  'addSource.titlePlaceholder': 'e.g. regulations.md',
+  'addSource.titlePlaceholder': 'e.g. company-register-extract.md',
   'addSource.titleHint': 'A title ending in .md is split as Markdown.',
   'addSource.fileLabel': 'Choose file (.txt or .md)',
   'addSource.textLabel': 'Text',
@@ -96,9 +102,9 @@ export const en: Texte = {
   'chat.emptyBody':
     'Answers come exclusively from the sources selected on the left. Every statement carries a citation that points to the passage in the original.',
   'chat.tryOne': 'Try one:',
-  'chat.example1': 'How long is the appeal period?',
-  'chat.example2': 'What must an appeal contain?',
-  'chat.example3': 'How often may an exam be repeated?',
+  'chat.example1': 'Who represents Everlast Consulting GmbH according to its legal notice?',
+  'chat.example2': 'What registry details appear in the legal notice?',
+  'chat.example3': 'Whom does the Everlast website name as founders?',
   'chat.searching': 'Searching {count} {noun} …',
   'chat.sourceOne': 'source',
   'chat.sourceMany': 'sources',
@@ -107,10 +113,17 @@ export const en: Texte = {
   'chat.inputPlaceholder': 'Ask the selected sources …',
   'chat.send': 'Ask',
   'chat.hint': 'Enter sends, Shift+Enter inserts a line break.',
+  'chat.modelLabel': 'AI model',
+  'chat.modelHint': 'Free models only. Selection does not guarantee availability.',
+  'chat.openRouterPrivacy':
+    'OpenRouter Free: your question and selected excerpts go to an external model provider. Use only public, non-sensitive test data.',
   'chat.noSourceTitle': 'No source selected',
   'chat.noSourceBody':
     'Select at least one source on the left. Without a source there is no answer.',
   'chat.errorTitle': 'The question could not be answered',
+  'chat.modelBlockedTitle': 'AI requests temporarily blocked',
+  'chat.modelBlockedBody':
+    'OpenCode rejected external requests to the free MiMo model. You can still use sources and notes; AI answers are currently unavailable.',
   'chat.simulatedTitle': 'Simulated answer — no model connected',
   'chat.simulatedBody':
     'No language model is connected. The passages that were found are shown; nothing was written.',
@@ -178,7 +191,7 @@ export const en: Texte = {
 
   'consent.title': 'Storage on this device',
   'consent.body':
-    'This application sets no cookies and does no tracking. It stores data only in your browser. You decide what stays beyond this session.',
+    'This application sets no cookies and does no tracking. Online notebooks, sources and notes are stored on the server. Here you decide whether local settings remain beyond this session.',
   'consent.necessary.title': 'Necessary',
   'consent.necessary.body':
     'Sign-in session; in the demo also notebooks, sources and notes. The application does not work without them.',
@@ -192,6 +205,21 @@ export const en: Texte = {
   'consent.customize': 'Customise selection',
   'consent.less': 'Show less',
 
+  'login.wait': 'Sign-in available again in {seconds} seconds.',
+  'login.cooldownHint': 'After three failed sign-ins, an increasing cooldown applies.',
+  'login.demoOpen': 'Open demo',
+  'login.demoWarning':
+    'Unprotected browser demo. No real authentication or AI connection. Use sample data only.',
+  'login.back': 'Back to home',
+  'login.protected': 'Protected workspace',
+  'addSource.tooLarge': 'Maximum 10 MiB (10,485,760 bytes) per source in this test environment.',
+  'addSource.invalidFile': 'Only UTF-8 text files in .txt or .md format are supported.',
+  'addSource.unsupportedUrl':
+    'Website import is not available in this release. Import text or Markdown.',
+  'addSource.fileHint': '.txt or .md · UTF-8 · maximum 10 MiB per source',
+  'design.everlast.label': 'Everlast · Research',
+  'design.everlast.hint':
+    'Independent interpretation with black, lemon yellow and clear typography.',
   'design.eigen.label': 'Paper and ink',
   'design.eigen.hint': 'Own design: warm surfaces, serif for reading text, brown for citations.',
   'design.uni-freiburg.label': 'University of Freiburg',

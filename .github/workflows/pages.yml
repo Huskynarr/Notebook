@@ -1,31 +1,27 @@
-name: Pages
+name: Pages (optionale Offline-Demo)
 
-# Veroeffentlicht das Frontend als Demo ohne Server.
-#
-# Die Demo laeuft vollstaendig im Browser: Anmeldung, Notebooks, Quellen,
-# Notizen und Belegmechanik sind echt und liegen im localStorage. Es gibt kein
-# Sprachmodell - Antworten zeigen die gefundenen Belegstellen und sind so
-# gekennzeichnet, genau wie beim Server mit LLM_PROVIDER=stub.
-
+# Bewusst manuell: Das Produkt mit API wird auf Plesk betrieben.
+# Pages ist ausschließlich eine sichtbar markierte Browser-Demonstration.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-# Ein laufender Veroeffentlichungsvorgang wird nicht abgebrochen, damit keine
-# halb hochgeladene Ausgabe stehen bleibt.
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
+  pruefen:
+    uses: ./.github/workflows/ci.yml
+
   bauen:
+    needs: pruefen
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -33,45 +29,15 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-
       - run: pnpm install --frozen-lockfile
-
-      # Die erzeugte theme.css muss zum Generator passen; weicht sie ab, ist
-      # jemand von Hand hineingeraten.
-      - name: Design-Tokens pruefen
-        run: |
-          pnpm theme
-          git diff --exit-code apps/web/src/styles/theme.css
-
-      - name: Frontend als Demo bauen
+      - name: Explizite Offline-Demo bauen
         env:
           VITE_DEMO: 'true'
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
         run: pnpm --filter @notebook/web build
-
-      # 404.html = index.html: so landet ein direkt aufgerufener Unterpfad
-      # nicht auf der Fehlerseite von GitHub.
+      - name: Auch das tatsächlich ausgelieferte Demo-Bundle prüfen
+        run: pnpm test:unit
       - run: cp apps/web/dist/index.html apps/web/dist/404.html
-
-      # Pages muss aus diesem Workflow ausliefern, nicht aus dem Branch. Steht
-      # die Quelle auf "Deploy from a branch", baut GitHub daneben die README
-      # mit Jekyll und ueberschreibt die Anwendung - und dieser Workflow
-      # meldet trotzdem Erfolg. Deshalb hier pruefen, umstellen wenn moeglich,
-      # sonst laut scheitern.
-      - name: Pages-Quelle pruefen
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          quelle=$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq .build_type 2>/dev/null || echo unbekannt)
-          echo "Pages-Quelle: ${quelle}"
-          if [ "${quelle}" != "legacy" ]; then exit 0; fi
-          if gh api -X PUT "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow >/dev/null 2>&1; then
-            echo "Auf 'GitHub Actions' umgestellt."
-            exit 0
-          fi
-          echo "::error::Pages liefert aus dem Branch (${quelle}) statt aus diesem Workflow. In den Repository-Einstellungen unter Pages > Build and deployment > Source 'GitHub Actions' waehlen."
-          exit 1
-
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -80,6 +46,9 @@ jobs:
   veroeffentlichen:
     needs: bauen
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

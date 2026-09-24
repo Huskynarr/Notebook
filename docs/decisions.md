@@ -440,3 +440,402 @@ den Repository-Einstellungen „Allow GitHub Actions to create and approve pull 
 **Nicht gemacht — Vorschau-Adresse je PR:** GitHub Pages kennt eine Seite je Repository;
 eine eigene Adresse je PR bräuchte einen anderen Host (Netlify, Cloudflare Pages) und damit
 Infrastruktur ohne Auftrag (Regel 6). Das Artefakt je PR ist der ehrliche Ersatz.
+
+
+### 2026-09-22 · Entscheidung 01
+
+build(ci): vereinheitliche Qualitätsprüfung und lokale Hooks. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 02
+
+fix(api): validiere Zugangskonfiguration und API-Grenzen. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 03
+
+fix(api): sichere Notizbelege und begrenze Dokumentexporte. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 04
+
+fix(api): begrenze Anmeldeversuche und Quellenimporte. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 05
+
+refactor(api): entferne den deaktivierten Websiteabruf. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 06
+
+fix(rag): verweigere unvollständig belegte Modellantworten. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 07
+
+fix(api): begrenze gleichzeitige und tägliche KI-Anfragen. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 08
+
+feat(web): ergänze Everlast-Thema und sichere Themeinitialisierung. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 09
+
+feat(web): ergänze die öffentliche Produktlandingpage. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 10
+
+fix(web): übernehme serverseitige Wartezeiten und Backendkonfiguration. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 11
+
+fix(web): validiere Textimporte und kennzeichne die Browserdemo. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+### 2026-09-22 · Entscheidung 12
+
+feat(web): verbinde Landingpage und geschützten Quellenarbeitsbereich. Codex bearbeitete die zugehörigen Dateien.
+Prüfung dieses isolierten Zwischenstands: `pnpm verify` im verpflichtenden Commit-Hook.
+Die nachfolgenden Produktänderungen sind in diesem Commit noch nicht enthalten.
+
+
+## D-023 · 2026-09-22 · Bestehende Basis gezielt härten
+
+Neubau verworfen: vorhandenes React/Strict-TypeScript/Tailwind/SQLite-Projekt weitergeführt.
+Pflichtablauf bleibt universitär; gemeinsamer Demo-Admin löst keine Mandantentrennung.
+URL-Import aus D-019 zurückgenommen: nicht im aktuellen Auftrag, bestehender Fetchpfad
+hatte unvollständige SSRF-/Stream-Begrenzung. PDFs weiterhin optional.
+
+## D-024 · 2026-09-22 · Echte Antworten bei Belegfehlern vollständig zurückhalten
+
+Markerentfernung allein ließ unbelegte Behauptungen stehen. Jetzt vollständige Abstention
+bei ungültigen Markern, fehlenden Originalzitaten oder unbelegten Sätzen. Exakte
+Zeichenpositionen belegen Zitatvorkommen, keine semantische Entailment-Garantie.
+Quellenmetadaten bleiben unvertrauenswürdiger Modellkontext. Kein Vektordienst ergänzt.
+
+## D-025 · 2026-09-22 · SQLite-Sperren und feste Demo-Budgets
+
+Login: IP plus gemeinsamer Account, ab Fehler 3 Wartezeit30s, exponentiell bis900s,
+24h ohne Fehler setzt Historie zurück. Rotation/Neustart darf Sperren nicht umgehen.
+Tradeoff: absichtliche Fehlversuche können das gemeinsame Konto vorübergehend sperren.
+Clientcountdown nur Bedienhilfe. Ressourcenlimits und Produktionsstartprüfung statt
+zusätzlicher Redis-/Auth-Infrastruktur. Ein API-Prozess pro Datenbank.
+
+## D-026 · 2026-09-22 · Öffentlicher Einstieg und eigenständige Themes
+
+Landingpage vor dem Login, Einführung erst im Arbeitsbereich. Browserprüfung am22.09:
+Everlast kiberatung.de dunkel #060608, helle Schrift/Inter und gelbe Aktionen;
+Huskynarr.de Stone-Dunkel, Inter Variable und Lime. Daraus eigene Tokenpaletten,
+keine übernommene Markenidentität/Logos. Frühere Teal-Näherung in D-015 beziehungsweise
+Designsystem ersetzt. Inline-Bootstrap als externe Datei für CSP.
+
+## D-027 · 2026-09-22 · Anbieter und Auslieferung
+
+OpenAI-kompatibler Backend-Adapter mit begrenztem Prompt/Response/Timeout beibehalten.
+NVIDIA Nemotron als dokumentiertes Testprofil; OpenCode Go ist kostenpflichtig.
+Kein Schlüssel vorhanden, kein Live-Erfolg behauptet. Plesk nginx+systemd-Benutzerdienst,
+SQLite außerhalb Webroot, feste SSH-Hostprüfung, getestetes Releasepaket und Rücksprung.
+Passenger/Docker/Kubernetes verworfen. CI/Git-Hooks verwenden gemeinsame Prüfbefehle;
+Pages und Plesk werden bewusst manuell nach erfolgreichen Gates veröffentlicht.
+
+
+## D-028 · 2026-09-22 · Zwei feste Zugänge auf ausdrücklichen Auftrag
+
+Standardname `Huskynar`, unverändertes lokales Passwort. Weitere Zugänge werden als
+validierte Backend-ENV-Liste konfiguriert; das Testpasswort für `everlabs` bleibt
+ausschließlich in der ignorierten lokalen `.env`. Keine Veröffentlichung im Git und
+keine neue Registrierungs- oder Rollenverwaltung. Beide Zugänge teilen denselben
+Datenbestand. Login-Sperren gelten pro Nutzer und zusätzlich pro IP; unbekannte Namen
+teilen einen Sammelbereich. Alternative globaler Kontosperre verworfen, weil ein
+Nutzer sonst den zweiten von allen IPs ausschließen könnte.
+
+## D-029 · 2026-09-23 · Sites mit D1/R2 und kontogetrennten Demo-Daten
+
+Auf ausdrücklichen Auftrag kommt ein zweiter Build für ChatGPT Sites hinzu:
+React und das API-Format bleiben, die Laufzeit bekommt einen Worker statt
+Fastify/node:sqlite. D1 enthält den FTS5-Index, R2 unveränderliche Originaltexte
+über der D1-Zellgrenze. Gegenüber D-028 sind Sites-Notebooks pro Konto getrennt,
+damit der öffentlich bekannte Testzugang nicht auf den Hauptzugang zugreift.
+Stabile Anmeldesperren und Kontingente liegen in D1. Ein Redis-/Vektordienst
+und eine gemeinsame Datenbank für Plesk/Sites wurden verworfen. Der lokale
+Plesk-Pfad bleibt erhalten; eine Datenmigration zwischen beiden ist noch offen.
+
+## D-030 · 2026-09-23 · Namen berichtigen und bestehende Sites-Daten erhalten
+
+Die später präzisierten Kontonamen sind `Huskynarr` und `Everlast`; die früheren
+Namen in D-028/D-029 bleiben als historische Entscheidungen stehen. Passwörter
+bleiben unverändert und ausschließlich serverseitig. Weil die bestehende Sites-D1
+ein Notebook unter `Huskynar` enthält, erfolgt die Umbenennung des Eigentümers
+idempotent und auf die beiden bekannten alten Namen begrenzt beim ersten
+authentifizierten Zugriff des jeweils korrigierten Kontos. Schema-Migrationen
+bleiben schema-only; bloßes Umstellen der ENV ohne Datenkorrektur hätte
+bestehende Notebooks versteckt. Lokales Fastify teilt weiter einen Datenbestand.
+
+## D-031 · 2026-09-23 · Big Pickle nur über die dokumentierte Console-Inference-API
+
+Die gewünschte Sites-Demo konfiguriert `LLM_PROVIDER=openai`,
+`LLM_BASE_URL=https://opencode.ai/inference/openai/v1` und `LLM_MODEL=big-pickle`;
+für kostenlose Chatmodelle erlaubt die Console-Dokumentation Anfragen ohne
+Bearer-Schlüssel. Der Go-Endpunkt wurde verworfen: seine veröffentlichte
+Modellliste enthält Big Pickle nicht und ist auf Coding-Agenten ausgerichtet.
+Kein automatischer Wechsel auf bezahlte Modelle. Kostenfreiheit ist befristet;
+Auto-Reload muss bei Nullkosten-Ziel im Console-Konto deaktiviert werden.
+US-Hosting und mögliche Modellverbesserung mit kostenlosen Big-Pickle-Daten
+erfordern die Freigabe vor Übertragung vertraulicher Universitätsquellen.
+Eine echte Modellantwort samt validiertem Quellenbeleg ist noch nicht geprüft.
+
+## D-032 · 2026-09-23 · MiMo-V2.6-Flash Free ersetzt Big Pickle als Modellwahl
+
+Die spätere Modellpräzisierung ersetzt D-031 für die nächste Veröffentlichung:
+Console Inference mit `LLM_MODEL=mimo-v2.6-flash-free` und
+`LLM_BASE_URL=https://opencode.ai/inference/openai/v1`. Der aktuelle
+[Console-Modellkatalog](https://opencode.ai/v2/docs/console/models/) nennt die
+exakte ID, Chat-Completions-Kompatibilität und kostenlose Tokenpreise; die
+[Inference-Dokumentation](https://opencode.ai/v2/docs/console/inference/) erlaubt
+kostenlose Chatmodelle ohne Schlüssel. OpenCode Go listet dagegen
+`mimo-v2.6-flash` ohne `-free` zu Tokenpreisen. Kein automatischer Wechsel auf
+dieses oder ein anderes kostenpflichtiges Modell. Die kostenlose Verfügbarkeit
+ist befristet. US-Hosting und mögliche Modellverbesserung mit übertragenen
+Inhalten gelten auch für MiMo-V2.6-Flash Free. Ein echter Modellaufruf mit
+belegter Antwort ist noch nicht nachgewiesen; die historische Sites-Version 4
+und ihre Big-Pickle-Konfiguration bleiben als tatsächlich veröffentlichter
+Zwischenstand dokumentiert.
+
+## D-033 · 2026-09-23 · Everlast-Recherchebeispiel mit gekennzeichneten Websitequellen
+
+Die fiktive Prüfungsordnung als Startbeispiel wird durch ein Notebook zur
+Everlast Consulting GmbH ersetzt. Zwei kurze paraphrasierte Quellen verlinken
+das Impressum und die FAQ der Unternehmenswebsite mit Abrufdatum und
+Selbstauskunft-Kennzeichnung. Die Webseite nennt einen Vertreter und Gründer,
+aber keine geprüfte aktuelle Gesellschafterliste oder Bilanzzahlen. Der
+Recherchepfad in `docs/example-everlast.md` führt zu manuellen Importen
+amtlicher Originaldokumente; North Data dient höchstens als Gegenvergleich.
+Webseiten-Crawling und erfundene Finanzwerte wurden verworfen. Bestehende
+Sites-Beispielnotebooks werden bei unverändertem altem Titel nur als Archiv
+markiert, mit sämtlichen Quellen und Notizen erhalten; ein neues Beispiel
+erhält eine versionierte ID. Diese Markierung verhindert ein erneutes Anlegen
+nach bewusstem Löschen des neuen Beispiels, solange das Archiv vorhanden ist.
+
+## D-034 · 2026-09-23 · Externen MiMo-Free-Zugang nach Live-Fehler sperren
+
+Ein anonymes externes POST an die dokumentierte Console-Inference-API
+antwortete mit HTTP 403 (`FreeTierError`: Nutzung des kostenlosen Tarifs
+nur innerhalb von OpenCode). Ein authentifizierter Sites-Test erreichte das
+Everlast-Beispiel samt Quellen, aber die Modellfrage endete mit HTTP 503.
+Damit ersetzt dieser Befund die Annahme in D-032, der schlüssellose Free-Pfad
+sei für diesen externen Worker nutzbar. Ein authentifizierter Console-Key und
+alternative kostenlose V2.6-Anbieter wurden nicht erfolgreich nachgewiesen.
+
+Für diese Site markiert `LLM_ACCESS_STATUS=blocked` die externe Modellanbindung
+im Health-Endpoint und Header als gesperrt. Der Worker unterbindet dann
+weitere Modellanfragen und gibt eine eindeutige Fehlermeldung zurück, statt
+einen funktionierenden Anbieter oder eine simulierte KI-Antwort vorzutäuschen.
+Das MiMo-Profil bleibt für später zulässige Anbieterprüfung konfigurierbar;
+ein kostenpflichtiger Wechsel auf Go/Xiaomi wurde verworfen, weil ausdrücklich
+Nullkosten und die Free-Modell-ID vorgegeben wurden.
+
+## D-035 · 2026-09-23 · Console-Service-Key nur für festes Free-Modell vorbereiten
+
+Der vorhandene Schlüssel wurde vom Nutzer als „Keys → Service Account → API“
+beschrieben. OpenCode dokumentiert Service-Account-Keys für die Console-
+Inference-API; ein authentifizierter externer Aufruf der kostenlosen MiMo-ID
+ist damit noch nicht nachgewiesen. Wenn ein Backend-Schlüssel ausdrücklich
+konfiguriert wird, sendet es ihn im Authorization-Header; der Console-Endpunkt
+erlaubt weiterhin ausschließlich `mimo-v2.6-flash-free`. Die Site bleibt mit
+`LLM_ACCESS_STATUS=blocked` gesperrt, bis ein lokaler Einmaltest und danach
+eine echte belegte Antwort den Zugang bestätigen. Ein Schlüssel im Frontend,
+automatischer Wechsel auf Go oder ein ungeprüftes Aktivieren wurden verworfen.
+
+## 2026-09-23 · Muse Spark als zweite fest freigegebene Console-Option
+
+Die kostenlose ID `muse-spark-1.3-contributor-free` wird ausschließlich am
+OpenCode-Console-Endpunkt über die Responses-API unterstützt. Der getrennte
+Chat-Completions-Adapter für MiMo bleibt bestehen; andere Console-IDs bleiben
+gesperrt, damit kein versehentlich kostenpflichtiges Modell gewählt wird.
+Der vorhandene serverseitige Sperrstatus gilt auch für Muse, bis ein echter
+Modellaufruf samt Quellenbelegen erfolgreich geprüft ist. Verworfen: allein die
+Modell-ID austauschen; Muse benötigt ein anderes Request- und Antwortformat.
+
+## 2026-09-23 · Transportfehler datensparsam diagnostizieren
+
+Der Site-Worker protokolliert bei einem fehlgeschlagenen Modell-Fetch nur
+Fehlertyp, eine feste Fehlerkategorie und gegebenenfalls einen eingeschränkt
+validierten Ursachencode. Anfrage, Quellenauszüge, Anbieterantworten, Schlüssel
+und freie Fehlermeldungen werden nicht protokolliert. Verworfen: Modellwechsel
+auf Verdacht und ungefiltertes Ausgeben der Fetch-Exception.
+
+## 2026-09-23 · Redirectziel vor Anbieteraufruf prüfen
+
+Der bereinigte Worker-Log ergab `TypeError`, Kategorie `redirect`.
+Die Modellanfrage liest eine eventuelle HTTP-Weiterleitung zunächst manuell,
+protokolliert nur Status und Ziel-Origin und sendet weder Schlüssel noch
+Quellentext automatisch an das Ziel. Erst ein geprüfter OpenCode-Origin darf
+als erlaubter Endpunkt ausdrücklich ergänzt werden. Verworfen: blindes
+`redirect: follow` mit möglicher Weitergabe vertraulicher Quellenausschnitte.
+
+## 2026-09-23 · Ein günstiges Console-Modell einzeln prüfen
+
+Der manuelle Site-Aufruf erreichte OpenCode und erhielt mit Muse Free HTTP 403.
+Für die explizite Anforderung einer funktionierenden OpenCode-Anbindung wird
+`glm-5.3-flash` als einziger kostenpflichtiger Testkandidat mit serverseitigem
+Schlüssel freigegeben. Die Console nennt $0.15 je Million Eingabetoken und
+$0.50 je Million Ausgabetoken (Stand 23.09.2026). Der gesperrte Status gilt
+auch für diesen Kandidaten; kein automatischer Fallback und keine Freigabe
+ohne echte Belegabnahme. Verworfen: weitere Free-IDs blind durchprobieren.
+
+## 2026-09-24 · Nemotron Free als begrenzten schlüssellosen Testpfad aufnehmen
+
+Die angemeldete Console zeigt `nemotron-3.5-lightning-free` als aktives, mit
+$0.00 pro Million Token ausgezeichnetes Chatmodell. Die offizielle
+Inference-Dokumentation erlaubt kostenlose Chatmodelle ohne Schlüssel.
+Der Site-Worker erlaubt diese ID daher ausschließlich an der festen Console-
+Chat-Completions-Adresse und sendet auch bei vorhandenem Backend-Secret für
+dieses Modell keinen Authorization-Header. Die vorhandene externe Sperre gilt
+weiterhin bis zum tatsächlichen Live-Aufruf und Belegtest. D-034 bleibt als
+Befund zu MiMo bestehen; ein Erfolg bei Nemotron wird daraus nicht abgeleitet.
+Verworfen: beliebige Console-IDs, automatische Modellwechsel und ein
+unbegründeter Rückgriff auf das kostenpflichtige Go-Abonnement.
+
+## 2026-09-24 · Externe Free-Anfragen weiter sperren
+
+Der veröffentlichte Worker erreichte bei einer authentifizierten
+Everlast-Frage das aktive `nemotron-3.5-lightning-free` ohne Schlüssel;
+OpenCode antwortete HTTP 403. Wie zuvor bei MiMo und Muse bestätigt
+die Console-Anzeige eines freien Modells keine externe Nutzbarkeit.
+`LLM_ACCESS_STATUS=blocked` wurde wiederhergestellt und live kontrolliert.
+Weitere Free-IDs werden nicht blind aktiviert. Ein neuer, auf Inference
+begrenzter Service-Key und ein gedeckelter Test des bereits vorbereiteten
+regulären Modells sind nur nach dem dafür notwendigen Schlüssel- und
+Kostenentscheid sinnvoll.
+
+## 2026-09-24 · MiMo als Wunschmodell sichtbar belassen
+
+Nach dem gescheiterten Nemotron-Livetest ist `mimo-v2.6-flash-free` wieder die
+bevorzugte Modell-ID. `LLM_ACCESS_STATUS=blocked` bleibt aktiv, bis ein externer
+MiMo-Aufruf und ein echter Belegtest gelingen. Verworfen: Nemotron nur wegen
+der Free-Auszeichnung im UI belassen oder einen kostenpflichtigen Ersatz
+ohne erfolgreichen Test einschalten.
+
+## 2026-09-24 · Login-Hinweis erst nach bestätigtem Fehlversuch
+
+Die Clientoberfläche zeigt den Hinweis auf zunehmende Wartezeiten nur bei
+gespeicherten 401-/429-Fehlversuchen. Dadurch lenkt er vor dem ersten Login
+nicht vom Formular ab; die persistierte Anzeige funktioniert nach Neuladen.
+Verworfen: Hinweis ständig anzeigen oder Netzwerkfehler als ungültiges
+Passwort mitzählen. Serverdrosselung bleibt maßgeblich.
+
+## 2026-09-24 · Öffentlichen Einstieg im ersten HTML ausliefern
+
+Titel, Beschreibung, Canonical, Sitemap und ein mit der React-Landingpage
+inhaltlich abgestimmter Einstieg stehen ohne JavaScript bereit. Das macht den
+öffentlichen Ablauf für Crawler lesbar, ohne private Inhalte vorzurendern.
+Verworfen: Spezialdateien als vermeintliche Garantie für AI Overviews oder
+ungeprüfte strukturierte Bewertungsdaten. Die statische Kurzfassung muss
+bei Textänderungen mit der Landingpage abgeglichen werden. Grundlage:
+[Google zu AI Features](https://developers.google.com/search/docs/appearance/ai-features)
+und [JavaScript-SEO](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics).
+
+## 2026-09-24 · Site Name und eigenständige Social-Vorschau
+
+Die öffentliche Startseite erhält einen eindeutigen, zum sichtbaren Inhalt
+passenden Titel, eine Textbeschreibung, einen `WebSite`-Eintrag für den
+sichtbaren Namen sowie Open-Graph-/X-Angaben mit einer eigens gestalteten
+Everlast-Vorschau. Das Bild zeigt nur Quellen und Belegprinzip, keine
+vorgebliche Modellantwort. Verworfen: Bewertungen, Modell-Erfolgsaussagen oder
+eine private Notebookansicht als Social-Bild. Google kann Metatexte umschreiben;
+Social-Caches können die Aktualisierung verzögern. Siehe `docs/seo.md`.
+
+## 2026-09-24 · NVIDIA-Embedding-Modell nur für optionale Quellensortierung
+
+`nvidia/llama-nemotron-embed-vl-1b-v2:free` liefert Vektoren, keine
+formulierten Antworten. Optional werden höchstens 18 ausgewählte FTS5-Treffer
+über den festen OpenRouter-Endpunkt verglichen; bis zu 12 gehen in die
+Belegprüfung. Verworfen: die ID als Chatmodell eintragen, eine Vektor-DB ohne
+Qualitätsmessung einführen oder Universitätsdaten ungefragt an den
+protokollierenden Free-Endpunkt übertragen. Ohne gesonderten Backend-Schlüssel
+bleibt die Funktion aus und die MiMo-Antwortsperre unverändert.
+
+## 2026-09-24 · Sichere Statusdiagnose für OpenRouter
+
+Ein nicht erfolgreicher Embedding-Aufruf meldet nur den numerischen HTTP-Status;
+Anbieterantworten, Schlüssel und Quellenausschnitte gelangen nicht in Client oder
+Logs. Damit lässt sich ein Berechtigungs-/Limitfehler von einem Transport- oder
+Formatfehler unterscheiden. Verworfen: sämtliche Fehler weiter unter einer
+identischen Meldung verstecken oder Anbieterantworten zur Fehlersuche protokollieren.
+
+## 2026-09-24 · Free-Embeddings nicht global für eigene Quellen aktivieren
+
+Ein echter Abruf mit öffentlichem Beispiel funktioniert nach dem Key-Wechsel.
+Die produktive Suchstufe bleibt dennoch standardmäßig aus: Die Backend-Option
+würde jede ausgewählte eigene Quelle an einen Free-Endpunkt senden, der Eingaben
+protokolliert. Verworfen: globale Aktivierung allein wegen des erfolgreichen
+Tests. Vor breiter Nutzung braucht es eine bewusste Quellenfreigabe auf
+Anfrageebene und eine Datenschutzeinschätzung für Universitätsdaten.
+
+## 2026-09-24 · OpenRouter-Free-Chat als explizite Anbieteroption
+
+OpenCodes MiMo-Free-Endpunkt antwortet auch mit Schlüssel HTTP 403; der
+OpenRouter-Schlüssel erreichte dagegen die Embedding-API. Der vorhandene
+OpenAI-kompatible Chatadapter darf für den exakt festgelegten Endpunkt
+`https://openrouter.ai/api/v1` ausschließlich die Free-ID
+`qwen/qwen3.8-27b:free` mit demselben serverseitigen Schlüssel verwenden.
+OpenRouter dokumentiert für die ID strukturierte Ausgaben; unabhängig davon
+werden Zitate und Satzbelege gegen Originaloffsets geprüft. Verworfen:
+`openrouter/free` mit wechselnden Modellen, bezahlte Varianten und das
+Kopieren des Secrets in Frontend-Variablen. Die aktivierte Chatfrage sendet
+relevante Textstellen extern; eine Warnung steht auch im geschützten Formular.
+
+## 2026-09-24 · Zweites explizit kostenloses OpenRouter-Modell zulassen
+
+Der erste authentifizierte Qwen-Aufruf erhielt HTTP 429. Als eng begrenzte
+Alternative zur vorherigen Entscheidung wird nur die als kostenlos gelistete
+Gemma-ID `google/gemma-3-27b-it:free` zusätzlich zugelassen. Beide Modell-IDs
+bleiben explizit; es gibt weder einen automatischen kostenpflichtigen Fallback
+noch einen stillen Anbieterwechsel. Verworfen: unbeschränkter Modellname oder
+unmarkierte Simulation bei Anbieterlimits.
+
+## 2026-09-24 · Gemma 3 durch gelistetes Gemma 4 ersetzen
+
+Die oben gewählte Gemma-3-Free-ID lieferte HTTP 404 und steht nicht in
+OpenRouters aktueller `/api/v1/models`-Liste. Stattdessen wird nur die dort
+als kostenlos und `response_format`-fähig gelistete ID
+`google/gemma-4-26b-a4b-it:free` zugelassen. Beim Qwen-Free-Modell wird das
+dort nicht gelistete `response_format` entfernt. Verworfen: den 404-Endpunkt
+beibehalten oder ungeprüft auf ein bezahltes Modell ausweichen.
+
+## 2026-09-24 · Modellauswahl je Frage mit serverseitiger Free-Liste
+
+Die Auswahl im geschützten Chat enthält vier aktuell gelistete Free-IDs und
+gilt nur für die nächste Anfrage. Das Backend behält `LLM_MODEL` als Vorgabe,
+weist unbekannte oder kostenpflichtige IDs vor einem externen Aufruf ab und
+verwendet weiter denselben serverseitigen Schlüssel. Der Health-Endpunkt
+veröffentlicht nur die auswählbaren Namen und IDs, keine Zugangsdaten oder
+unbelegte Verfügbarkeitsanzeige. Verworfen: beliebige Modellnamen, automatischer
+Bezahl-Fallback und Live-Modellabfrage bei jeder Frage.

@@ -8,8 +8,8 @@ import { buildMatchQuery, retrieve } from './retrieval.ts';
 
 describe('buildMatchQuery', () => {
   it('entfernt Fuellwoerter und sucht lange Begriffe als Praefix', () => {
-    const query = buildMatchQuery('Wie lange ist die Widerspruchsfrist?');
-    expect(query).toBe('"lange"* OR "widerspruchsfrist"*');
+    const query = buildMatchQuery('Wer vertritt Everlast?');
+    expect(query).toBe('"vertritt"* OR "everlast"*');
   });
 
   it('sucht kurze Begriffe exakt, damit sie nicht zu viel treffen', () => {
@@ -38,13 +38,13 @@ describe('retrieve', () => {
     );
   });
 
-  it('findet die Textstelle zur Widerspruchsfrist', () => {
-    const hits = retrieve(ctx.db, 'Wie lange ist die Widerspruchsfrist?', {
+  it('findet die als Websiteangabe gekennzeichnete Vertretung', () => {
+    const hits = retrieve(ctx.db, 'Wer vertritt die Everlast Consulting GmbH laut Impressum?', {
       sourceIds,
       topK: 5,
     });
     expect(hits.length).toBeGreaterThan(0);
-    expect(hits.some((h) => h.text.includes('vierzehn Tage'))).toBe(true);
+    expect(hits.some((h) => h.text.includes('Viktor Schöck'))).toBe(true);
   });
 
   it('findet zu einer fachfremden Frage nichts', () => {
@@ -57,7 +57,7 @@ describe('retrieve', () => {
 
   it('beruecksichtigt ausschließlich die uebergebenen Quellen', () => {
     const [first] = sourceIds;
-    const hits = retrieve(ctx.db, 'Einsicht in die Prüfungsakte', {
+    const hits = retrieve(ctx.db, 'Wer wird als Gründer des Unternehmens genannt?', {
       sourceIds: [first ?? ''],
       topK: 10,
     });
@@ -65,11 +65,11 @@ describe('retrieve', () => {
   });
 
   it('gibt ohne ausgewaehlte Quelle nichts zurück', () => {
-    expect(retrieve(ctx.db, 'Widerspruchsfrist', { sourceIds: [], topK: 5 })).toEqual([]);
+    expect(retrieve(ctx.db, 'Everlast Consulting GmbH', { sourceIds: [], topK: 5 })).toEqual([]);
   });
 
   it('liefert Abschnitte mit gueltigen Offsets in den Originaltext', () => {
-    const hits = retrieve(ctx.db, 'Widerspruchsfrist', { sourceIds, topK: 5 });
+    const hits = retrieve(ctx.db, 'Impressum Viktor Schöck', { sourceIds, topK: 5 });
     for (const hit of hits) {
       const source = ctx.sources.getWithContent(hit.sourceId);
       expect(source).not.toBeNull();
@@ -78,7 +78,7 @@ describe('retrieve', () => {
   });
 
   it('sortiert nach Relevanz absteigend', () => {
-    const hits = retrieve(ctx.db, 'Widerspruch Begründung Prüfungsamt', {
+    const hits = retrieve(ctx.db, 'Everlast Consulting GmbH Registergericht Ulm', {
       sourceIds,
       topK: 10,
     });

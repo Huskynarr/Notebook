@@ -4,7 +4,49 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <title>Notebook · Quellenbasiertes Arbeiten</title>
+    <title>Notebook für Studium &amp; Forschung · Quellen mit prüfbaren Belegen</title>
+    <meta
+      name="description"
+      content="Eigene Text- und Markdown-Quellen sammeln, Belegstellen im Original prüfen und Ergebnisse als Notiz speichern. Ein Notebook für Studium, Forschung und Lehre."
+    />
+    <link rel="canonical" href="https://notebook.sebastianselinger.de/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:site_name" content="notebook." />
+    <meta property="og:title" content="Eigene Quellen. Prüfbare Belege. | Notebook" />
+    <meta
+      property="og:description"
+      content="Quellen auswählen, Originalbelege nachvollziehen und Erkenntnisse als Notiz festhalten. Ein Notebook für Studium, Forschung und Lehre."
+    />
+    <meta property="og:url" content="https://notebook.sebastianselinger.de/" />
+    <meta property="og:image" content="https://notebook.sebastianselinger.de/og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1728" />
+    <meta property="og:image:height" content="910" />
+    <meta
+      property="og:image:alt"
+      content="Eigene Quellen. Prüfbare Belege. Zwei illustrierte Textseiten mit einer hervorgehobenen Belegverbindung."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Eigene Quellen. Prüfbare Belege. | Notebook" />
+    <meta
+      name="twitter:description"
+      content="Quellen auswählen, Originalbelege nachvollziehen und Erkenntnisse als Notiz festhalten. Ein Notebook für Studium, Forschung und Lehre."
+    />
+    <meta name="twitter:image" content="https://notebook.sebastianselinger.de/og.png" />
+    <meta
+      name="twitter:image:alt"
+      content="Eigene Quellen. Prüfbare Belege. Zwei illustrierte Textseiten mit einer hervorgehobenen Belegverbindung."
+    />
+    <!-- WebSite beschreibt nur den sichtbaren öffentlichen Namen, keine erfundenen Bewertungen. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "notebook.",
+        "url": "https://notebook.sebastianselinger.de/"
+      }
+    </script>
     <!-- Inline, damit keine zusaetzliche Anfrage noetig ist und die Anwendung
          ohne fremde Ressourcen laeuft. -->
     <link
@@ -14,36 +56,72 @@
     <!-- Hausschrift des Designs uni-freiburg, falls lizenziert vorhanden;
          sonst wirkungslos. Siehe public/fonts/README.md. -->
     <link rel="stylesheet" href="/fonts/social.css" />
-    <script>
-      /* Setzt Design und Erscheinungsbild vor dem ersten Zeichnen - sonst
-         blitzt beim Laden kurz das Vorgabedesign auf. Laeuft vor dem Bundle
-         und kann dessen Konstanten daher nicht importieren; dass Schluessel
-         und Werte hier mit src/lib/appearance.ts uebereinstimmen, prueft
-         src/__tests__/appearance.test.ts. */
-      (function () {
-        var wurzel = document.documentElement;
-        try {
-          var designs = ['eigen', 'uni-freiburg', 'huskynarr'];
-          var modi = ['light', 'dark'];
-          /* Einstellungen liegen je nach Einwilligung (src/lib/consent.ts)
-             im localStorage oder nur im sessionStorage. */
-          var lesen = function (schluessel) {
-            return localStorage.getItem(schluessel) || sessionStorage.getItem(schluessel);
-          };
-          var design = lesen('notebook.design');
-          var modus = lesen('notebook.mode');
-          wurzel.dataset.design = designs.indexOf(design) >= 0 ? design : 'eigen';
-          if (modi.indexOf(modus) >= 0) wurzel.dataset.theme = modus;
-          var sprache = lesen('notebook.lang');
-          if (sprache === 'de' || sprache === 'en') wurzel.lang = sprache;
-        } catch (e) {
-          wurzel.dataset.design = 'eigen';
-        }
-      })();
-    </script>
+    <script src="%BASE_URL%appearance.js"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Die öffentliche Kernaussage ist bereits ohne JavaScript lesbar. React ersetzt
+         diesen inhaltlich deckungsgleichen Einstieg beim Start; keine Kontodaten
+         und keine privaten Quellen dürfen je in dieses HTML geraten. -->
+    <div id="root">
+      <div class="bg-surface-sunken text-content min-h-screen">
+        <header
+          class="max-w-page mx-auto flex items-center justify-between gap-4 px-5 py-6 sm:px-8"
+        >
+          <a
+            href="/"
+            class="text-content-strong text-xl font-semibold"
+            aria-label="Notebook Startseite"
+            >notebook<span class="text-action">.</span></a
+          >
+          <a href="#login" class="bg-action text-action-contrast rounded-full px-5 py-3 text-sm"
+            >Anmelden</a
+          >
+        </header>
+        <main class="max-w-page mx-auto px-5 pb-20 pt-12 sm:px-8 sm:pt-20">
+          <p class="text-action mb-6 text-xs font-medium tracking-widest">
+            DER ARBEITSRAUM FÜR QUELLENBASIERTES WISSEN
+          </p>
+          <h1 class="text-hero text-content-strong font-display">
+            Gute Antworten.<br /><span class="text-action">Prüfbare Belege.</span>
+          </h1>
+          <p class="text-content-muted mt-7 max-w-xl text-lg leading-relaxed">
+            Unterlagen verstehen, Zusammenhänge finden und jede Antwort am Original prüfen. Ein
+            Notebook für konzentriertes Arbeiten in Studium, Forschung und Lehre.
+          </p>
+          <a href="#login" class="text-action mt-9 inline-block font-medium underline"
+            >Arbeitsbereich öffnen</a
+          >
+          <section class="mt-16 max-w-3xl" aria-labelledby="ablauf-voransicht">
+            <h2 id="ablauf-voransicht" class="text-section text-content-strong font-semibold">
+              Der Gedankengang bleibt prüfbar.
+            </h2>
+            <ol class="text-content-muted mt-5 list-inside list-decimal space-y-3 leading-relaxed">
+              <li>
+                Notebook öffnen, eigene Texte oder Markdown-Dateien hinzufügen und relevante Quellen
+                auswählen.
+              </li>
+              <li>
+                Fragen an ausgewählte Unterlagen richten. Der KI-Workflow ruft passende
+                Textabschnitte ab.
+              </li>
+              <li>
+                Verweise führen zur Textstelle im Original. Ergebnisse als Notiz speichern und
+                exportieren.
+              </li>
+            </ol>
+            <p class="text-content-muted mt-8 leading-relaxed">
+              Mit verbundenem KI-Anbieter entstehen echte Modellantworten. Nur Antworten mit
+              nachprüfbaren Originalbelegen werden freigegeben. Fragen und relevante Textstellen
+              gelangen bei externer KI-Nutzung an den Anbieter. Nur öffentliche, nicht vertrauliche
+              Beispieldaten verwenden.
+            </p>
+            <p class="text-content-muted mt-5 text-sm">
+              Eigenständiges Hochschulprojekt · keine Verbindung zu Google NotebookLM
+            </p>
+          </section>
+        </main>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

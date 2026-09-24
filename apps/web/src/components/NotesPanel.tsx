@@ -1,5 +1,5 @@
 import { useState, type ReactElement } from 'react';
-import type { Citation, Note } from '@notebook/shared';
+import type { Citation, Note, Source } from '@notebook/shared';
 import { useT } from '../i18n/index.ts';
 import { Button } from './ui/Button.tsx';
 import { TextAreaField, TextField } from './ui/Field.tsx';
@@ -7,11 +7,13 @@ import { EmptyState } from './ui/Status.tsx';
 
 export function NotesPanel({
   notes,
+  sources,
   onSelectCitation,
   onUpdate,
   onDelete,
 }: {
   notes: readonly Note[];
+  sources: readonly Source[] | null;
   onSelectCitation: (citation: Citation) => void;
   onUpdate: (id: string, patch: { title?: string; body?: string }) => void;
   onDelete: (note: Note) => void;
@@ -30,6 +32,7 @@ export function NotesPanel({
 
   return (
     <div className="space-y-3 overflow-y-auto p-4">
+      <p className="text-meta text-content-muted">{t('notes.editableHint')}</p>
       {notes.map((note) => {
         const isEditing = editing === note.id;
         return (
@@ -116,22 +119,35 @@ export function NotesPanel({
                   <ul className="border-border-subtle mt-3 space-y-1 border-t pt-2">
                     {note.citations.map((citation) => (
                       <li key={citation.marker}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onSelectCitation(citation);
-                          }}
-                          className="text-meta text-content-muted hover:text-content-strong text-left"
-                        >
-                          <span className="bg-accent-surface rounded-xs px-1 font-mono">
-                            [{citation.marker}]
-                          </span>{' '}
-                          {citation.sourceTitle} ·{' '}
-                          {t('citation.range', {
-                            start: citation.startOffset,
-                            end: citation.endOffset,
-                          })}
-                        </button>
+                        {sources !== null &&
+                        !sources.some((source) => source.id === citation.sourceId) ? (
+                          <div className="text-meta text-content-muted">
+                            <p>
+                              [{citation.marker}] {citation.sourceTitle} ·{' '}
+                              {t('notes.sourceMissing')}
+                            </p>
+                            <blockquote className="border-border-subtle mt-1 whitespace-pre-wrap border-l-2 pl-2">
+                              {citation.excerpt}
+                            </blockquote>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onSelectCitation(citation);
+                            }}
+                            className="text-meta text-content-muted hover:text-content-strong text-left"
+                          >
+                            <span className="bg-accent-surface rounded-xs px-1 font-mono">
+                              [{citation.marker}]
+                            </span>{' '}
+                            {citation.sourceTitle} ·{' '}
+                            {t('citation.range', {
+                              start: citation.startOffset,
+                              end: citation.endOffset,
+                            })}
+                          </button>
+                        )}
                       </li>
                     ))}
                   </ul>

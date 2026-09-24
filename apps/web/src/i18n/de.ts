@@ -29,6 +29,11 @@ export const de = {
   'common.characters': 'Zeichen',
   'common.closeMessage': 'Meldung schließen',
 
+  'notes.editableHint':
+    'Notizen sind bearbeitbar. Belege verweisen auf Originaltext; die Aussage und KI-Herkunft einer Notiz werden dadurch nicht unabhängig bestätigt.',
+  'notes.sourceMissing': 'Originalquelle gelöscht. Gespeicherter Belegauszug:',
+  'demo.singleNotebook':
+    'Die Browser-Demo enthält ein einzelnes Beispiel-Notebook. Vollständige Notebook-Verwaltung benötigt die Backend-Verbindung.',
   'login.username': 'Benutzername',
   'login.password': 'Passwort',
   'login.submit': 'Anmelden',
@@ -38,10 +43,18 @@ export const de = {
     'Voreinstellung {creds}. Der Zugang ist für den Betrieb auf dem eigenen Rechner gedacht — vor einer Erreichbarkeit im Netz muss er geändert werden.',
   'login.backend': 'Backend: {url}',
   'login.demo': 'Demo · läuft ohne Server in diesem Browser',
+  'login.wait': 'Erneute Anmeldung in {seconds} Sekunden möglich.',
+  'login.cooldownHint': 'Nach drei fehlgeschlagenen Anmeldungen verlängert sich die Wartezeit.',
+  'login.demoOpen': 'Demo öffnen',
+  'login.demoWarning':
+    'Ungeschützte Browser-Demo. Keine echte Anmeldung, keine KI-Verbindung. Nur Beispieldaten verwenden.',
+  'login.back': 'Zur Startseite',
+  'login.protected': 'Geschützter Arbeitsbereich',
 
   'header.chooseNotebook': 'Notebook wählen',
   'header.share': 'Teilen',
   'header.noModel': 'kein Modell verbunden',
+  'header.externalApiBlocked': 'externe API gesperrt',
 
   'notebook.new.title': 'Neues Notebook',
   'notebook.new.description':
@@ -60,7 +73,7 @@ export const de = {
   'sources.add': 'Hinzufügen',
   'sources.empty.title': 'Noch keine Quelle',
   'sources.empty.body':
-    'Text einfügen, eine .txt- oder .md-Datei wählen oder eine Adresse angeben. Ohne Quelle beantwortet dieses Notebook keine Frage.',
+    'Text einfügen oder eine .txt- oder .md-Datei wählen. Ohne Quelle beantwortet dieses Notebook keine Frage.',
   'sources.loading': 'Quellen werden geladen …',
   'sources.considerForQuestions': '{title} für Fragen berücksichtigen',
   'sources.deleteTitle': '{title} löschen',
@@ -78,7 +91,7 @@ export const de = {
   'addSource.tab.file': 'Datei',
   'addSource.tab.url': 'Adresse',
   'addSource.titleLabel': 'Titel',
-  'addSource.titlePlaceholder': 'z. B. Prüfungsordnung.md',
+  'addSource.titlePlaceholder': 'z. B. Handelsregisterauszug.md',
   'addSource.titleHint': 'Endet der Titel auf .md, wird der Text als Markdown zerlegt.',
   'addSource.fileLabel': 'Datei wählen (.txt oder .md)',
   'addSource.textLabel': 'Text',
@@ -92,6 +105,11 @@ export const de = {
   'addSource.emptyError': 'Ohne Text lässt sich keine Quelle anlegen.',
   'addSource.urlError': 'Bitte eine vollständige Adresse mit https:// angeben.',
   'addSource.genericError': 'Die Quelle konnte nicht angelegt werden.',
+  'addSource.tooLarge': 'Maximal 10 MiB (10.485.760 Bytes) pro Quelle in dieser Testumgebung.',
+  'addSource.invalidFile': 'Nur UTF-8-Textdateien im Format .txt oder .md sind unterstützt.',
+  'addSource.unsupportedUrl':
+    'Website-Import ist in dieser Version nicht verfügbar. Text oder Markdown importieren.',
+  'addSource.fileHint': '.txt oder .md · UTF-8 · maximal 10 MiB pro Quelle',
   'addSource.added': '„{title}" hinzugefügt ({count} Abschnitte).',
   'addSource.corsError':
     'Diese Adresse erlaubt keinen Abruf direkt aus dem Browser (CORS). Mit einem Backend holt der Server die Seite; in der Demo geht das nur bei Seiten, die den Abruf freigeben.',
@@ -100,9 +118,9 @@ export const de = {
   'chat.emptyBody':
     'Antworten entstehen ausschließlich aus den links ausgewählten Quellen. Jede Aussage trägt einen Beleg, der auf die Stelle im Original zeigt.',
   'chat.tryOne': 'Zum Ausprobieren:',
-  'chat.example1': 'Wie lange ist die Widerspruchsfrist?',
-  'chat.example2': 'Was muss ein Widerspruch enthalten?',
-  'chat.example3': 'Wie oft darf eine Prüfung wiederholt werden?',
+  'chat.example1': 'Wer vertritt die Everlast Consulting GmbH laut Impressum?',
+  'chat.example2': 'Welche Registerangaben nennt das Impressum?',
+  'chat.example3': 'Welche Gründer nennt die Everlast-Website?',
   'chat.searching': 'Durchsuche {count} {noun} …',
   'chat.sourceOne': 'Quelle',
   'chat.sourceMany': 'Quellen',
@@ -111,10 +129,17 @@ export const de = {
   'chat.inputPlaceholder': 'Frage an die ausgewählten Quellen …',
   'chat.send': 'Fragen',
   'chat.hint': 'Enter sendet, Umschalt+Enter erzeugt einen Zeilenumbruch.',
+  'chat.modelLabel': 'KI-Modell',
+  'chat.modelHint': 'Nur kostenlose Modelle. Die Auswahl garantiert keine Erreichbarkeit.',
+  'chat.openRouterPrivacy':
+    'OpenRouter Free: Frage und ausgewählte Textstellen gehen an einen externen Modellanbieter. Nur öffentliche, unkritische Testdaten verwenden.',
   'chat.noSourceTitle': 'Keine Quelle ausgewählt',
   'chat.noSourceBody':
     'Wähle links mindestens eine Quelle aus. Ohne Quelle wird nicht geantwortet.',
   'chat.errorTitle': 'Die Frage konnte nicht beantwortet werden',
+  'chat.modelBlockedTitle': 'KI-Anfragen vorübergehend gesperrt',
+  'chat.modelBlockedBody':
+    'OpenCode hat externe Anfragen an das kostenlose MiMo-Modell abgewiesen. Quellen und Notizen bleiben nutzbar; eine KI-Antwort ist derzeit nicht verfügbar.',
   'chat.simulatedTitle': 'Simulierte Antwort — kein Modell verbunden',
   'chat.simulatedBody':
     'Es ist kein Sprachmodell angebunden. Gezeigt werden die gefundenen Textstellen; formuliert wurde nichts.',
@@ -182,7 +207,7 @@ export const de = {
 
   'consent.title': 'Speicherung auf diesem Gerät',
   'consent.body':
-    'Diese Anwendung setzt keine Cookies und kein Tracking. Sie speichert Daten ausschließlich in deinem Browser. Du entscheidest, was über die Sitzung hinaus bleibt.',
+    'Diese Anwendung setzt keine Cookies und kein Tracking. Im Onlinebetrieb liegen Notebooks, Quellen und Notizen auf dem Server. Hier entscheidest du, ob lokale Einstellungen über die Sitzung hinaus gespeichert werden.',
   'consent.necessary.title': 'Notwendig',
   'consent.necessary.body':
     'Anmeldesitzung; in der Demo außerdem Notebooks, Quellen und Notizen. Ohne sie funktioniert die Anwendung nicht.',
@@ -196,13 +221,17 @@ export const de = {
   'consent.customize': 'Auswahl anpassen',
   'consent.less': 'Weniger anzeigen',
 
+  'design.everlast.label': 'Everlast · Research',
+  'design.everlast.hint':
+    'Eigenständige Interpretation mit Schwarz, Zitronengelb und klarer Typografie.',
   'design.eigen.label': 'Papier und Tinte',
   'design.eigen.hint': 'Eigenes Design: warme Flächen, Serife für Lesetext, Braun für Belege.',
   'design.uni-freiburg.label': 'Universität Freiburg',
   'design.uni-freiburg.hint':
     'Corporate Design der Universität. Hausschrift nur mit Lizenz, sonst Arial.',
   'design.huskynarr.label': 'huskynarr',
-  'design.huskynarr.hint': 'Angenähert an huskynarr.de — belegt ist nur die Grundfarbe #0c0a09.',
+  'design.huskynarr.hint':
+    'Angenähert an huskynarr.de — dunkle Steinfarben, Limettengrün und Inter.',
 
   'tour.step': 'Schritt {index} von {total}',
   'tour.language.title': 'Willkommen',

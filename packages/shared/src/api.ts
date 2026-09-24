@@ -5,8 +5,8 @@ import { CitationSchema, ChunkSchema, NotebookSchema, NoteSchema, SourceSchema }
 /* ---------- Auth ---------- */
 
 export const LoginRequestSchema = z.object({
-  username: z.string().min(1),
-  password: z.string().min(1),
+  username: z.string().min(1).max(200),
+  password: z.string().min(1).max(1024),
 });
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 
@@ -29,14 +29,22 @@ export type NotebookListResponse = z.infer<typeof NotebookListResponseSchema>;
 
 /* ---------- Quellen ---------- */
 
+export const MAX_SOURCE_BYTES = 10 * 1024 * 1024;
+
 export const CreateSourceRequestSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.enum(['text', 'markdown']),
     title: z.string().min(1).max(300),
-    content: z.string().min(1).max(2_000_000),
+    content: z
+      .string()
+      .min(1)
+      .max(MAX_SOURCE_BYTES)
+      .refine(
+        (text) => new TextEncoder().encode(text).byteLength <= MAX_SOURCE_BYTES,
+        'Eine Quelle darf höchstens 10 MiB UTF-8-Text enthalten.',
+      ),
   }),
-  /** Der Server holt die Adresse und extrahiert den Text. Der Titel ist
-   *  optional; fehlt er, gilt der Seitentitel. */
+  /** Legacy-Vertrag: URL-Import wird ausdrücklich mit not_supported abgewiesen. */
   z.object({
     kind: z.literal('url'),
     url: z.url().max(2000),
@@ -61,12 +69,15 @@ export type Language = z.infer<typeof LanguageSchema>;
 
 export const AskRequestSchema = z.object({
   question: z.string().min(1).max(4000),
+  /** Optional selection; the backend checks it against its fixed free-model
+   * allowlist. Omission keeps the configured default for older clients. */
+  model: z.string().min(1).max(100).optional(),
   /** Sprache der Oberflaeche: bestimmt die Sprache der Antwort und der
    *  Systemauskuenfte ("keine Quelle ausgewaehlt"). Vorgabe Deutsch. */
   language: LanguageSchema.default('de'),
   /** Leere Liste bedeutet: keine Quelle ausgewaehlt. Der Server antwortet dann
    *  mit `grounded: false` statt aus Modellwissen zu antworten. */
-  sourceIds: z.array(IdSchema),
+  sourceIds: z.array(IdSchema).max(100),
 });
 export type AskRequest = z.infer<typeof AskRequestSchema>;
 
@@ -106,15 +117,15 @@ export type AskResponse = z.infer<typeof AskResponseSchema>;
 
 export const CreateNoteRequestSchema = z.object({
   title: z.string().min(1).max(300),
-  body: z.string(),
-  citations: z.array(CitationSchema).default([]),
-  question: z.string().default(''),
+  body: z.string().max(500_000),
+  citations: z.array(CitationSchema).max(100).default([]),
+  question: z.string().max(4000).default(''),
 });
 export type CreateNoteRequest = z.infer<typeof CreateNoteRequestSchema>;
 
 export const UpdateNoteRequestSchema = z.object({
   title: z.string().min(1).max(300).optional(),
-  body: z.string().optional(),
+  body: z.string().max(500_000).optional(),
 });
 export type UpdateNoteRequest = z.infer<typeof UpdateNoteRequestSchema>;
 
@@ -127,6 +138,10 @@ export const ApiErrorSchema = z.object({
   error: z.object({
     code: z.enum([
       'unauthorized',
+      'rate_limited',
+      'payload_too_large',
+      'storage_limit',
+      'not_supported',
       'not_found',
       'validation_failed',
       'llm_unavailable',
@@ -135,6 +150,8 @@ export const ApiErrorSchema = z.object({
       'internal',
     ]),
     message: z.string(),
+    retryAfterSeconds: z.number().int().positive().optional(),
+    retryAt: z.iso.datetime().optional(),
   }),
 });
 export type ApiError = z.infer<typeof ApiErrorSchema>;
@@ -146,6 +163,11 @@ export const HealthResponseSchema = z.object({
     configured: z.boolean(),
     provider: z.string(),
     model: z.string(),
+    /** Offered choices, not a claim that the free provider is reachable. */
+    selectableModels: z.array(z.object({ id: z.string(), name: z.string() })).optional(),
+    /** Externer Anbieter hat die Modellanfragen in diesem Betrieb abgewiesen. */
+    accessBlocked: z.boolean().optional(),
   }),
+  embeddings: z.object({ configured: z.boolean(), model: z.string() }).optional(),
 });
 export type HealthResponse = z.infer<typeof HealthResponseSchema>;

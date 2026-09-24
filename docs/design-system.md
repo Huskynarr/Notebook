@@ -1,6 +1,6 @@
 # Design-System
 
-Verbindliche Spezifikation. Drei Designs, in den Einstellungen umschaltbar, je hell und
+Verbindliche Spezifikation. Vier Designs, in den Einstellungen umschaltbar, je hell und
 dunkel. Die **Paletten liegen als Daten in `tools/build-theme.py`**; daraus wird
 `apps/web/src/styles/theme.css` erzeugt (`pnpm theme`). Weicht das Theme von diesem
 Dokument ab, ist das Theme falsch, nicht das Dokument — und weicht `theme.css` vom Generator
@@ -12,7 +12,8 @@ ausschließlich ein Satz von Token-Werten.
 
 | Design | `data-design` | Herkunft | Verbindlichkeit |
 |---|---|---|---|
-| Papier und Tinte | `eigen` (Vorgabe) | eigener Entwurf | vollständig eigene Festlegung |
+| Everlast-inspiriert | `everlast` (Vorgabe, dunkel) | <https://www.kiberatung.de> | eigene Ableitung, keine offizielle Designabnahme |
+| Papier und Tinte | `eigen` | eigener Entwurf | vollständig eigene Festlegung |
 | Universität Freiburg | `uni-freiburg` | <https://cd.uni-freiburg.de> | CD-Werte; Abweichungen in Abschnitt 10 |
 | huskynarr | `huskynarr` | <https://huskynarr.de> | **Näherung** — siehe Abschnitt 11 |
 
@@ -27,8 +28,8 @@ Drei Festlegungen, die für alle Designs gelten:
    Design gewechselt werden, ohne dass sich die Bedienung ändert.
 2. **Die Akzentfarbe gehört dem Beleg.** `accent` markiert ausschließlich Belegmechanik:
    Zitatmarker, hervorgehobene Quellenstellen, die Verbindung zwischen Aussage und Original.
-   Kein Button, keine Bestätigung, keine Plakette trägt sie. In jedem Design ist ein Zitat
-   deshalb die einzige Stelle in dieser Farbe — und diese Reservierung ist nicht verhandelbar.
+   Kein Button, keine Bestätigung, keine Plakette trägt sie. Aktionen nutzen `action`, Belege `accent`. Ähnliche Markenfarbtöne werden zusätzlich
+   durch Form, Beschriftung und Position unterschieden.
 3. **Dichte ohne Enge.** Drei Spalten mit viel Information. Ordnung entsteht durch
    Flächenwechsel und Abstand, nicht durch Rahmen und Linien.
 
@@ -338,7 +339,7 @@ Beleg trägt.
 | Abruf läuft | Zeile `text-meta`: „Durchsuche 7 Quellen" mit Pulsieren |
 | Fertig, belegt | Fußzeile mit Belegliste und den Aktionen „Als Notiz speichern", „Kopieren" |
 | Fertig, unbelegt | Hinweisfläche `warning`: „Die ausgewählten Quellen decken diese Frage nicht ab." Keine erfundene Antwort |
-| Teilweise belegt | Sätze ohne Beleg tragen eine gepunktete Unterlinie in `warning`, Fußzeile nennt die Zahl |
+| Unvollständige echte Belegkette | Antwort wird vollständig zurückgehalten, Hinweis statt inhaltlicher Behauptung |
 | Simulation aktiv | Hinweisfläche `warning`: „Simulierte Antwort — kein Modell verbunden", dauerhaft, nicht schließbar |
 | Fehler | Hinweisfläche `danger`, Klartextgrund, „Erneut versuchen" |
 
@@ -523,20 +524,37 @@ Abnahme mit **cd@zv.uni-freiburg.de** abgestimmt werden.
 
 ---
 
-## 11. Design `huskynarr`: eine Näherung, keine Nachbildung
+## 11. Beobachtete Referenzen und eigene Ableitungen
 
-**Belegt ist genau ein Wert:** die Theme-Farbe `#0c0a09` aus dem `<meta name="theme-color">`
-von <https://huskynarr.de>, abgerufen am 2026-09-18. Die Stylesheets der Seite ließen sich
-mit den verfügbaren Werkzeugen nicht auslesen; Schriften, Akzentfarben und Abstände der
-Vorlage sind **nicht bekannt**.
+Am 22.09.2026 wurden die öffentlich sichtbaren Seiten im Browser betrachtet und
+berechnete Farben/Schriften der dargestellten Elemente gelesen:
 
-Alles Übrige ist Ableitung: `#0c0a09` entspricht exakt `stone-950` aus Tailwind, deshalb
-baut das Design auf der Stone-Skala auf (warme Neutraltöne) und wählt für Belege Teal
-(`#2dd4bf` dunkel, `#0f766e` hell) — als Kontrast zu den Neutraltönen, nicht weil die
-Vorlage das so hätte. Das helle Erscheinungsbild ist eine Ableitung der Ableitung; die
-Vorlage ist dunkel.
+| Referenz | Beobachtung | Umsetzung |
+|---|---|---|
+| kiberatung.de | Hintergrund rgb(6,6,8), weißer Haupttitel, Inter, zitronengelbe Aktionen | `everlast`: schwarze Flächen, Lemon-Aktionen, eigene Notebook-Typografie und Belegfarben |
+| huskynarr.de | Stone-Dunkel, Inter Variable, Lime-Navigation oklch(0.768 0.233 130.85), Skip-Link #bef264 | `huskynarr`: Stone-Flächen und Lime-Aktionen; Belegrollen eigenständig |
 
-Der Hinweis in den Einstellungen sagt das („Angenähert an huskynarr.de — belegt ist nur die
-Grundfarbe #0c0a09"). Wer die tatsächlichen Werte kennt, trägt sie in
-`tools/build-theme.py` ein und erzeugt das Theme neu; dieser Abschnitt ist dann zu
-aktualisieren.
+Im Huskynarr-Theme sind Aktionen bewusst limettengrün (`action`), Belege dagegen türkis (`accent`): Diese eigenständige semantische Trennung unterscheidet Bedienaktionen von Quellenmarkierungen. Die türkisfarbenen Belege sind keine behauptete Markenfarbe der Referenzseite.
+
+Die frühere Aussage, nur eine Huskynarr-Farbe sei bekannt, ist damit überholt.
+Komplette Markenmanuals, Logos und exakte Abstandsregeln wurden nicht übernommen.
+Helle Varianten und Komponenten sind eigene Ableitungen. `everlast` ist standardmäßig
+dunkel; die Auswahl bleibt über alle Ansichten erhalten.
+
+## 12. Landingpage und Login
+
+Semantische Ergänzungen: `text-hero`, `text-section`, `max-w-page`; Definition im
+Themegenerator. Die Landingpage darf vertikal scrollen, der Arbeitsbereich behält
+sein Spaltenlayout. Hero links erklärt Nutzen und Einstieg, rechts zeigt eine ausdrücklich
+fiktive Belegillustration. `action` führt zur Anmeldung, `accent` öffnet deren Originalauszug.
+Mobil werden die Inhaltsbereiche untereinander angeordnet; Login bleibt oben sichtbar.
+
+Login-Zustände: leer, Eingabe, läuft, Zugang abgelehnt, Countdown, Netzwerkfehler.
+Während der Wartezeit sind Felder und Submit deaktiviert. Der Sekundenwert wird als
+Status angezeigt; ein Reload oder zweiter Tab hebt die serverseitige Sperre nicht auf.
+Die Landingpage ist ohne Zugang erreichbar; die Einführung öffnet nach erfolgreichem Login.
+
+Die Palette ist implementiert; alte Kontrastmessungen dieses Dokuments beziehen sich
+nur auf den Stand vom18.09, nicht automatisch auf neu ergänzte Varianten. Vollständige
+AA-/Tastaturprüfung bleibt eine eigene Abnahme. E2E und aktuelle Screenshots dokumentieren
+die tatsächlich geprüften Oberflächen in docs/progress.md.

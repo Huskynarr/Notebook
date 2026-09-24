@@ -14,10 +14,8 @@ export class StubProvider implements LlmProvider {
   readonly name = 'stub';
 
   complete(request: CompletionRequest): Promise<CompletionResult> {
-    const markers = [...request.user.matchAll(/^\[(\d+)\]\s(.+)$/gm)].slice(0, 3);
-    const listed = markers
-      .map(([, number, title]) => `- Abschnitt [${number ?? '?'}] aus ${title ?? 'unbekannt'}`)
-      .join('\n');
+    const markers = [...request.user.matchAll(/^\[(\d+)\]$/gm)].slice(0, 3);
+    const listed = markers.map(([, number]) => `- Abschnitt [${number ?? '?'}]`).join('\n');
 
     const texte =
       request.language === 'en'
@@ -26,14 +24,14 @@ export class StubProvider implements LlmProvider {
             intro:
               'No language model is connected. This answer is therefore not written out; it only shows which passages were found for the question:',
             outro:
-              'To get real answers, set LLM_PROVIDER=openai and configure LLM_BASE_URL and LLM_MODEL (see apps/api/.env.example).',
+              'Written answers require a connected AI provider. The passages can already be checked in their original sources.',
           }
         : {
             leer: 'Es ist kein Sprachmodell verbunden, und zu dieser Frage wurde in den ausgewählten Quellen keine Textstelle gefunden.',
             intro:
               'Es ist kein Sprachmodell verbunden. Diese Antwort ist daher nicht formuliert, sondern zeigt nur, welche Textstellen zu der Frage gefunden wurden:',
             outro:
-              'Um echte Antworten zu erhalten, setze LLM_PROVIDER=openai und trage LLM_BASE_URL sowie LLM_MODEL ein (siehe apps/api/.env.example).',
+              'Für formulierte Antworten muss ein KI-Anbieter verbunden sein. Die Fundstellen lassen sich bereits im Original prüfen.',
           };
     const answer =
       markers.length === 0

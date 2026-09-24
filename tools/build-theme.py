@@ -155,7 +155,47 @@ DESIGNS = {
     },
 }
 
-DEFAULT = 'eigen'
+# Independently implemented palette inspired by the inspected public Everlast
+# reference (black, lemon yellow, Inter), not an official brand asset.
+DESIGNS['everlast'] = {
+    'label': 'Everlast Research - eigenstaendige Interpretation',
+    'light': {
+        **DESIGNS['eigen']['light'],
+        'surface-sunken': '#efefe8', 'surface': '#f9faf4', 'surface-inset': '#eeefe4',
+        'content-strong': '#11130b', 'content': '#292d22', 'content-muted': '#5c6253',
+        'content-subtle': '#69715e', 'border-subtle': '#e0e4d5', 'border': '#c7ceba',
+        'action': '#343d09', 'action-hover': '#212705', 'action-surface': '#f0f5cc',
+        'action-contrast': '#ffffff', 'focus-ring': '#56650e',
+        'accent': '#65740b', 'accent-hover': '#424f06', 'accent-surface': '#f0f5cc',
+        'accent-surface-strong': '#e5ecab', 'accent-border': '#9eae3d',
+        'font-reading': INTER, 'radius-xs': '5px', 'radius-sm': '8px',
+        'radius-md': '14px', 'radius-lg': '24px',
+    },
+    'dark': {
+        **DESIGNS['eigen']['dark'],
+        'surface-sunken': '#060608', 'surface': '#0d0f0e', 'surface-raised': '#141714',
+        'surface-overlay': '#191d18', 'surface-inset': '#080a08',
+        'content-strong': '#f7f9ef', 'content': '#e4ece8', 'content-muted': '#a1aa9c',
+        'content-subtle': '#87927e', 'content-inverted': '#11130b',
+        'border-subtle': '#242b21', 'border': '#37402f', 'border-strong': '#576649',
+        'action': '#e0f36b', 'action-hover': '#edff8f', 'action-surface': '#252d0d',
+        'action-contrast': '#171e00', 'focus-ring': '#e0f36b',
+        'accent': '#b8d587', 'accent-hover': '#d2ecaa', 'accent-surface': '#222e17',
+        'accent-surface-strong': '#354625', 'accent-border': '#668846',
+        'accent-contrast': '#101907', 'font-reading': INTER,
+        'radius-xs': '5px', 'radius-sm': '8px', 'radius-md': '14px', 'radius-lg': '24px',
+    },
+}
+DESIGNS['huskynarr']['light'].update({
+    'action': '#3f6212', 'action-hover': '#365314', 'action-surface': '#ecfccb',
+    'action-contrast': '#ffffff', 'focus-ring': '#4d7c0f',
+})
+DESIGNS['huskynarr']['dark'].update({
+    'action': '#84cc16', 'action-hover': '#bef264', 'action-surface': '#1a2e05',
+    'action-contrast': '#0c0a09', 'focus-ring': '#bef264',
+})
+
+DEFAULT = 'everlast'
 
 KOPF = """/* ERZEUGTE DATEI - nicht von Hand aendern.
    Quelle: tools/build-theme.py - neu erzeugen mit `pnpm theme`.
@@ -209,6 +249,15 @@ SKALEN = """
   --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.2);
 
   --container-reading: 68ch;
+  --container-page: 76rem;
+
+  --text-hero: clamp(2.3rem, 4vw, 4.1rem);
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.055em;
+  --text-hero--font-weight: 600;
+  --text-section: clamp(1.75rem, 3vw, 2.75rem);
+  --text-section--line-height: 1.14;
+  --text-section--letter-spacing: -0.04em;
 
   --ease-fast: cubic-bezier(0.2, 0, 0.2, 1);
   --ease-base: cubic-bezier(0.2, 0, 0, 1);
