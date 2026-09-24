@@ -64,7 +64,8 @@ export async function rerankNemotron(
     });
     if (!response.ok) {
       await response.body?.cancel();
-      throw new Error(`HTTP ${response.status}`);
+      // The numeric status is safe to expose; the provider body may contain submitted text.
+      throw new LlmUnavailableError(`OpenRouter antwortete mit HTTP ${response.status}.`);
     }
     if (Number(response.headers.get('content-length') ?? 0) > MAX_RESPONSE_BYTES) {
       await response.body?.cancel();
@@ -109,7 +110,8 @@ export async function rerankNemotron(
       .sort((a, b) => b.similarity - a.similarity || a.index - b.index)
       .slice(0, topK)
       .map(({ chunk }) => chunk);
-  } catch {
+  } catch (error) {
+    if (error instanceof LlmUnavailableError) throw error;
     // No provider body, key, or source excerpt is echoed to the client or logs.
     throw new LlmUnavailableError('Der semantische Quellenabruf ist derzeit nicht erreichbar.');
   } finally {

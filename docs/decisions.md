@@ -734,3 +734,58 @@ Weitere Free-IDs werden nicht blind aktiviert. Ein neuer, auf Inference
 begrenzter Service-Key und ein gedeckelter Test des bereits vorbereiteten
 regulären Modells sind nur nach dem dafür notwendigen Schlüssel- und
 Kostenentscheid sinnvoll.
+
+## 2026-09-24 · MiMo als Wunschmodell sichtbar belassen
+
+Nach dem gescheiterten Nemotron-Livetest ist `mimo-v2.6-flash-free` wieder die
+bevorzugte Modell-ID. `LLM_ACCESS_STATUS=blocked` bleibt aktiv, bis ein externer
+MiMo-Aufruf und ein echter Belegtest gelingen. Verworfen: Nemotron nur wegen
+der Free-Auszeichnung im UI belassen oder einen kostenpflichtigen Ersatz
+ohne erfolgreichen Test einschalten.
+
+## 2026-09-24 · Login-Hinweis erst nach bestätigtem Fehlversuch
+
+Die Clientoberfläche zeigt den Hinweis auf zunehmende Wartezeiten nur bei
+gespeicherten 401-/429-Fehlversuchen. Dadurch lenkt er vor dem ersten Login
+nicht vom Formular ab; die persistierte Anzeige funktioniert nach Neuladen.
+Verworfen: Hinweis ständig anzeigen oder Netzwerkfehler als ungültiges
+Passwort mitzählen. Serverdrosselung bleibt maßgeblich.
+
+## 2026-09-24 · Öffentlichen Einstieg im ersten HTML ausliefern
+
+Titel, Beschreibung, Canonical, Sitemap und ein mit der React-Landingpage
+inhaltlich abgestimmter Einstieg stehen ohne JavaScript bereit. Das macht den
+öffentlichen Ablauf für Crawler lesbar, ohne private Inhalte vorzurendern.
+Verworfen: Spezialdateien als vermeintliche Garantie für AI Overviews oder
+ungeprüfte strukturierte Bewertungsdaten. Die statische Kurzfassung muss
+bei Textänderungen mit der Landingpage abgeglichen werden. Grundlage:
+[Google zu AI Features](https://developers.google.com/search/docs/appearance/ai-features)
+und [JavaScript-SEO](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics).
+
+## 2026-09-24 · Site Name und eigenständige Social-Vorschau
+
+Die öffentliche Startseite erhält einen eindeutigen, zum sichtbaren Inhalt
+passenden Titel, eine Textbeschreibung, einen `WebSite`-Eintrag für den
+sichtbaren Namen sowie Open-Graph-/X-Angaben mit einer eigens gestalteten
+Everlast-Vorschau. Das Bild zeigt nur Quellen und Belegprinzip, keine
+vorgebliche Modellantwort. Verworfen: Bewertungen, Modell-Erfolgsaussagen oder
+eine private Notebookansicht als Social-Bild. Google kann Metatexte umschreiben;
+Social-Caches können die Aktualisierung verzögern. Siehe `docs/seo.md`.
+
+## 2026-09-24 · NVIDIA-Embedding-Modell nur für optionale Quellensortierung
+
+`nvidia/llama-nemotron-embed-vl-1b-v2:free` liefert Vektoren, keine
+formulierten Antworten. Optional werden höchstens 18 ausgewählte FTS5-Treffer
+über den festen OpenRouter-Endpunkt verglichen; bis zu 12 gehen in die
+Belegprüfung. Verworfen: die ID als Chatmodell eintragen, eine Vektor-DB ohne
+Qualitätsmessung einführen oder Universitätsdaten ungefragt an den
+protokollierenden Free-Endpunkt übertragen. Ohne gesonderten Backend-Schlüssel
+bleibt die Funktion aus und die MiMo-Antwortsperre unverändert.
+
+## 2026-09-24 · Sichere Statusdiagnose für OpenRouter
+
+Ein nicht erfolgreicher Embedding-Aufruf meldet nur den numerischen HTTP-Status;
+Anbieterantworten, Schlüssel und Quellenausschnitte gelangen nicht in Client oder
+Logs. Damit lässt sich ein Berechtigungs-/Limitfehler von einem Transport- oder
+Formatfehler unterscheiden. Verworfen: sämtliche Fehler weiter unter einer
+identischen Meldung verstecken oder Anbieterantworten zur Fehlersuche protokollieren.

@@ -61,7 +61,7 @@ describe('optional NVIDIA embedding search', () => {
     await expect(rerankNemotron('Frage', candidates, '', 1)).rejects.toThrow('Schlüssel fehlt');
     expect(fetcher).not.toHaveBeenCalled();
     await expect(rerankNemotron('Frage', candidates, 'server-key', 1)).rejects.toThrow(
-      'semantische Quellenabruf',
+      'OpenRouter antwortete mit HTTP 429.',
     );
   });
 

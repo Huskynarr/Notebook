@@ -73,8 +73,8 @@ verwendet denselben Ursprung, ohne Angabe gilt lokal `http://localhost:8787`.
 cp apps/api/.env.example apps/api/.env
 ```
 
-Die gewählte Modell-ID bleibt **`mimo-v2.6-flash-free`**. Die ursprünglich
-vorgesehene Backend-Konfiguration lautete:
+Für formulierte Antworten bleibt **`mimo-v2.6-flash-free`** die bevorzugte
+Modell-ID. Das Backend erwartet dafür folgende Konfiguration:
 
 ```ini
 LLM_PROVIDER=openai
@@ -82,6 +82,16 @@ LLM_BASE_URL=https://opencode.ai/inference/openai/v1
 LLM_MODEL=mimo-v2.6-flash-free
 LLM_API_KEY=
 ```
+
+Auf Sites gehört der **OpenCode-Console-Inference-Key** als Secret
+`LLM_API_KEY` in die Laufzeitumgebung. `LLM_ACCESS_STATUS=blocked` bleibt
+gesetzt: Der authentifizierte Live-Test mit hinterlegtem Key und der öffentlichen
+Everlast-Beispielquelle ergab am 24.09.2026 HTTP 403. Für eine Freigabe braucht es
+eine echte Antwort samt gültigem Originalbeleg. Eine geänderte
+Sites-Umgebung wird erst nach erneutem Deployment einer gespeicherten Version
+wirksam. Schlüssel niemals in Chat, Git, Screenshots oder `VITE_`-Variablen
+einfügen. Lokal steht der Schlüssel nur in der von Git ausgeschlossenen
+`apps/api/.env`.
 
 Diese Werte gehören in `apps/api/.env` oder die Sites-Umgebung, niemals ins
 Frontend. Die [Console-Dokumentation](https://opencode.ai/v2/docs/console/inference/)
@@ -102,16 +112,21 @@ geprüft. Bis dahin bleibt die Site gesperrt.
 Die gewünschte NVIDIA-Variante `nvidia/llama-nemotron-embed-vl-1b-v2:free`
 von OpenRouter liefert Suchvektoren, **keine Chatantworten**. Für eine
 optionale Neuordnung von FTS-Treffern auf dem Backend
-`EMBEDDING_PROVIDER=openrouter` und `OPENROUTER_EMBEDDING_KEY` als
-serverseitiges Secret setzen; standardmäßig ist diese Funktion aus. Der
-kostenlose Endpunkt protokolliert Eingaben: ausschließlich öffentliche,
-unkritische Testdaten verwenden. Einzelheiten und Grenzen stehen in
+`EMBEDDING_PROVIDER=openrouter` und einen **separaten OpenRouter-Key** als
+serverseitiges Secret `OPENROUTER_EMBEDDING_KEY` setzen. Ein OpenCode-Key
+funktioniert hier nicht. Ohne Aktivierung bleibt die lexikalische FTS5-Suche
+erhalten. Der kostenlose Endpunkt protokolliert Eingaben: ausschließlich
+öffentliche, unkritische Testdaten verwenden. Der erneute Live-Test am 24.09.2026
+ergab **HTTP 401 von OpenRouter**: Die Authentifizierung mit dem hinterlegten
+Embedding-Key wurde abgewiesen. Die Funktion bleibt auf der
+veröffentlichten Site deaktiviert. Die OpenRouter-Suche hebt eine
+Sperre des Antwortmodells nicht auf. Einzelheiten und Grenzen stehen in
 [Indexierung](docs/indexing.md#optional-nvidia-suchvektoren-über-openrouter).
 
 OpenCode Go führt `mimo-v2.6-flash` ohne `-free` mit Tokenpreisen; für die
-gewünschte kostenlose V2.6-Variante ist aktuell kein funktionierender externer
-Endpunkt nachgewiesen. Ein
-Anbieterfehler schaltet nicht heimlich auf ein anderes Modell um. Eingereichte Fragen
+gewünschte kostenlose V2.6-Variante ist bislang kein funktionierender externer
+Aufruf mit gültigem Originalbeleg nachgewiesen. Ein Anbieterfehler schaltet
+nicht heimlich auf ein anderes Modell um. Eingereichte Fragen
 und Quellenausschnitte verlassen den Server und werden in den USA verarbeitet;
 laut Anbieter können Daten des kostenlosen MiMo-V2.6-Flash-Free-Betriebs zur Modellverbesserung
 genutzt werden. Vertrauliche Universitätsdaten benötigen vor Nutzung eine
@@ -176,6 +191,13 @@ Pre-Commit prüft `pnpm verify`, Commit-Msg erzwingt Conventional Commits mit
 `Verifiziert-durch:`, Pre-Push prüft `pnpm check:all`. GitHub CI prüft Pull Requests und
 `main` zusätzlich mit Chromium, Sites-Build und Fail2ban. `release-please` leitet SemVer-Versionen
 aus den Commit-Präfixen ab.
+
+CI und CodeQL prüfen Code und Browserabläufe, aber keine Live-Verfügbarkeit
+von OpenCode oder OpenRouter: Produktionsschlüssel werden nicht an PR-Runner
+gegeben. Vor dem Entsperren eines Anbieters ist ein separater, begrenzter
+Test mit der öffentlichen Everlast-Beispielquelle nötig. Die öffentliche
+Landingpage nutzt [Such- und Social-Metadaten](docs/seo.md); der geschützte
+Arbeitsbereich wird nicht als Suchergebnis ausgeliefert.
 
 Sites nutzt ein eigenes Quellrepository; ein GitHub-Push allein veröffentlicht
 keine neue Sites-Version. Die alternative Plesk-Pipeline baut erst nach erfolgreichen
