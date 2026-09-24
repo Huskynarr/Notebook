@@ -126,7 +126,7 @@ export function NotesPanel({
                               [{citation.marker}] {citation.sourceTitle} ·{' '}
                               {t('notes.sourceMissing')}
                             </p>
-                            <blockquote className="border-border-subtle mt-1 whitespace-pre-wrap border-l-2 pl-2">
+                            <blockquote className="border-border-subtle mt-1 border-l-2 pl-2 whitespace-pre-wrap">
                               {citation.excerpt}
                             </blockquote>
                           </div>

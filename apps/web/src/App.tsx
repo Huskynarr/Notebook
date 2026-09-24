@@ -664,8 +664,8 @@ function Arbeitsbereich({
 
   return (
     <div className="bg-surface-sunken flex h-screen flex-col">
-      <header className="border-border-subtle bg-surface xl:h-13 flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2 xl:flex-nowrap xl:gap-3 xl:px-4 xl:py-0">
-        <span className="text-label text-content-muted hidden font-semibold uppercase tracking-wide xl:inline">
+      <header className="border-border-subtle bg-surface flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2 xl:h-13 xl:flex-nowrap xl:gap-3 xl:px-4 xl:py-0">
+        <span className="text-label text-content-muted hidden font-semibold tracking-wide uppercase xl:inline">
           {t('app.name')}
         </span>
         <div className="min-w-0 flex-1 xl:flex-none">{notebookMenue}</div>

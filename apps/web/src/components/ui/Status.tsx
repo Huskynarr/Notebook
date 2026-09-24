@@ -45,7 +45,7 @@ export function Badge({
   return (
     <span
       className={cx(
-        'text-micro text-content-strong rounded-xs inline-flex h-5 items-center gap-1 px-2 uppercase',
+        'text-micro text-content-strong inline-flex h-5 items-center gap-1 rounded-xs px-2 uppercase',
         SURFACE[tone],
       )}
     >

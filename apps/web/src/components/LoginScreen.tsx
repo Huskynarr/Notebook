@@ -166,7 +166,7 @@ export function LoginScreen({
           </p>
         )}
         <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-meta text-content-subtle max-w-full break-all font-mono">
+          <p className="text-meta text-content-subtle max-w-full font-mono break-all">
             {demo ? t('login.demo') : t('login.backend', { url: apiBaseUrl })}
           </p>
           <Button size="sm" variant="ghost" onClick={onOpenSettings}>
