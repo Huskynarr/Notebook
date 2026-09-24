@@ -152,7 +152,7 @@ export function Menu({
             {groups.map((gruppe, gi) => (
               <div key={gi} className={cx(gi > 0 && 'border-border-subtle mt-1 border-t pt-1')}>
                 {gruppe.title !== undefined && (
-                  <p className="text-micro text-content-muted px-3 pb-1 pt-1.5 uppercase">
+                  <p className="text-micro text-content-muted px-3 pt-1.5 pb-1 uppercase">
                     {gruppe.title}
                   </p>
                 )}

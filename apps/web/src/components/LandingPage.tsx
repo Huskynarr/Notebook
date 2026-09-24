@@ -217,7 +217,7 @@ export function LandingPage({
             {copy.demo}
           </p>
         )}
-        <section className="max-w-page mx-auto grid items-center gap-12 px-5 pb-20 pt-12 sm:px-8 sm:pt-20 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pb-28">
+        <section className="max-w-page mx-auto grid items-center gap-12 px-5 pt-12 pb-20 sm:px-8 sm:pt-20 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pb-28">
           <div className="min-w-0">
             <p className="text-action mb-6 flex items-center gap-2 text-[10px] font-medium tracking-[0.16em] sm:text-xs">
               <span className="bg-action size-1.5 rounded-full" aria-hidden="true" />
@@ -295,7 +295,7 @@ export function LandingPage({
                       aria-expanded={showOriginal}
                       aria-controls="landing-original"
                       aria-label={copy.citation}
-                      className="bg-accent-surface text-accent hover:bg-accent-surface-strong rounded-xs inline-flex size-6 items-center justify-center text-xs font-semibold"
+                      className="bg-accent-surface text-accent hover:bg-accent-surface-strong inline-flex size-6 items-center justify-center rounded-xs text-xs font-semibold"
                     >
                       1
                     </button>
@@ -349,7 +349,7 @@ export function LandingPage({
         <section className="max-w-page mx-auto grid gap-12 px-5 py-20 sm:px-8 lg:grid-cols-2 lg:gap-24">
           <div>
             <p className="text-action text-[10px] tracking-[0.16em]">{copy.focusLabel}</p>
-            <h2 className="text-section text-content-strong mt-4 whitespace-pre-line font-semibold">
+            <h2 className="text-section text-content-strong mt-4 font-semibold whitespace-pre-line">
               {copy.focusTitle}
             </h2>
             <p className="text-content-muted mt-6 text-sm leading-7">{copy.focusBody}</p>
@@ -366,7 +366,7 @@ export function LandingPage({
           </div>
           <aside className="bg-surface border-border-subtle rounded-lg border p-7 sm:p-9">
             <p className="text-action text-[10px] tracking-[0.16em]">{copy.modelLabel}</p>
-            <h2 className="text-content-strong mt-5 text-2xl font-medium leading-tight">
+            <h2 className="text-content-strong mt-5 text-2xl leading-tight font-medium">
               {copy.modelTitle}
             </h2>
             <p className="text-content-muted mt-5 text-sm leading-7">{copy.modelBody}</p>
@@ -386,7 +386,7 @@ export function LandingPage({
                 {copy.modelBlocked}
               </p>
             )}
-            <Button variant="secondary" className="rounded-full! mt-7" onClick={onLogin}>
+            <Button variant="secondary" className="mt-7 rounded-full!" onClick={onLogin}>
               {copy.start}
               <span aria-hidden="true">↗</span>
             </Button>
