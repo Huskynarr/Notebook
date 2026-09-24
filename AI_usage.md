@@ -395,3 +395,14 @@ OpenCode GLM Flash. Der Anbieter antwortete HTTP 401; Muse Free gab HTTP 403.
 Die Site wurde wieder gesperrt. Ein Browser-Zugriff auf ein angemeldetes
 OpenCode-Konto wurde nicht abgeschlossen; weder ein Schlüssel noch eine
 Modellantwort wurden daraus übernommen.
+
+## 2026-09-24 · Angemeldete Console und Nemotron-Testpfad
+
+Codex las im angemeldeten OpenCode-Workspace den aktiven Notebook-Service-
+Account, dessen vorhandenen Schlüsselstatus, die freigegebenen Modelle und
+das Guthaben, ohne den geheimen Schlüssel zu lesen oder auszugeben. Die
+offizielle Inference-Dokumentation wurde mit der Console-Anzeige verglichen.
+Der begrenzte schlüssellose Nemotron-Pfad wurde im Site-Worker implementiert;
+Integrationstests prüfen exakte Modell-ID, Endpoint, unterdrückten
+Authorization-Header trotz vorhandenem Secret und gesperrten Status.
+Eine simulierte Fetch-Antwort ist kein Nachweis für externe Verfügbarkeit.

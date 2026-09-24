@@ -335,3 +335,20 @@ Modellaufruf ist damit weiterhin nicht belegt. Die Site ist wieder mit
 `configured:false` und `accessBlocked:true` melden. Ein Console-Inference-
 Service-Key mit Zugriff auf ein freigegebenes Modell und erneute Belegabnahme
 sind erforderlich. Ein Browser-Login bei OpenCode wurde nicht abgeschlossen.
+
+## 2026-09-24 · Console-Zugang und begrenzter Nemotron-Pfad
+
+Der angemeldete Workspace `Default` zeigt einen aktiven Notebook-Service-
+Account mit einem bisher nie verwendeten Schlüssel (Ablauf 27.09.),
+`nemotron-3.5-lightning-free` als aktiv und mit $0.00 pro Million Token,
+$5.00 Inference-Guthaben und keine automatische Aufladung. Der vorhandene
+Site-Schlüssel führte beim bezahlten GLM-Chat-Test zu HTTP 401; sein Wert
+wurde nicht angezeigt. Muse Free antwortete zuvor HTTP 403. Das erklärt
+noch keine erfolgreiche Modellanbindung.
+
+Der Sites-Worker erlaubt nun den exakten schlüssellosen Nemotron-Chatpfad,
+auch wenn ein anderes Secret konfiguriert ist. `pnpm verify` bestand unter
+Node 24.19.0 und pnpm 9.15.9: Typecheck, Lint, Format, Build, 209 Unit-/
+Integrationstests in 26 Dateien und 10 Tool-Tests. Der externe Live-Aufruf,
+Belegprüfung und die Freigabe stehen noch aus; die produktive Site bleibt
+`LLM_ACCESS_STATUS=blocked`.

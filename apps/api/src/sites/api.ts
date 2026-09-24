@@ -29,6 +29,7 @@ import {
   isAllowedConsoleModel,
   isBlockedConsoleModel,
   isFreeMuseConsole,
+  isFreeNemotronConsole,
 } from '../llm/freeMuse.ts';
 import {
   canonicalCitations,
@@ -134,6 +135,7 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
             ? isAllowedConsoleModel(env.LLM_BASE_URL, env.LLM_MODEL) &&
               (isFreeMimoConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
                 isFreeMuseConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
+                isFreeNemotronConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
                 !!env.LLM_API_KEY)
             : !!env.LLM_API_KEY),
         provider: env.LLM_PROVIDER === 'openai' ? 'openai' : 'stub',

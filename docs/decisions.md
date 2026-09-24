@@ -709,3 +709,16 @@ Schlüssel freigegeben. Die Console nennt $0.15 je Million Eingabetoken und
 $0.50 je Million Ausgabetoken (Stand 23.09.2026). Der gesperrte Status gilt
 auch für diesen Kandidaten; kein automatischer Fallback und keine Freigabe
 ohne echte Belegabnahme. Verworfen: weitere Free-IDs blind durchprobieren.
+
+## 2026-09-24 · Nemotron Free als begrenzten schlüssellosen Testpfad aufnehmen
+
+Die angemeldete Console zeigt `nemotron-3.5-lightning-free` als aktives, mit
+$0.00 pro Million Token ausgezeichnetes Chatmodell. Die offizielle
+Inference-Dokumentation erlaubt kostenlose Chatmodelle ohne Schlüssel.
+Der Site-Worker erlaubt diese ID daher ausschließlich an der festen Console-
+Chat-Completions-Adresse und sendet auch bei vorhandenem Backend-Secret für
+dieses Modell keinen Authorization-Header. Die vorhandene externe Sperre gilt
+weiterhin bis zum tatsächlichen Live-Aufruf und Belegtest. D-034 bleibt als
+Befund zu MiMo bestehen; ein Erfolg bei Nemotron wird daraus nicht abgeleitet.
+Verworfen: beliebige Console-IDs, automatische Modellwechsel und ein
+unbegründeter Rückgriff auf das kostenpflichtige Go-Abonnement.

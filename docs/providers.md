@@ -182,3 +182,18 @@ nicht zu ermitteln. Die Site ist wieder gesperrt. Für eine erneute Abnahme
 den Console-Inference-Service-Key des richtigen Workspace ausschließlich als
 Sites-Secret `LLM_API_KEY` setzen und den modellbezogenen Zugriff im Console-
 Workspace prüfen. Keine Schlüssel an Chat, GitHub oder das Frontend senden.
+
+### Begrenzter Versuch mit Nemotron 3.5 Lightning Free
+
+Die am 24.09.2026 angemeldete Console führt
+`nemotron-3.5-lightning-free` als aktiv und mit $0.00 für Ein- und Ausgabe.
+Die [Inference-Dokumentation](https://opencode.ai/v2/docs/console/inference)
+nennt die Chat-Completions-API für freie Modelle und erlaubt freie
+Chatmodelle ohne Service-Account-Key. Der Worker lässt diese exakte ID nur
+an `https://opencode.ai/inference/openai/v1` zu und verzichtet dafür auf
+einen Authorization-Header, selbst wenn ein anderes Backend-Secret vorliegt.
+Die Site bleibt `blocked`, bis eine wirkliche Modellantwort mit verifizierten
+Everlast-Belegen beobachtet wurde. Die Console zeigt $5.00 verfügbares
+Inference-Guthaben und keine automatische Aufladung; dieser Testpfad soll
+kein Guthaben verbrauchen. Die Kosten- und Datenschutzbedingungen vor
+späterem Betrieb erneut prüfen.

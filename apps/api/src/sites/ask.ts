@@ -18,6 +18,7 @@ import {
   isAllowedConsoleModel,
   isBlockedConsoleModel,
   isFreeMuseConsole,
+  isFreeNemotronConsole,
 } from '../llm/freeMuse.ts';
 import { parseMuseAnswer } from '../llm/museResponse.ts';
 import { retrieved, type SiteEnv } from './db.ts';
@@ -52,7 +53,10 @@ async function model(
   if (
     !base ||
     !modelName ||
-    (!env.LLM_API_KEY && !isFreeMimoConsole(base, modelName) && !isFreeMuseConsole(base, modelName))
+    (!env.LLM_API_KEY &&
+      !isFreeMimoConsole(base, modelName) &&
+      !isFreeMuseConsole(base, modelName) &&
+      !isFreeNemotronConsole(base, modelName))
   )
     throw new LlmUnavailableError('Kein Modell verbunden.');
   if (isOpenCodeConsole(base) && !isAllowedConsoleModel(base, modelName))
@@ -73,7 +77,9 @@ async function model(
         signal: abort.signal,
         headers: {
           'content-type': 'application/json',
-          ...(env.LLM_API_KEY ? { authorization: `Bearer ${env.LLM_API_KEY}` } : {}),
+          ...(env.LLM_API_KEY && !isFreeNemotronConsole(base, modelName)
+            ? { authorization: `Bearer ${env.LLM_API_KEY}` }
+            : {}),
         },
         body: JSON.stringify(
           muse

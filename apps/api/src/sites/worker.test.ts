@@ -641,6 +641,31 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     expect(JSON.parse(glmInit.body) as Record<string, unknown>).not.toHaveProperty(
       'response_format',
     );
+    env.LLM_MODEL = 'nemotron-3.5-lightning-free';
+    const nemotronHealth = (await (await call(env, '/v1/health')).json()) as {
+      llm: { configured: boolean; model: string };
+    };
+    expect(nemotronHealth.llm).toMatchObject({
+      configured: true,
+      model: 'nemotron-3.5-lightning-free',
+    });
+    const nemotron = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: sources.sources.map((source) => source.id),
+    });
+    expect(nemotron.status).toBe(200);
+    expect((await nemotron.json()) as AskResponse).toMatchObject({
+      simulated: false,
+      grounded: false,
+      citations: [],
+    });
+    const [nemotronUrl, nemotronInit] = outgoing.mock.calls[5]!;
+    expect(nemotronUrl).toBe('https://opencode.ai/inference/openai/v1/chat/completions');
+    expect(nemotronInit?.headers).not.toHaveProperty('authorization');
+    if (typeof nemotronInit?.body !== 'string') throw new Error('JSON-Request-Body erwartet');
+    expect(JSON.parse(nemotronInit.body) as unknown).toMatchObject({
+      model: 'nemotron-3.5-lightning-free',
+    });
   });
 
   it('marks confirmed external free-tier blocking and refuses repeated provider requests', async () => {
@@ -690,6 +715,12 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
       sourceIds: sources.sources.map((source) => source.id),
     });
     expect(blockedMuse.status).toBe(503);
+    env.LLM_MODEL = 'nemotron-3.5-lightning-free';
+    const blockedNemotron = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: sources.sources.map((source) => source.id),
+    });
+    expect(blockedNemotron.status).toBe(503);
     expect(outgoing).not.toHaveBeenCalled();
   });
 
