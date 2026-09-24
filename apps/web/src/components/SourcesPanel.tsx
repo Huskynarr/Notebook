@@ -175,7 +175,7 @@ export function SourcesPanel({
                     size="sm"
                     variant="ghost"
                     aria-label={t('sources.deleteTitle', { title: source.title })}
-                    className="opacity-100 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 md:opacity-0"
+                    className="opacity-100 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 md:opacity-0"
                     onClick={() => {
                       onDelete(source);
                     }}

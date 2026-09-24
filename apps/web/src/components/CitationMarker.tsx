@@ -76,7 +76,7 @@ export function CitationMarker({
           if (event.key === 'Escape') setPreview(null);
         }}
         className={cx(
-          'rounded-xs text-micro mx-0.5 px-1 align-super font-mono transition-colors duration-[80ms]',
+          'text-micro mx-0.5 rounded-xs px-1 align-super font-mono transition-colors duration-[80ms]',
           // Die Belegfarbe liegt auf der Fläche, nie auf der Schrift; die
           // Textfarbe steht ausschließlich in den beiden Zweigen (D-012).
           'focus-visible:outline-accent',
@@ -101,7 +101,7 @@ export function CitationMarker({
           {preview.headingPath !== '' && (
             <span className="text-meta text-content-muted block">{preview.headingPath}</span>
           )}
-          <span className="bg-accent-surface font-reading text-reading text-content-strong rounded-xs mt-2 block max-h-40 overflow-y-auto px-2 py-1">
+          <span className="bg-accent-surface font-reading text-reading text-content-strong mt-2 block max-h-40 overflow-y-auto rounded-xs px-2 py-1">
             {preview.excerpt}
           </span>
           <span className="text-meta text-content-muted mt-2 block font-mono">

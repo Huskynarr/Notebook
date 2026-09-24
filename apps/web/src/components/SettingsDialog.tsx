@@ -159,7 +159,7 @@ export function SettingsDialog({
             <p className="text-meta text-content-muted mt-1">{t('settings.demoData')}</p>
           ) : (
             <>
-              <p className="text-meta text-content-muted mt-1 break-all font-mono">{apiBaseUrl}</p>
+              <p className="text-meta text-content-muted mt-1 font-mono break-all">{apiBaseUrl}</p>
               <p className="text-meta text-content-muted mt-1">
                 {t('settings.backendHint', { variable: 'VITE_API_BASE_URL' })}
               </p>
