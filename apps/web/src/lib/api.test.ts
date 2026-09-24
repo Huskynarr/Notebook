@@ -101,3 +101,37 @@ describe('API health contract', () => {
     });
   });
 });
+
+describe('model selection request', () => {
+  it('sends the selected free model with the question and omits it for legacy requests', async () => {
+    const fetched = vi.fn().mockImplementation(() =>
+      Promise.resolve(
+        Response.json({
+          answer: 'Nicht belegt.',
+          citations: [],
+          retrieved: [],
+          grounded: false,
+          unsupportedSentenceCount: 0,
+          droppedMarkers: [],
+          simulated: false,
+          model: 'test',
+          elapsedMs: 0,
+        }),
+      ),
+    );
+    vi.stubGlobal('fetch', fetched);
+    await client.ask('notebook-id', 'Frage?', [], 'de', 'nvidia/nemotron-3.5-lightning:free');
+    const first = fetched.mock.calls[0]?.[1] as RequestInit | undefined;
+    expect(
+      JSON.parse(typeof first?.body === 'string' ? first.body : '{}') as unknown,
+    ).toMatchObject({
+      question: 'Frage?',
+      model: 'nvidia/nemotron-3.5-lightning:free',
+    });
+    await client.ask('notebook-id', 'Frage?', [], 'de');
+    const second = fetched.mock.calls[1]?.[1] as RequestInit | undefined;
+    expect(
+      JSON.parse(typeof second?.body === 'string' ? second.body : '{}') as Record<string, unknown>,
+    ).not.toHaveProperty('model');
+  });
+});

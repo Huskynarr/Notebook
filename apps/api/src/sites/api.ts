@@ -12,6 +12,7 @@ import {
   UpdateNoteRequestSchema,
   UpdateSourceRequestSchema,
   type CreateNoteRequest,
+  OPENROUTER_CHAT_MODELS,
 } from '@notebook/shared';
 import {
   accounts,
@@ -123,6 +124,10 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
     const accessBlocked =
       env.LLM_PROVIDER === 'openai' &&
       isBlockedConsoleModel(env.LLM_BASE_URL ?? '', env.LLM_MODEL ?? '', env.LLM_ACCESS_STATUS);
+    const openRouterConfigured =
+      env.LLM_PROVIDER === 'openai' &&
+      isAllowedOpenRouterModel(env.LLM_BASE_URL ?? '', env.LLM_MODEL ?? '') &&
+      !!env.OPENROUTER_EMBEDDING_KEY;
     return json({
       status: 'ok',
       version: '0.1.0',
@@ -133,8 +138,7 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
           !!env.LLM_BASE_URL &&
           !!env.LLM_MODEL &&
           (isOpenRouter(env.LLM_BASE_URL)
-            ? isAllowedOpenRouterModel(env.LLM_BASE_URL, env.LLM_MODEL) &&
-              !!env.OPENROUTER_EMBEDDING_KEY
+            ? openRouterConfigured
             : isOpenCodeConsole(env.LLM_BASE_URL)
               ? isAllowedConsoleModel(env.LLM_BASE_URL, env.LLM_MODEL) &&
                 (isFreeMimoConsole(env.LLM_BASE_URL, env.LLM_MODEL) ||
@@ -144,6 +148,7 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
               : !!env.LLM_API_KEY),
         provider: env.LLM_PROVIDER === 'openai' ? 'openai' : 'stub',
         model: env.LLM_PROVIDER === 'openai' ? (env.LLM_MODEL ?? '') : 'kein Modell verbunden',
+        ...(openRouterConfigured ? { selectableModels: OPENROUTER_CHAT_MODELS } : {}),
         accessBlocked,
       },
       embeddings: {
@@ -297,6 +302,12 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
     }
     if (action === 'ask' && parts.length === 4 && method === 'POST') {
       const input = await body(request, AskRequestSchema);
+      if (
+        input.model !== undefined &&
+        (env.LLM_PROVIDER !== 'openai' ||
+          !isAllowedOpenRouterModel(env.LLM_BASE_URL ?? '', input.model))
+      )
+        throw new ApiFailure(400, 'validation_failed', 'Dieses Modell ist nicht freigegeben.');
       const allowed = new Set((await sourceList(db, owner, key)).map((s) => s.id));
       const sources = input.sourceIds.filter((sourceId) => allowed.has(sourceId));
       const minute = await quota(db, `ask:minute:${owner}`, 60_000, 10);
@@ -308,6 +319,7 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
           question: input.question,
           sourceIds: sources,
           language: input.language,
+          ...(input.model === undefined ? {} : { model: input.model }),
         }),
       );
     }

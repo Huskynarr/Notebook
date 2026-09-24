@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   EXAMPLE_NOTEBOOK_TITLE,
   MAX_SOURCE_BYTES,
+  OPENROUTER_CHAT_MODELS,
   type AskResponse,
   type SourceContent,
 } from '@notebook/shared';
@@ -495,8 +496,19 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     };
     expect(qwenBody.response_format).toBeUndefined();
     expect((await (await call(env, '/v1/health')).json()) as unknown).toMatchObject({
-      llm: { configured: true, model: OPENROUTER_FREE_CHAT_MODEL },
+      llm: {
+        configured: true,
+        model: OPENROUTER_FREE_CHAT_MODEL,
+        selectableModels: OPENROUTER_CHAT_MODELS,
+      },
     });
+    const paidSelection = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: [legalNotice?.id],
+      model: 'google/gemma-4-31b-it',
+    });
+    expect(paidSelection.status).toBe(400);
+    expect(fetcher).toHaveBeenCalledOnce();
     env.LLM_MODEL = 'qwen/qwen3.8-27b'; // A paid variant must never be a silent fallback.
     const rejected = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
       question: 'Wen nennt das Impressum unter Vertreten durch?',
@@ -521,6 +533,41 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     ) as { model: string; response_format?: unknown };
     expect(alternativeBody.model).toBe(OPENROUTER_FREE_ALTERNATIVE);
     expect(alternativeBody.response_format).toEqual({ type: 'json_object' });
+    for (const chosen of OPENROUTER_CHAT_MODELS.filter(
+      (entry) =>
+        entry.id !== OPENROUTER_FREE_CHAT_MODEL && entry.id !== OPENROUTER_FREE_ALTERNATIVE,
+    )) {
+      const answer = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+        question: 'Wen nennt das Impressum unter Vertreten durch?',
+        sourceIds: [legalNotice?.id],
+        model: chosen.id,
+      });
+      expect(answer.status).toBe(200);
+      expect((await answer.json()) as AskResponse).toMatchObject({
+        simulated: false,
+        grounded: true,
+        model: chosen.id,
+      });
+      const outgoing = fetcher.mock.calls.at(-1)?.[1]?.body;
+      const payload = JSON.parse(typeof outgoing === 'string' ? outgoing : '{}') as {
+        model: string;
+        response_format?: unknown;
+      };
+      expect(payload.model).toBe(chosen.id);
+      expect(payload.response_format).toEqual(
+        chosen.id.startsWith('google/gemma-4-') ? { type: 'json_object' } : undefined,
+      );
+    }
+    const switched = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Wen nennt das Impressum unter Vertreten durch?',
+      sourceIds: [legalNotice?.id],
+      model: OPENROUTER_FREE_CHAT_MODEL,
+    });
+    expect(switched.status).toBe(200);
+    expect((await switched.json()) as AskResponse).toMatchObject({
+      model: OPENROUTER_FREE_CHAT_MODEL,
+      simulated: false,
+    });
     fetcher.mockImplementationOnce(() =>
       Promise.resolve(new Response('{"error":"limit"}', { status: 429 })),
     );

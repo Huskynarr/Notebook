@@ -6,6 +6,7 @@ import {
 } from './openai.ts';
 import { extractJson, ModelAnswerSchema } from './provider.ts';
 import { OPENROUTER_BASE_URL, OPENROUTER_FREE_CHAT_MODEL } from './openrouter.ts';
+import { OPENROUTER_CHAT_MODELS } from '@notebook/shared';
 
 const modelAnswer = {
   grounded: true,
@@ -57,8 +58,8 @@ describe('OpenAI-kompatibler HTTP-Vertrag', () => {
     expect(fetchMock.mock.calls[0]?.[1]?.headers).not.toHaveProperty('authorization');
   });
 
-  it('limits OpenRouter to the free chat ID and sends its key only in the header', async () => {
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(completion());
+  it('limits OpenRouter to curated free chat IDs and sends its key only in the header', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(() => Promise.resolve(completion()));
     vi.stubGlobal('fetch', fetchMock);
     const result = await new OpenAiCompatibleProvider({
       ...options,
@@ -70,6 +71,24 @@ describe('OpenAI-kompatibler HTTP-Vertrag', () => {
     expect(url).toBe(`${OPENROUTER_BASE_URL}/chat/completions`);
     expect(init?.headers).toMatchObject({ authorization: `Bearer ${options.apiKey}` });
     expect(init?.body).not.toContain(options.apiKey);
+    for (const chosen of OPENROUTER_CHAT_MODELS) {
+      const answer = await new OpenAiCompatibleProvider({
+        ...options,
+        baseUrl: OPENROUTER_BASE_URL,
+        model: chosen.id,
+      }).complete(request);
+      expect(answer.model).toBe(chosen.id);
+      const body = fetchMock.mock.calls.at(-1)?.[1]?.body;
+      const sent = JSON.parse(typeof body === 'string' ? body : '{}') as {
+        model: string;
+        response_format?: unknown;
+      };
+      expect(sent.model).toBe(chosen.id);
+      expect(sent.response_format).toEqual(
+        chosen.id.startsWith('google/gemma-4-') ? { type: 'json_object' } : undefined,
+      );
+    }
+    const priorRequests = fetchMock.mock.calls.length;
     await expect(
       new OpenAiCompatibleProvider({
         ...options,
@@ -77,7 +96,7 @@ describe('OpenAI-kompatibler HTTP-Vertrag', () => {
         model: 'qwen/qwen3.8-27b',
       }).complete(request),
     ).rejects.toThrow('nicht für die kostenlose Demo freigegeben');
-    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(fetchMock).toHaveBeenCalledTimes(priorRequests);
   });
 
   it('ruft MiMo V2.6 Flash Free an der Console ohne Schlüssel und ohne ungeprüftes response_format auf', async () => {

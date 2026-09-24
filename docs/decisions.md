@@ -829,3 +829,13 @@ als kostenlos und `response_format`-fähig gelistete ID
 `google/gemma-4-26b-a4b-it:free` zugelassen. Beim Qwen-Free-Modell wird das
 dort nicht gelistete `response_format` entfernt. Verworfen: den 404-Endpunkt
 beibehalten oder ungeprüft auf ein bezahltes Modell ausweichen.
+
+## 2026-09-24 · Modellauswahl je Frage mit serverseitiger Free-Liste
+
+Die Auswahl im geschützten Chat enthält vier aktuell gelistete Free-IDs und
+gilt nur für die nächste Anfrage. Das Backend behält `LLM_MODEL` als Vorgabe,
+weist unbekannte oder kostenpflichtige IDs vor einem externen Aufruf ab und
+verwendet weiter denselben serverseitigen Schlüssel. Der Health-Endpunkt
+veröffentlicht nur die auswählbaren Namen und IDs, keine Zugangsdaten oder
+unbelegte Verfügbarkeitsanzeige. Verworfen: beliebige Modellnamen, automatischer
+Bezahl-Fallback und Live-Modellabfrage bei jeder Frage.

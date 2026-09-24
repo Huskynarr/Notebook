@@ -11,6 +11,7 @@ export interface Exchange {
   readonly id: string;
   readonly question: string;
   readonly selectedCount: number;
+  readonly model?: string;
   readonly response: AskResponse | null;
   readonly error: string | null;
 }
@@ -20,6 +21,9 @@ export function ChatPanel({
   pending,
   modelBlocked,
   openRouterChat,
+  models,
+  selectedModel,
+  onModelChange,
   selectedCount,
   activeMarker,
   onAsk,
@@ -31,6 +35,9 @@ export function ChatPanel({
   pending: boolean;
   modelBlocked: boolean;
   openRouterChat: boolean;
+  models: readonly { id: string; name: string }[];
+  selectedModel: string | null;
+  onModelChange: (model: string) => void;
   selectedCount: number;
   activeMarker: number | null;
   onAsk: (question: string) => void;
@@ -101,6 +108,7 @@ export function ChatPanel({
                 <p className="text-body text-content">{exchange.question}</p>
                 <p className="text-meta text-content-muted mt-1">
                   {t('chat.considered', { count: exchange.selectedCount })}
+                  {exchange.model === undefined ? '' : ` · ${exchange.model}`}
                 </p>
               </div>
             </div>
@@ -141,6 +149,32 @@ export function ChatPanel({
       </div>
 
       <div className="border-border-subtle bg-surface no-print border-t px-6 py-3">
+        {models.length > 0 && selectedModel !== null && (
+          <div className="mb-3 max-w-sm">
+            <label htmlFor="chat-model" className="text-label text-content mb-1 block">
+              {t('chat.modelLabel')}
+            </label>
+            <select
+              id="chat-model"
+              value={selectedModel}
+              disabled={pending || modelBlocked}
+              onChange={(event) => {
+                onModelChange(event.target.value);
+              }}
+              className={cx(
+                'border-border bg-surface-raised text-body text-content w-full rounded-sm border px-3 py-2',
+                'hover:border-border-strong focus:border-action disabled:cursor-not-allowed',
+              )}
+            >
+              {models.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name}
+                </option>
+              ))}
+            </select>
+            <p className="text-meta text-content-muted mt-1">{t('chat.modelHint')}</p>
+          </div>
+        )}
         {openRouterChat && (
           <p className="text-meta text-warning mb-2" role="status">
             {t('chat.openRouterPrivacy')}

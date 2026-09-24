@@ -1,10 +1,11 @@
 import type { FastifyInstance } from 'fastify';
 import { AskRequestSchema } from '@notebook/shared';
-import type { AppContext } from '../context.ts';
+import { selectedOpenRouterProvider, type AppContext } from '../context.ts';
 import { ask } from '../domain/ask.ts';
 import { LlmUnavailableError } from '../llm/provider.ts';
 import { fail, idParam, notFound, parseBody } from './helpers.ts';
 import { AskBudget } from '../askBudget.ts';
+import { isAllowedOpenRouterModel } from '../llm/openrouter.ts';
 
 export function registerAskRoutes(app: FastifyInstance, ctx: AppContext): void {
   const budget = new AskBudget(ctx.db);
@@ -13,6 +14,12 @@ export function registerAskRoutes(app: FastifyInstance, ctx: AppContext): void {
     if (ctx.notebooks.get(notebookId) === null) return notFound(reply, 'Notebook');
     const body = parseBody(AskRequestSchema, request, reply);
     if (body === null) return reply;
+    if (
+      body.model !== undefined &&
+      (ctx.config.LLM_PROVIDER !== 'openai' ||
+        !isAllowedOpenRouterModel(ctx.config.LLM_BASE_URL, body.model))
+    )
+      return await fail(reply, 400, 'validation_failed', 'Dieses Modell ist nicht freigegeben.');
 
     // Nur Quellen dieses Notebooks zulassen. Ein Notebook darf nie auf die
     // Quellen eines anderen zugreifen.
@@ -39,7 +46,7 @@ export function registerAskRoutes(app: FastifyInstance, ctx: AppContext): void {
     try {
       return await ask(
         ctx.db,
-        ctx.llm,
+        body.model === undefined ? ctx.llm : selectedOpenRouterProvider(ctx.config, body.model),
         { question: body.question, sourceIds, language: body.language },
         {
           topK: ctx.config.RETRIEVAL_TOP_K,

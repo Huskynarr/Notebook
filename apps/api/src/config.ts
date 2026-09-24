@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { OPENROUTER_CHAT_MODELS } from '@notebook/shared';
 import { isAllowedOpenRouterModel, isOpenRouter } from './llm/openrouter.ts';
 import { isIP } from 'node:net';
 
@@ -119,7 +120,7 @@ const ConfigSchema = z
         ctx.addIssue({
           code: 'custom',
           path: ['LLM_MODEL'],
-          message: 'Nur das freigegebene kostenlose OpenRouter-Modell ist zulässig.',
+          message: 'Nur freigegebene kostenlose OpenRouter-Modelle sind zulässig.',
         });
     }
     if (config.EMBEDDING_PROVIDER === 'openrouter' && !config.OPENROUTER_EMBEDDING_KEY) {
@@ -188,6 +189,7 @@ export function publicLlmInfo(config: Config): {
   configured: boolean;
   provider: string;
   model: string;
+  selectableModels?: { id: string; name: string }[];
 } {
   return {
     configured:
@@ -197,5 +199,10 @@ export function publicLlmInfo(config: Config): {
           !!config.OPENROUTER_EMBEDDING_KEY)),
     provider: config.LLM_PROVIDER,
     model: config.LLM_PROVIDER === 'stub' ? 'kein Modell verbunden' : config.LLM_MODEL,
+    ...(config.LLM_PROVIDER === 'openai' &&
+    isAllowedOpenRouterModel(config.LLM_BASE_URL, config.LLM_MODEL) &&
+    !!config.OPENROUTER_EMBEDDING_KEY
+      ? { selectableModels: [...OPENROUTER_CHAT_MODELS] }
+      : {}),
   };
 }

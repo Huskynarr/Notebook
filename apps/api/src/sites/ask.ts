@@ -23,7 +23,7 @@ import {
 import { parseMuseAnswer } from '../llm/museResponse.ts';
 import { retrieved, type SiteEnv } from './db.ts';
 import { rerankNemotron } from '../domain/nemotronEmbeddings.ts';
-import { isAllowedOpenRouterModel, isOpenRouter } from '../llm/openrouter.ts';
+import { isAllowedOpenRouterModel, isOpenRouter, supportsJsonObject } from '../llm/openrouter.ts';
 
 const ChatCompletion = z.object({
   choices: z
@@ -41,13 +41,14 @@ async function model(
   env: SiteEnv,
   system: string,
   user: string,
+  selectedModel?: string,
 ): Promise<{
   answer: z.infer<typeof ModelAnswerSchema>;
   model: string;
   simulated: boolean;
 }> {
   const base = env.LLM_BASE_URL,
-    modelName = env.LLM_MODEL;
+    modelName = selectedModel ?? env.LLM_MODEL;
   const openRouter = isOpenRouter(base ?? '');
   const apiKey = openRouter ? env.OPENROUTER_EMBEDDING_KEY : env.LLM_API_KEY;
   if (isBlockedConsoleModel(base ?? '', modelName ?? '', env.LLM_ACCESS_STATUS))
@@ -101,9 +102,9 @@ async function model(
                 model: modelName,
                 temperature: 0,
                 max_tokens: 4096,
-                ...(isOpenCodeConsole(base) || (openRouter && modelName === 'qwen/qwen3.8-27b:free')
-                  ? {}
-                  : { response_format: { type: 'json_object' } }),
+                ...(!isOpenCodeConsole(base) && (!openRouter || supportsJsonObject(base, modelName))
+                  ? { response_format: { type: 'json_object' } }
+                  : {}),
                 messages: [
                   { role: 'system', content: system },
                   { role: 'user', content: user },
@@ -195,8 +196,14 @@ async function model(
 
 export async function askSites(
   env: SiteEnv,
-  input: { question: string; sourceIds: string[]; language: Language },
+  input: { question: string; sourceIds: string[]; language: Language; model?: string },
 ): Promise<AskResponse> {
+  if (
+    input.model !== undefined &&
+    (env.LLM_PROVIDER !== 'openai' ||
+      !isAllowedOpenRouterModel(env.LLM_BASE_URL ?? '', input.model))
+  )
+    throw new LlmUnavailableError('Dieses Modell ist für die kostenlose Demo nicht freigegeben.');
   const start = Date.now(),
     simulated = env.LLM_PROVIDER !== 'openai';
   const empty = (answer: string): AskResponse => ({
@@ -236,7 +243,7 @@ export async function askSites(
         user: prompt,
         language: input.language,
       })
-    : await model(env, SYSTEM_PROMPT, prompt);
+    : await model(env, SYSTEM_PROMPT, prompt, input.model);
   if (completion.simulated) {
     return {
       ...empty(completion.answer.answer),

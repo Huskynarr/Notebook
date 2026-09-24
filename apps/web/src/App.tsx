@@ -109,6 +109,13 @@ function Arbeitsbereich({
   );
 
   const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [modelChoice, setModelChoice] = useState<string | null>(null);
+  const selectableModels = health?.llm.selectableModels ?? [];
+  const selectedModel =
+    selectableModels.find((entry) => entry.id === modelChoice)?.id ??
+    selectableModels.find((entry) => entry.id === health?.llm.model)?.id ??
+    selectableModels[0]?.id ??
+    null;
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [sources, setSources] = useState<Source[] | null>(null);
@@ -256,11 +263,18 @@ function Arbeitsbereich({
     const ids = selected.map((s) => s.id);
     setExchanges((current) => [
       ...current,
-      { id, question, selectedCount: ids.length, response: null, error: null },
+      {
+        id,
+        question,
+        selectedCount: ids.length,
+        response: null,
+        error: null,
+        ...(selectedModel === null ? {} : { model: selectedModel }),
+      },
     ]);
     setPending(true);
     api
-      .ask(activeId, question, ids, sprache)
+      .ask(activeId, question, ids, sprache, selectedModel ?? undefined)
       .then((response) => {
         setExchanges((current) => current.map((e) => (e.id === id ? { ...e, response } : e)));
       })
@@ -478,10 +492,7 @@ function Arbeitsbereich({
             demo={DEMO_MODE}
             modelBlocked={health?.llm.accessBlocked === true}
             embeddingsEnabled={health?.embeddings?.configured === true}
-            openRouterChat={
-              health?.llm.model === 'qwen/qwen3.8-27b:free' ||
-              health?.llm.model === 'google/gemma-4-26b-a4b-it:free'
-            }
+            openRouterChat={selectableModels.length > 0}
             onLogin={() => {
               window.location.hash = 'login';
             }}
@@ -575,11 +586,10 @@ function Arbeitsbereich({
       exchanges={exchanges}
       pending={pending}
       modelBlocked={health?.llm.accessBlocked === true}
-      openRouterChat={
-        health?.llm.configured === true &&
-        (health.llm.model === 'qwen/qwen3.8-27b:free' ||
-          health.llm.model === 'google/gemma-4-26b-a4b-it:free')
-      }
+      openRouterChat={health?.llm.configured === true && selectableModels.length > 0}
+      models={selectableModels}
+      selectedModel={selectedModel}
+      onModelChange={setModelChoice}
       selectedCount={selected.length}
       activeMarker={activeCitation?.marker ?? null}
       onAsk={ask}
@@ -666,7 +676,7 @@ function Arbeitsbereich({
               {health.llm.accessBlocked
                 ? `${health.llm.model} · ${t('header.externalApiBlocked')}`
                 : health.llm.configured
-                  ? health.llm.model
+                  ? (selectedModel ?? health.llm.model)
                   : t('header.noModel')}
             </Badge>
           )}

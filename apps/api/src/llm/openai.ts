@@ -11,7 +11,7 @@ import {
 import { isOpenCodeConsole } from './freeMimo.ts';
 import { FREE_MUSE_MODEL, GLM_FLASH_MODEL, isAllowedConsoleModel } from './freeMuse.ts';
 import { parseMuseAnswer } from './museResponse.ts';
-import { isAllowedOpenRouterModel, isOpenRouter } from './openrouter.ts';
+import { isAllowedOpenRouterModel, isOpenRouter, supportsJsonObject } from './openrouter.ts';
 
 const ChatCompletionSchema = z.object({
   choices: z
@@ -145,11 +145,11 @@ export class OpenAiCompatibleProvider implements LlmProvider {
                   model: this.options.model,
                   temperature: this.options.temperature,
                   max_tokens: 4096,
-                  ...(isOpenCodeConsole(this.options.baseUrl) ||
-                  (isOpenRouter(this.options.baseUrl) &&
-                    this.options.model === 'qwen/qwen3.8-27b:free')
-                    ? {}
-                    : { response_format: { type: 'json_object' } }),
+                  ...(!isOpenCodeConsole(this.options.baseUrl) &&
+                  (!isOpenRouter(this.options.baseUrl) ||
+                    supportsJsonObject(this.options.baseUrl, this.options.model))
+                    ? { response_format: { type: 'json_object' } }
+                    : {}),
                   messages: [
                     { role: 'system', content: request.system },
                     { role: 'user', content: request.user },

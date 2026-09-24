@@ -10,13 +10,18 @@ Der [OpenRouter-Quickstart](https://openrouter.ai/docs/quickstart#using-the-open
 beschreibt `POST https://openrouter.ai/api/v1/chat/completions`. Das bereits
 serverseitig gespeicherte OpenRouter-Secret wird für Chat und für optionale
 Embeddings verwendet, jedoch nie an den Browser ausgeliefert. Das Backend
-erlaubt nur die laut aktueller API-Modellliste kostenlosen Modelle
-[`qwen/qwen3.8-27b:free`](https://openrouter.ai/qwen/qwen3.8-27b:free)
-und [`google/gemma-4-26b-a4b-it:free`](https://openrouter.ai/google/gemma-4-26b-a4b-it:free).
+erlaubt nur die laut aktueller [API-Modellliste](https://openrouter.ai/api/v1/models)
+kostenlosen IDs `qwen/qwen3.8-27b:free`, `google/gemma-4-26b-a4b-it:free`,
+`google/gemma-4-31b-it:free` und `nvidia/nemotron-3.5-lightning:free`.
+Die geschützte Oberfläche übermittelt die gewählte ID je Frage. Der Server
+prüft sie vor dem Modellaufruf gegen dieselbe feste Liste; bei fehlender
+Auswahl gilt weiterhin `LLM_MODEL`. Eine angezeigte ID ist kein
+Live-Verfügbarkeitsnachweis.
 Der erste Live-Aufruf mit Qwen erhielt HTTP 429; der Versuch mit Gemma 3
-HTTP 404, da dessen Free-ID nicht mehr in `/api/v1/models` steht. Gemma 4
-steht dort mit JSON-Antwortformat und wird separat geprüft. Qwens Free-Endpunkt
-listet `response_format` nicht; die JSON-Ausgabe wird nur per Prompt gefordert.
+HTTP 404, da dessen Free-ID nicht mehr in `/api/v1/models` steht. Gemma 4 26B
+ergab beim anschließenden Test ebenfalls HTTP 429. Beide Gemma-4-IDs listen
+`response_format`; Qwen und Nemotron Free nicht, weshalb nur der Systemprompt
+JSON anfordert.
 Es gibt keinen
 automatischen Wechsel auf ein kostenpflichtiges Modell oder den wechselnden
 `openrouter/free`-Router. Der Chat kann ohne Embeddings laufen.

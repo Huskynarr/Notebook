@@ -8,6 +8,17 @@ import { StubProvider } from './llm/stub.ts';
 import type { LlmProvider } from './llm/provider.ts';
 import { isOpenRouter } from './llm/openrouter.ts';
 
+/** User-selected free models retain the configured endpoint and server-only key. */
+export function selectedOpenRouterProvider(config: Config, model: string): LlmProvider {
+  return new OpenAiCompatibleProvider({
+    baseUrl: config.LLM_BASE_URL,
+    apiKey: config.OPENROUTER_EMBEDDING_KEY,
+    model,
+    timeoutMs: config.LLM_TIMEOUT_MS,
+    temperature: config.LLM_TEMPERATURE,
+  });
+}
+
 export interface AppContext {
   readonly config: Config;
   readonly db: Db;

@@ -109,6 +109,46 @@ test('Beispiel-Notebook ist nach dem Start sofort nutzbar', async ({ page }) => 
   await expect(page.getByText('2 von 2 ausgewählt')).toBeVisible();
 });
 
+test('Modellauswahl sendet nur die gewählte Free-ID und zeigt das Anbieterlimit', async ({
+  page,
+}) => {
+  await page.route('**/v1/health', async (route) => {
+    await route.fulfill({
+      json: {
+        status: 'ok',
+        version: 'test',
+        llm: {
+          configured: true,
+          provider: 'openai',
+          model: 'google/gemma-4-26b-a4b-it:free',
+          selectableModels: [
+            { id: 'google/gemma-4-26b-a4b-it:free', name: 'Gemma 4 · Free' },
+            { id: 'nvidia/nemotron-3.5-lightning:free', name: 'Nemotron · Free' },
+          ],
+        },
+      },
+    });
+  });
+  let modelSent: string | undefined;
+  await page.route('**/v1/notebooks/*/ask', async (route) => {
+    const input = route.request().postDataJSON() as { model?: string };
+    modelSent = input.model;
+    await route.fulfill({
+      status: 503,
+      json: { error: { code: 'llm_unavailable', message: 'OpenRouter HTTP 429.' } },
+    });
+  });
+  await login(page);
+  await selectAllSources(page);
+  await page
+    .getByRole('combobox', { name: 'KI-Modell' })
+    .selectOption('nvidia/nemotron-3.5-lightning:free');
+  await page.getByLabel('Frage an die ausgewählten Quellen').fill('Wen nennt das Impressum?');
+  await page.getByRole('button', { name: 'Fragen' }).click();
+  await expect(page.getByText('OpenRouter HTTP 429.')).toBeVisible();
+  expect(modelSent).toBe('nvidia/nemotron-3.5-lightning:free');
+});
+
 test('ohne Modell wird die Antwort sichtbar als simuliert gekennzeichnet', async ({ page }) => {
   await login(page);
   await selectAllSources(page);

@@ -69,6 +69,9 @@ export type Language = z.infer<typeof LanguageSchema>;
 
 export const AskRequestSchema = z.object({
   question: z.string().min(1).max(4000),
+  /** Optional selection; the backend checks it against its fixed free-model
+   * allowlist. Omission keeps the configured default for older clients. */
+  model: z.string().min(1).max(100).optional(),
   /** Sprache der Oberflaeche: bestimmt die Sprache der Antwort und der
    *  Systemauskuenfte ("keine Quelle ausgewaehlt"). Vorgabe Deutsch. */
   language: LanguageSchema.default('de'),
@@ -160,6 +163,8 @@ export const HealthResponseSchema = z.object({
     configured: z.boolean(),
     provider: z.string(),
     model: z.string(),
+    /** Offered choices, not a claim that the free provider is reachable. */
+    selectableModels: z.array(z.object({ id: z.string(), name: z.string() })).optional(),
     /** Externer Anbieter hat die Modellanfragen in diesem Betrieb abgewiesen. */
     accessBlocked: z.boolean().optional(),
   }),

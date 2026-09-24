@@ -1,3 +1,5 @@
+import { OPENROUTER_CHAT_MODELS } from '@notebook/shared';
+
 /** Limit this demo to explicit free model IDs. The router and paid
  * model IDs could incur charges or change the model behind a citation test. */
 export const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
@@ -9,8 +11,9 @@ export function isOpenRouter(base: string): boolean {
 }
 
 export function isAllowedOpenRouterModel(base: string, model: string): boolean {
-  return (
-    isOpenRouter(base) &&
-    (model === OPENROUTER_FREE_CHAT_MODEL || model === OPENROUTER_FREE_ALTERNATIVE)
-  );
+  return isOpenRouter(base) && OPENROUTER_CHAT_MODELS.some((entry) => entry.id === model);
+}
+
+export function supportsJsonObject(base: string, model: string): boolean {
+  return isAllowedOpenRouterModel(base, model) && model.startsWith('google/gemma-4-');
 }

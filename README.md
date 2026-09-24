@@ -113,14 +113,18 @@ geprüft. Bis dahin bleibt die Site gesperrt.
 
 Die [OpenRouter-Chat-API](https://openrouter.ai/docs/quickstart#using-the-openrouter-api)
 spricht denselben OpenAI-kompatiblen Endpunkt wie der bestehende Backend-Adapter.
-Für die Nullkosten-Demo sind nur
-[`qwen/qwen3.8-27b:free`](https://openrouter.ai/qwen/qwen3.8-27b:free) und
-[`google/gemma-4-26b-a4b-it:free`](https://openrouter.ai/google/gemma-4-26b-a4b-it:free)
-freigegeben. Gemma 4 bietet das verwendete JSON-Antwortformat; für Qwen
-fordert der Systemprompt JSON an. Jede Antwort muss
+Die Auswahlliste im geschützten Fragebereich enthält ausschließlich die
+OpenRouter-Free-IDs `google/gemma-4-26b-a4b-it:free`,
+`google/gemma-4-31b-it:free`, `qwen/qwen3.8-27b:free` und
+`nvidia/nemotron-3.5-lightning:free`. Gemma 4 bietet das verwendete
+JSON-Antwortformat; für Qwen und Nemotron fordert der Systemprompt JSON an.
+Jede Antwort muss
 trotzdem die serverseitige Prüfung von Markern, wörtlichen Zitaten und
 Originaloffsets bestehen. Bezahlmodelle und automatische Modellwechsel sind
-im OpenRouter-Pfad gesperrt. Zur Konfiguration ausschließlich im Backend:
+im OpenRouter-Pfad gesperrt. Eine Auswahl gilt für die nächste Frage und
+überschreibt den serverseitigen Standard nur für diese Anfrage. Die
+Anwendung zeigt keine geprüfte Live-Verfügbarkeit der Modelle an. Zur
+Konfiguration ausschließlich im Backend:
 
 ```ini
 LLM_PROVIDER=openai

@@ -63,6 +63,7 @@ export interface NotebookApi {
     question: string,
     sourceIds: string[],
     language: Language,
+    model?: string,
   ): Promise<AskResponse>;
   listNotes(notebookId: string): Promise<Note[]>;
   createNote(
@@ -215,10 +216,11 @@ export class ApiClient implements NotebookApi {
     question: string,
     sourceIds: string[],
     language: Language,
+    model?: string,
   ): Promise<AskResponse> {
     return this.request(`/v1/notebooks/${notebookId}/ask`, AskResponseSchema, {
       method: 'POST',
-      body: JSON.stringify({ question, sourceIds, language }),
+      body: JSON.stringify({ question, sourceIds, language, ...(model ? { model } : {}) }),
     });
   }
 
