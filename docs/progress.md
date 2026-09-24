@@ -352,3 +352,13 @@ Node 24.19.0 und pnpm 9.15.9: Typecheck, Lint, Format, Build, 209 Unit-/
 Integrationstests in 26 Dateien und 10 Tool-Tests. Der externe Live-Aufruf,
 Belegprüfung und die Freigabe stehen noch aus; die produktive Site bleibt
 `LLM_ACCESS_STATUS=blocked`.
+
+Sites-Version 16 aus Commit `a467017` wurde veröffentlicht. Beim gezielt
+temporär freigegebenen Live-Test meldete Health `configured:true` und das
+Modell `nemotron-3.5-lightning-free`. Login als Everlast, Beispiel-Notebook
+und Impressumsquelle waren erreichbar; die Frage „Wen nennt das Impressum
+unter Vertreten durch?“ endete mit HTTP 503 `llm_unavailable`, weil
+OpenCode HTTP 403 antwortete. Es gab keine KI-Antwort und keine Belege.
+Der Status wurde unmittelbar wieder auf `blocked` gesetzt und als
+Laufzeitrevision 26 veröffentlicht. Health meldet danach
+`configured:false`, `accessBlocked:true` und weiterhin die Nemotron-ID.

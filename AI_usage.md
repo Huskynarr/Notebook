@@ -406,3 +406,9 @@ Der begrenzte schlüssellose Nemotron-Pfad wurde im Site-Worker implementiert;
 Integrationstests prüfen exakte Modell-ID, Endpoint, unterdrückten
 Authorization-Header trotz vorhandenem Secret und gesperrten Status.
 Eine simulierte Fetch-Antwort ist kein Nachweis für externe Verfügbarkeit.
+
+Codex veröffentlichte den geprüften Nemotron-Pfad, setzte ihn nur für eine
+authentifizierte Frage mit einer öffentlichen Everlast-Quelle testweise
+frei und beobachtete HTTP 403 vom Modellendpunkt. Anschließend wurde der
+produktive Status wieder auf `blocked` veröffentlicht und über Health
+geprüft. Diese reale Prüfung erbrachte keine KI-Antwort oder Belege.

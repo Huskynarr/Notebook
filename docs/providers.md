@@ -197,3 +197,11 @@ Everlast-Belegen beobachtet wurde. Die Console zeigt $5.00 verfügbares
 Inference-Guthaben und keine automatische Aufladung; dieser Testpfad soll
 kein Guthaben verbrauchen. Die Kosten- und Datenschutzbedingungen vor
 späterem Betrieb erneut prüfen.
+
+**Live-Ergebnis:** Die schlüssellose Nemotron-Anfrage aus Sites an die
+öffentliche Everlast-Impressumsquelle erhielt am 24.09.2026 HTTP 403
+von OpenCode. Die API ist erreichbar, stellt diesem externen Worker das
+kostenlose Modell aber nicht zur Verfügung. Der öffentliche Status ist
+wieder `blocked`; keine belegte Modellantwort wurde ausgegeben. Weitere
+kostenlose Console-IDs gelten ohne individuellen Live-Nachweis nicht als
+funktionsfähiger Ersatz.

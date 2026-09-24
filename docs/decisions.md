@@ -722,3 +722,15 @@ weiterhin bis zum tatsächlichen Live-Aufruf und Belegtest. D-034 bleibt als
 Befund zu MiMo bestehen; ein Erfolg bei Nemotron wird daraus nicht abgeleitet.
 Verworfen: beliebige Console-IDs, automatische Modellwechsel und ein
 unbegründeter Rückgriff auf das kostenpflichtige Go-Abonnement.
+
+## 2026-09-24 · Externe Free-Anfragen weiter sperren
+
+Der veröffentlichte Worker erreichte bei einer authentifizierten
+Everlast-Frage das aktive `nemotron-3.5-lightning-free` ohne Schlüssel;
+OpenCode antwortete HTTP 403. Wie zuvor bei MiMo und Muse bestätigt
+die Console-Anzeige eines freien Modells keine externe Nutzbarkeit.
+`LLM_ACCESS_STATUS=blocked` wurde wiederhergestellt und live kontrolliert.
+Weitere Free-IDs werden nicht blind aktiviert. Ein neuer, auf Inference
+begrenzter Service-Key und ein gedeckelter Test des bereits vorbereiteten
+regulären Modells sind nur nach dem dafür notwendigen Schlüssel- und
+Kostenentscheid sinnvoll.
