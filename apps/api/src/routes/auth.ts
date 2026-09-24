@@ -35,6 +35,13 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext): void 
       status: 'ok',
       version: APP_VERSION,
       llm: publicLlmInfo(ctx.config),
+      embeddings: {
+        configured: ctx.config.EMBEDDING_PROVIDER === 'openrouter',
+        model:
+          ctx.config.EMBEDDING_PROVIDER === 'openrouter'
+            ? 'nvidia/llama-nemotron-embed-vl-1b-v2:free'
+            : '',
+      },
     } satisfies HealthResponse;
   });
 }

@@ -22,6 +22,7 @@ import {
 } from '../llm/freeMuse.ts';
 import { parseMuseAnswer } from '../llm/museResponse.ts';
 import { retrieved, type SiteEnv } from './db.ts';
+import { rerankNemotron } from '../domain/nemotronEmbeddings.ts';
 
 const ChatCompletion = z.object({
   choices: z
@@ -197,6 +198,9 @@ export async function askSites(
     elapsedMs: Date.now() - start,
   });
   if (input.sourceIds.length === 0) return empty(noSourcesAnswer(input.language));
+  const semantic = env.EMBEDDING_PROVIDER === 'openrouter';
+  if (semantic && !env.OPENROUTER_EMBEDDING_KEY)
+    throw new LlmUnavailableError('Der OpenRouter-Schlüssel fehlt im Backend.');
   const match = buildMatchQuery(input.question);
   if (!match) return empty(noMatchAnswer(input.language));
   const ids = input.sourceIds;
@@ -205,10 +209,13 @@ export async function askSites(
     FROM chunks_fts JOIN chunks c ON c.rowid=chunks_fts.rowid
     JOIN sources s ON s.id=c.source_id
     WHERE chunks_fts MATCH ? AND c.source_id IN (SELECT value FROM json_each(?))
-    ORDER BY score DESC LIMIT 12`;
+    ORDER BY score DESC LIMIT ${semantic ? 18 : 12}`;
   const rows = await env.DB.prepare(sql).bind(match, JSON.stringify(ids)).all();
-  const passages: RetrievedChunk[] = rows.results.map(retrieved);
-  if (passages.length === 0) return empty(noMatchAnswer(input.language));
+  const candidates: RetrievedChunk[] = rows.results.map(retrieved);
+  if (candidates.length === 0) return empty(noMatchAnswer(input.language));
+  const passages = semantic
+    ? await rerankNemotron(input.question, candidates, env.OPENROUTER_EMBEDDING_KEY ?? '', 12)
+    : candidates;
   const prompt = buildUserPrompt(input.question, buildContext(passages), input.language);
   const completion = simulated
     ? await new StubProvider().complete({

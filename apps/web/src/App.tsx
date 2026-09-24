@@ -477,6 +477,7 @@ function Arbeitsbereich({
           <LandingPage
             demo={DEMO_MODE}
             modelBlocked={health?.llm.accessBlocked === true}
+            embeddingsEnabled={health?.embeddings?.configured === true}
             onLogin={() => {
               window.location.hash = 'login';
             }}

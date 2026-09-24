@@ -11,9 +11,11 @@ import {
   noSourcesAnswer,
 } from './prompt.ts';
 import { retrieve } from './retrieval.ts';
+import { rerankNemotron } from './nemotronEmbeddings.ts';
 
 export interface AskOptions {
   readonly topK: number;
+  readonly openRouterEmbeddingKey?: string;
 }
 
 /**
@@ -37,14 +39,21 @@ export async function ask(
     return emptyResponse(noSourcesAnswer(language), provider, startedAt);
   }
 
-  const retrieved = retrieve(db, input.question, {
+  const candidates = retrieve(db, input.question, {
     sourceIds: input.sourceIds,
-    topK: options.topK,
+    topK: options.openRouterEmbeddingKey ? Math.min(18, Math.max(12, options.topK)) : options.topK,
   });
-
-  if (retrieved.length === 0) {
+  if (candidates.length === 0) {
     return emptyResponse(noMatchAnswer(language), provider, startedAt);
   }
+  const retrieved = options.openRouterEmbeddingKey
+    ? await rerankNemotron(
+        input.question,
+        candidates,
+        options.openRouterEmbeddingKey,
+        Math.min(18, options.topK),
+      )
+    : candidates;
 
   const completion = await provider.complete({
     system: SYSTEM_PROMPT,

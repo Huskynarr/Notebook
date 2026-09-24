@@ -388,6 +388,50 @@ describe('Sites Worker API and durable SQLite-compatible state', () => {
     expect(await exportResult.text()).toContain(original.content);
   });
 
+  it('sends only selected FTS hits to the optional embedding endpoint', async () => {
+    const env = setup();
+    env.EMBEDDING_PROVIDER = 'openrouter';
+    env.OPENROUTER_EMBEDDING_KEY = 'server-only-test-key';
+    const fetcher = vi.fn<typeof fetch>().mockImplementation((_url, init) => {
+      const body = typeof init?.body === 'string' ? init.body : '';
+      const input = (JSON.parse(body) as { input: string[] }).input;
+      return Promise.resolve(
+        Response.json({
+          data: input.map((_text, index) => ({ index, embedding: [1, index + 1] })),
+        }),
+      );
+    });
+    vi.stubGlobal('fetch', fetcher);
+    const token = await signIn(env);
+    const list = (await (await call(env, '/v1/notebooks', 'GET', token)).json()) as {
+      notebooks: Array<{ id: string }>;
+    };
+    const bookId = list.notebooks[0]?.id ?? '';
+    const sources = (await (
+      await call(env, `/v1/notebooks/${bookId}/sources`, 'GET', token)
+    ).json()) as {
+      sources: Array<{ id: string }>;
+    };
+    const selected = sources.sources[0]?.id ?? '';
+    const response = await call(env, `/v1/notebooks/${bookId}/ask`, 'POST', token, {
+      question: 'Everlast',
+      sourceIds: [selected],
+      language: 'de',
+    });
+    expect(response.status).toBe(200);
+    const answer = (await response.json()) as AskResponse;
+    expect(answer.simulated).toBe(true);
+    expect(answer.retrieved.length).toBeGreaterThan(0);
+    expect(answer.retrieved.every((chunk) => chunk.sourceId === selected)).toBe(true);
+    expect(fetcher).toHaveBeenCalledOnce();
+    const outgoing = fetcher.mock.calls[0]?.[1]?.body;
+    const payload = typeof outgoing === 'string' ? outgoing : '';
+    expect(payload).not.toContain('server-only-test-key');
+    expect((await (await call(env, '/v1/health')).json()) as unknown).toMatchObject({
+      embeddings: { configured: true, model: 'nvidia/llama-nemotron-embed-vl-1b-v2:free' },
+    });
+  });
+
   it('limits decoded source bytes, preserving a source beyond D1 single-cell capacity', async () => {
     const env = setup(),
       token = await signIn(env);

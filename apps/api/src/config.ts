@@ -91,6 +91,11 @@ const ConfigSchema = z
     LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
     LLM_TEMPERATURE: z.coerce.number().min(0).max(2).default(0),
 
+    /** Opt-in semantic ordering of FTS hits; a separate OpenRouter credential
+     * keeps the chat provider key from being sent to another service. */
+    EMBEDDING_PROVIDER: z.enum(['none', 'openrouter']).default('none'),
+    OPENROUTER_EMBEDDING_KEY: z.string().default(''),
+
     /** Wie viele Abschnitte dem Modell hoechstens vorgelegt werden. */
     RETRIEVAL_TOP_K: z.coerce.number().int().positive().max(50).default(12),
     /** Zielgroesse eines Abschnitts in Zeichen. */
@@ -102,6 +107,13 @@ const ConfigSchema = z
       .transform((v) => v === 'true'),
   })
   .superRefine((config, ctx) => {
+    if (config.EMBEDDING_PROVIDER === 'openrouter' && !config.OPENROUTER_EMBEDDING_KEY) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['OPENROUTER_EMBEDDING_KEY'],
+        message: 'OpenRouter-Schlüssel für den semantischen Abruf erforderlich.',
+      });
+    }
     const names = [
       config.AUTH_USERNAME,
       ...config.AUTH_ADDITIONAL_USERS.map((user) => user.username),

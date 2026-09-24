@@ -142,6 +142,13 @@ async function dispatch(request: Request, env: SiteEnv): Promise<Response> {
         model: env.LLM_PROVIDER === 'openai' ? (env.LLM_MODEL ?? '') : 'kein Modell verbunden',
         accessBlocked,
       },
+      embeddings: {
+        configured: env.EMBEDDING_PROVIDER === 'openrouter' && !!env.OPENROUTER_EMBEDDING_KEY,
+        model:
+          env.EMBEDDING_PROVIDER === 'openrouter'
+            ? 'nvidia/llama-nemotron-embed-vl-1b-v2:free'
+            : '',
+      },
     });
   }
   if (entity === 'auth' && key === 'login' && parts.length === 3 && method === 'POST') {

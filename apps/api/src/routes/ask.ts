@@ -43,6 +43,9 @@ export function registerAskRoutes(app: FastifyInstance, ctx: AppContext): void {
         { question: body.question, sourceIds, language: body.language },
         {
           topK: ctx.config.RETRIEVAL_TOP_K,
+          ...(ctx.config.EMBEDDING_PROVIDER === 'openrouter'
+            ? { openRouterEmbeddingKey: ctx.config.OPENROUTER_EMBEDDING_KEY }
+            : {}),
         },
       );
     } catch (error) {

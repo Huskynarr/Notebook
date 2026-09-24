@@ -98,6 +98,16 @@ Console-Service-Key kann ausschließlich serverseitig und für genau diese
 Free-Modell-ID gesetzt werden; ob er die externe Sperre aufhebt, wird zuerst
 mit einem [Test ohne vertrauliche Daten](docs/providers.md#console-service-key-prufen)
 geprüft. Bis dahin bleibt die Site gesperrt.
+
+Die gewünschte NVIDIA-Variante `nvidia/llama-nemotron-embed-vl-1b-v2:free`
+von OpenRouter liefert Suchvektoren, **keine Chatantworten**. Für eine
+optionale Neuordnung von FTS-Treffern auf dem Backend
+`EMBEDDING_PROVIDER=openrouter` und `OPENROUTER_EMBEDDING_KEY` als
+serverseitiges Secret setzen; standardmäßig ist diese Funktion aus. Der
+kostenlose Endpunkt protokolliert Eingaben: ausschließlich öffentliche,
+unkritische Testdaten verwenden. Einzelheiten und Grenzen stehen in
+[Indexierung](docs/indexing.md#optional-nvidia-suchvektoren-über-openrouter).
+
 OpenCode Go führt `mimo-v2.6-flash` ohne `-free` mit Tokenpreisen; für die
 gewünschte kostenlose V2.6-Variante ist aktuell kein funktionierender externer
 Endpunkt nachgewiesen. Ein
@@ -182,6 +192,9 @@ Aktueller Prüfstand und ausdrücklich nicht ausgeführte Prüfungen:
 
 [AGENTS.md](AGENTS.md) enthält die verbindlichen Arbeitsregeln.
 [CONTRIBUTING.md](CONTRIBUTING.md) beschreibt die Mitarbeit;
+[docs/architecture.md](docs/architecture.md) erklärt Modulgrenzen und Gründe,
+[docs/indexing.md](docs/indexing.md) begründet Chunkgrößen, FTS5 und Belegpositionen;
+[docs/seo.md](docs/seo.md) erklärt die öffentliche Linkvorschau und ihre Pflege;
 [docs/design-system.md](docs/design-system.md) die Tokens und Komponenten,
 [docs/decisions.md](docs/decisions.md) die Entscheidungen und
 [AI_usage.md](AI_usage.md) den tatsächlichen KI-Einsatz.

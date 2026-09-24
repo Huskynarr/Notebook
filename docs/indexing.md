@@ -76,6 +76,29 @@ Originaldokument, Datum, Zuständigkeit und fachliche Prüfung entscheidend.
 
 ## Grenzen und Nachweise
 
+### Optional: NVIDIA-Suchvektoren über OpenRouter
+
+Der Server kann mit `EMBEDDING_PROVIDER=openrouter` und dem ausschließlich
+serverseitig gesetzten `OPENROUTER_EMBEDDING_KEY` die ersten maximal 18
+lexikalischen Treffer durch `nvidia/llama-nemotron-embed-vl-1b-v2:free`
+neu sortieren; die 12 besten gehen in den Prompt. Der feste Endpunkt ist
+`POST https://openrouter.ai/api/v1/embeddings`. Frage und Kandidatentexte
+werden als `query:` und `passage:` kodiert und per Kosinusähnlichkeit
+verglichen. Ohne FTS5-Treffer findet diese zweite Stufe keine Synonyme; sie
+ist keine vollständige Vektorsuche. Quellfilter, Originaloffsets und
+Zitierprüfung bleiben erhalten. Bei Providerfehlern wird die Anfrage mit
+einer Fehlermeldung abgebrochen. Ein LLM für formulierte Antworten wird
+dadurch nicht angeschlossen.
+
+Der Free-Endpunkt protokolliert laut [OpenRouter-Modellkarte](https://openrouter.ai/nvidia/llama-nemotron-embed-vl-1b-v2:free)
+alle Eingaben und Ausgaben zur Verbesserung des Dienstes und ist nur für
+Tests mit öffentlichen, unkritischen Beispieldaten geeignet. Diese Funktion
+bleibt standardmäßig aus; die Site benötigt einen gesonderten
+OpenRouter-Schlüssel als Secret und eine bewusste Aktivierung. Tests prüfen
+die Schnittstelle mit Antwort-Doubles, nicht die tatsächliche externe
+Verfügbarkeit oder eine messbare Steigerung der Suchqualität.
+
+
 Synonyme, fehlerhafte OCR, Tabellen, Komposita und mehrdeutige Aussagen können
 Treffer verhindern oder irreführende Treffer erzeugen. Text-PDFs und OCR sind
 noch kein Bestandteil des Imports. Tests in `packages/shared/src/chunking.test.ts`,

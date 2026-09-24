@@ -58,6 +58,8 @@ const COPY = {
       'Mit verbundenem KI-Anbieter entstehen echte Modellantworten. Ohne Modell ist jede simulierte Antwort sichtbar gekennzeichnet. Ausgewählte Textausschnitte werden bei einem KI-Aufruf an den konfigurierten Anbieter übermittelt.',
     privacyNotice:
       'Bei Nutzung von MiMo-V2.6-Flash Free gehen Frage und relevante Textausschnitte an OpenCode (USA). Während der kostenlosen Phase können diese Daten zur Verbesserung des Modells verwendet werden. Für diese Demo nur nicht vertrauliche Beispieldaten verwenden.',
+    embeddingNotice:
+      'Semantische Quellensuche ist aktiviert: Frage und ausgewählte Textstellen gehen an OpenRouter/NVIDIA. Der kostenlose Endpunkt protokolliert Eingaben für die Produktverbesserung. Nur öffentliche, unkritische Testdaten verwenden.',
     modelBlocked:
       'Im gehosteten Testbetrieb werden kostenlose MiMo-Anfragen derzeit vom externen Anbieter abgewiesen. Eine Live-KI-Antwort steht dort aktuell nicht zur Verfügung.',
     footer: 'Eigenständiges Hochschulprojekt · keine Verbindung zu Google NotebookLM',
@@ -117,6 +119,8 @@ const COPY = {
       'A connected AI provider generates real model responses. Without a model, every simulated answer is visibly labelled. When calling an AI model, selected text passages are sent to the configured provider.',
     privacyNotice:
       'When using MiMo-V2.6-Flash Free, your question and relevant passages go to OpenCode (US). During its free period, this data may be used to improve the model. For this demo, use non-confidential sample data only.',
+    embeddingNotice:
+      'Semantic source search is enabled: the question and selected excerpts go to OpenRouter/NVIDIA. The free endpoint logs inputs for product improvement. Use only public, non-sensitive test data.',
     modelBlocked:
       'In the hosted test environment, the external provider currently rejects free MiMo requests. Live AI answers are not available there at present.',
     footer: 'Independent university project · not affiliated with Google NotebookLM',
@@ -149,11 +153,13 @@ export function NotebookMark(): ReactElement {
 export function LandingPage({
   demo,
   modelBlocked,
+  embeddingsEnabled,
   onLogin,
   onOpenSettings,
 }: {
   demo: boolean;
   modelBlocked: boolean;
+  embeddingsEnabled: boolean;
   onLogin: () => void;
   onOpenSettings: () => void;
 }): ReactElement {
@@ -361,6 +367,11 @@ export function LandingPage({
             <p className="bg-warning-surface text-warning mt-5 rounded-md p-4 text-sm leading-6">
               {copy.privacyNotice}
             </p>
+            {embeddingsEnabled && (
+              <p className="bg-warning-surface text-warning mt-3 rounded-md p-4 text-sm leading-6">
+                {copy.embeddingNotice}
+              </p>
+            )}
             {modelBlocked && (
               <p
                 className="bg-warning-surface text-warning mt-3 rounded-md p-4 text-sm leading-6"
