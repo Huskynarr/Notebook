@@ -22,6 +22,10 @@ HTTP 404, da dessen Free-ID nicht mehr in `/api/v1/models` steht. Gemma 4 26B
 ergab beim anschließenden Test ebenfalls HTTP 429. Beide Gemma-4-IDs listen
 `response_format`; Qwen und Nemotron Free nicht, weshalb nur der Systemprompt
 JSON anfordert.
+Beim authentifizierten Everlast-Test am 24.09.2026 erreichte der Aufruf
+`nvidia/nemotron-3.5-lightning:free`, das Modell lieferte jedoch kein gültiges
+JSON. Der Server hielt die Antwort zurück; ein erfolgreicher Quellenbeleg ist
+für dieses Modell nicht abgenommen.
 Es gibt keinen
 automatischen Wechsel auf ein kostenpflichtiges Modell oder den wechselnden
 `openrouter/free`-Router. Der Chat kann ohne Embeddings laufen.

@@ -141,8 +141,9 @@ Variablenbezeichnung bleibt für diese Demo aus Kompatibilitätsgründen bestehe
 Embeddings sind für Chatantworten nicht erforderlich. Für eine erfolgreiche
 Live-Abnahme ist ein authentifizierter Test mit der öffentlichen Everlast-Quelle
 und einem tatsächlich anklickbaren Originalbeleg nötig. Die Versuche vom
-24.09.2026 erhielten mit Qwen und Gemma 4 HTTP 429; die kostenlose
-Anbietergrenze verhindert derzeit die Live-Abnahme. Frage und abgerufene
+24.09.2026 erhielten mit Qwen und Gemma 4 HTTP 429. Nemotron 3.5 Lightning
+antwortete auf eine Everlast-Frage, lieferte aber kein gültiges JSON; diese
+Antwort wurde nicht angezeigt. Eine belegte Live-Antwort bleibt offen. Frage und abgerufene
 Ausschnitte werden bei jeder Chat-Anfrage an OpenRouter und den Modellanbieter
 übertragen; in der kostenlosen Demo nur öffentliche, unkritische Daten verwenden.
 
